@@ -1,0 +1,25 @@
+.content { 
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    border-right: 1px solid #dbdbdb;
+}
+
+.boxValue { 
+    text-align: center;
+    margin-top: 15px;
+    color: #3a3939;
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+.boxText {
+    white-space: nowrap;
+    text-align: center;   
+    color: #959595;
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 10px;
+}

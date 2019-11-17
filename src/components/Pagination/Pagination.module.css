@@ -1,0 +1,18 @@
+.content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+.button{
+    font-family: '';
+    font-size: none;
+    line-height: 0;
+}
+
+.pageNumbers {
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+}
