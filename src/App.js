@@ -7,13 +7,13 @@ import Activation from './containers/Activation/Activation'
 import ChangePassword from './containers/ChangePassword/ChangePassword'
 import ForgotPassword from './containers/ForgotPassword/ForgotPassword'
 import Upgrade from './containers/Upgrade/Upgrade';
-
 import AuthenticationService from './services/AuthenticationService'
 import krakenLogo from './assets/kraken-logo.png';
 
 class App extends Component {
 
 	componentDidMount(){
+		document.title = "kraken-client v" 
 		// If Logged In, restart the refresh timer
 		if (AuthenticationService.isLoggedIn())
 			AuthenticationService.activeAuthRefresh();

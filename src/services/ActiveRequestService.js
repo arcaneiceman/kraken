@@ -2,7 +2,7 @@ import axios from './AxiosInstance'
 
 const createActiveRequest = (requestType, requestName, requestMetadata, valueToMatchInBase64, passwordLists, crunchParams) => {
     const data = { requestType, requestName, requestMetadata, valueToMatchInBase64, passwordLists, crunchParams }
-    axios.post('/active-request', data)
+    return axios.post('/active-request', data)
 }
 
 const getSummary = () => {

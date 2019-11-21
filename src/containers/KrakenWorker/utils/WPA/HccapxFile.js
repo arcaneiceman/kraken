@@ -22,10 +22,8 @@
     }
     Hccapx.prototype._read = function() {
       this.records = [];
-      var i = 0;
       while (!this._io.isEof()) {
         this.records.push(new HccapxRecord(this._io, this, this._root));
-        i++;
       }
     }
   
@@ -40,7 +38,7 @@
       HccapxRecord.prototype._read = function() {
         this.magic = this._io.ensureFixedContents([72, 67, 80, 88]);
         this.version = this._io.readU4le();
-        this.ignoreReplayCounter = this._io.readBitsInt(1) != 0;
+        this.ignoreReplayCounter = this._io.readBitsInt(1) !== 0;
         this.messagePair = this._io.readBitsInt(7);
         this._io.alignToByte();
         this.lenEssid = this._io.readU1();

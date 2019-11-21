@@ -136,7 +136,6 @@ class Workers extends Component {
     getWorkers = async () => {
         try {
             const response = await WorkerService.getWorkers(this.state.currentPage, this.state.pageSize)
-            console.log(response)
             await this.promisedSetState({
                 workers: response.data.content,
                 totalPages: response.data.totalPages === 0 ? 1 : response.data.totalPages,

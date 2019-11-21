@@ -65,7 +65,7 @@ class Dashboard extends Component {
             return
 
         await this.promisedSetState({ newActiveRequestFormValidated: true, newActiveRequestErrorMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         try {
             await ActiveRequestService.createActiveRequest(
                 this.state.newActiveRequestType,
@@ -79,6 +79,7 @@ class Dashboard extends Component {
             this.activeRequestRef.getActiveRequests();
         }
         catch (error) {
+            console.log("LOGGED ERROR")
             await this.promisedSetState({ newActiveRequestFormValidated: false, newActiveRequestErrorMessage: error.response.data.message })
         }
     }
