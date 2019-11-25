@@ -33,6 +33,7 @@ class App extends Component {
 						<Route path="/register" component={Register} />
 						<Route path="/forgot-password" component={ForgotPassword} />
 						<Route path="/upgrade" component={Upgrade} />
+						<Route path="/how-to" />
 						{/* Secure Routes */}
 						<Route path="/change-password" component={ChangePassword} />
 						<Route path="/" component={Dashboard} />

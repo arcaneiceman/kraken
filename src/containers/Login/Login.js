@@ -9,12 +9,16 @@ import AuthenticationService from '../../services/AuthenticationService'
 import { Link } from 'react-router-dom'
 import Octicon, { Person, Key , EyeClosed, Eye } from '@githubprimer/octicons-react';
 import isElectron from 'is-electron';
+import ReCAPTCHA from 'react-google-recaptcha'
 
 import classes from './Login.module.css'
 
 class Login extends Component {
 
     state = {
+        recaptchaReference : React.createRef(),
+        recaptchaSiteKey : '6LdJLcQUAAAAAOvVTGrtXqlqkEm2NzmhT9ucXlU8',
+
         loadingStatus: null,
         errorMessage : null,
         successMessage : null,
@@ -29,12 +33,18 @@ class Login extends Component {
         if (!form.checkValidity())
             return
 
+        const recaptchaResponse = this.state.recaptchaReference.current.getValue();    
+        if (recaptchaResponse === ""){
+            await this.promisedSetState({loadingStatus: 'ERROR', successMessage : null, errorMessage : "Please fill the captcha"})
+            return 
+        }
+
         await this.promisedSetState({loadingStatus: 'PROGRESS', errorMessage : null, successMessage : null})
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         try{
             const email = form.elements["email"].value;
             const password = form.elements["password"].value;
-            await  AuthenticationService.authenticate(email, password)
+            await  AuthenticationService.authenticate(email, password, recaptchaResponse)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage : 'Success! Taking you to Dashboard', errorMessage : null })
         }
         catch(error){
@@ -55,8 +65,8 @@ class Login extends Component {
         // NavLinks for Toolbar
         let navLinks = [];
         navLinks.push({ text: 'Get Started', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
+        navLinks.push({ text: 'How To', onClick: () => { this.props.history.push('/how-to')}})
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
-        navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron'/> : <Toolbar navLinks={navLinks} type='web'/>
 
 
@@ -109,9 +119,12 @@ class Login extends Component {
                             </Form.Group>
 
                             <div className={classes.submit_container}>
-                                <Button variant="success" className={classes.submit} type="submit">Login</Button>
+                                <ReCAPTCHA ref={this.state.recaptchaReference} sitekey={this.state.recaptchaSiteKey} />
                             </div>
 
+                            <div className={classes.submit_container}>
+                                <Button variant="success" className={classes.submit} type="submit">Login</Button>
+                            </div>
                         </Form>
                         <div className={classes.form_footer}>
                             <Link to="/register">Get Started</Link>

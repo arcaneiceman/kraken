@@ -27,7 +27,7 @@ class ForgotPassword extends Component {
             return
 
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         try{
             const email = form.elements["email"].value;
             await AuthenticationService.requestNewPassword(email)

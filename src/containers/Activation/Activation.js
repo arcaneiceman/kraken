@@ -21,7 +21,7 @@ class Activation extends Component {
 
     resendActivationEmail = async (email) => {
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         try {
             await AuthenticationService.resendActivationEmail(email);
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Activation Email Resent' })
@@ -60,6 +60,7 @@ class Activation extends Component {
         // NavLinks for Toolbar
         let navLinks = [];
         navLinks.push({ text: 'Get Started', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
+        navLinks.push({ text: 'How to', onClick: () => { this.props.history.push('/how-to')}})
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
         navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />

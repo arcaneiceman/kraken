@@ -17,8 +17,8 @@ const activate = (email, activationKey) => {
         .then(response => { setToken(response.data.token) })
 }
 
-const authenticate = (email, password) => {
-    const data = { email: email, password: password }
+const authenticate = (email, password, recaptchaResponse) => {
+    const data = { email, password, recaptchaResponse }
     return axios.post('/account/authenticate', data)
         .then(response => { setToken(response.data.token) })
 }

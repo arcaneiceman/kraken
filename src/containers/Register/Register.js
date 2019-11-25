@@ -32,7 +32,7 @@ class Register extends Component {
             return
 
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         try{
             const name = form.elements["name"].value;
@@ -41,7 +41,7 @@ class Register extends Component {
             const confirmPassword = form.elements["confirmPassword"].value; 
             await AuthenticationService.register(name, email, password, confirmPassword)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', errorMessage: 'Success! Taking you to Activation...' })
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             this.props.history.push('/activation?email=' + email)
         }
         catch(error){
@@ -66,9 +66,9 @@ class Register extends Component {
 
         // NavLinks for Toolbar
         let navLinks = [];
-        navLinks.push({ text: 'Get Started', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
+        navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } , isPrimary : true });
+        navLinks.push({ text: 'How To', onClick: () => { this.props.history.push('/how-to')}})
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
-        navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
 
         let status;

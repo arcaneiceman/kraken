@@ -31,7 +31,7 @@ class ChangePassword extends Component {
             return
 
         await this.promisedSetState({loadingStatus: 'PROGRESS', errorMessage : null, successMessage : null})
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         try{
             const oldPassword = form.elements["old_password"].value;
@@ -78,6 +78,7 @@ class ChangePassword extends Component {
         // NavLinks for Toolbar
         let navLinks = [];
         navLinks.push({ text: 'Dashboard', onClick: () => { this.props.history.push('/'); }, isPrimary: true })
+        navLinks.push({ text: 'How To', onClick: () => { this.props.history.push('/how-to')}})
         navLinks.push({ text: 'Change Password', onClick: () => { this.props.history.push('/change-password'); } })
         navLinks.push({ text: 'Logout', onClick: this.logout });
 
