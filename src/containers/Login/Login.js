@@ -105,9 +105,9 @@ class Login extends Component {
                             <Form.Group controlId="formBasicPassword">
                                 <InputGroup>
                                     <InputGroup.Prepend>
-                                        <InputGroup.Text><Octicon icon={Key} /></InputGroup.Text>
+                                        <InputGroup.Text><Octicon icon={Key}/></InputGroup.Text>
                                     </InputGroup.Prepend>
-                                    <Form.Control name="password" type="password" placeholder="Password" required />
+                                    <Form.Control name="password" type={this.state.passwordHidden ? "password" : "text"} placeholder="Password" required />
                                     <InputGroup.Append>
                                         <InputGroup.Text onClick={this.togglePasswordHidden}>
                                             {this.state.passwordHidden ?
