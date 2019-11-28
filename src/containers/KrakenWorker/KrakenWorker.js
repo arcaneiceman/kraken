@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import ActiveRequestService from '../../services/ActiveRequestService';
 import AuthenticationService from '../../services/AuthenticationService';
-import axios from '../../services/AxiosInstance';
 import WorkerService from '../../services/WorkerService'
 import SectionHeading from '../../components/SectionHeading/SectionHeading';
 import Button from 'react-bootstrap/Button';
@@ -240,7 +239,7 @@ class KrakenWorker extends Component {
 
         // Set Params
         const params = {
-            url: axios.defaults.baseURL + ActiveRequestService.getJobPath(),
+            path: ActiveRequestService.getJobPath(),
             token: AuthenticationService.getToken(),
             workerId: this.state.workerId,
             multiplier: Math.max(Math.min(this.state.workerRecommendedMultiplier, 1000), 1),
@@ -411,7 +410,7 @@ class KrakenWorker extends Component {
 
         // Set Params
         const params = {
-            url: axios.defaults.baseURL + ActiveRequestService.reportJobPath(),
+            path: ActiveRequestService.reportJobPath(),
             token: AuthenticationService.getToken(),
             workerId: this.state.workerId,
             requestId: completeJob.requestId,

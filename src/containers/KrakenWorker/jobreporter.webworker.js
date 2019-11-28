@@ -9,10 +9,10 @@ self.onmessage = (e) => {
         result : e.data.result,
     }
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", e.data.url, false);
+    xhttp.open("POST", process.env.REACT_APP_API_URL + e.data.path, false);
     xhttp.setRequestHeader("Authorization", "Bearer " + e.data.token)
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhttp.setRequestHeader("Version", "0.0.1")
+    xhttp.setRequestHeader("Version", process.env.REACT_APP_API_VERSION)
     xhttp.send(JSON.stringify(request));
 
     self.postMessage({  jobId : e.data.jobId })

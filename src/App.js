@@ -13,7 +13,7 @@ import krakenLogo from './assets/kraken-logo.png';
 class App extends Component {
 
 	componentDidMount(){
-		document.title = "kraken-client v" 
+		document.title = "kraken-client v" + process.env.REACT_APP_API_VERSION 
 		// If Logged In, restart the refresh timer
 		if (AuthenticationService.isLoggedIn())
 			AuthenticationService.activeAuthRefresh();
