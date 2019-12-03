@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import isElectron from 'is-electron';
 import Toolbar from '../../components/Toolbar/Toolbar'
-import Octicon, { Zap, DesktopDownload, Rocket, Gear } from '@githubprimer/octicons-react';
+import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, Globe } from '@githubprimer/octicons-react';
 import ScrollableAnchor from 'react-scrollable-anchor'
 import { configureAnchors } from 'react-scrollable-anchor'
 import krakenLogo from './../../assets/kraken-logo.png';
@@ -10,9 +10,9 @@ import createRequestModal from './../../assets/screenshots/create-new-request-mo
 import startWorkerButton from './../../assets/screenshots/start-worker-button.png'
 import worker from './../../assets/screenshots/worker.png'
 
-import classes from './HowTo.module.css'
+import classes from './Help.module.css'
 
-configureAnchors({offset: -100});
+configureAnchors({ offset: -100 });
 class HowTo extends Component {
 
     render() {
@@ -30,70 +30,71 @@ class HowTo extends Component {
                     <h1>Kraken How To Guide</h1>
                 </div>
                 <div className={classes.panelContainer}>
+
                     <div className={classes.panel}>
-                        <div className={classes.panelImageContainer}>
-                            <Octicon icon={Zap} />
-                        </div>
                         <a href="#section1" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
+                                <Octicon icon={Star} />
+                            </div>
                             <h3 className={classes.panelTitle}>What is Kraken</h3>
+                            <p className={classes.panelText}>Introduction</p>
+                            <div className={classes.panelFooter} />
                         </a>
-                        <p className={classes.panelText}>Introduction</p>
-                        <div className={classes.panelFooter} />
                     </div>
 
                     <div className={classes.panel}>
-                        <div className={classes.panelImageContainer}>
-                            <Octicon icon={DesktopDownload} />
-                        </div>
                         <a href="#section2" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
+                                <Octicon icon={DesktopDownload} />
+                            </div>
                             <h3 className={classes.panelTitle}>Installation</h3>
+                            <p className={classes.panelText}>Mac, Unix and Windows installation</p>
+                            <div className={classes.panelFooter} />
                         </a>
-                        <p className={classes.panelText}>Mac, Unix and Windows installation</p>
-                        <div className={classes.panelFooter} />
                     </div>
 
                     <div className={classes.panel}>
-                        <div className={classes.panelImageContainer}>
-                            <Octicon icon={Rocket} />
-                        </div>
                         <a href="#section3" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
+                                <Octicon icon={Rocket} />
+                            </div>
                             <h3 className={classes.panelTitle}>How to Use Kraken</h3>
+                            <p className={classes.panelText}>Step by step usage guide</p>
+                            <div className={classes.panelFooter} />
                         </a>
-                        <p className={classes.panelText}>Step by step usage guide</p>
-                        <div className={classes.panelFooter} />
                     </div>
 
                     <div className={classes.panel}>
-                        <div className={classes.panelImageContainer}>
-                            <Octicon icon={Gear} />
-                        </div>
                         <a href="#section4" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
+                                <Octicon icon={Gear} />
+                            </div>
                             <h3 className={classes.panelTitle}>Supported Algorithms</h3>
+                            <p className={classes.panelText}>WPA/WPA2 etc</p>
+                            <div className={classes.panelFooter} />
                         </a>
-                        <p className={classes.panelText}>WPA/WPA2 etc</p>
-                        <div className={classes.panelFooter} />
                     </div>
 
                     <div className={classes.panel}>
-                        <div className={classes.panelImageContainer}>
-                            <Octicon icon={Gear} />
-                        </div>
                         <a href="#section5" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
+                                <Octicon icon={GitPullRequest} />
+                            </div>
                             <h3 className={classes.panelTitle}>Help Out</h3>
+                            <p className={classes.panelText}>Contribute to Kraken</p>
+                            <div className={classes.panelFooter} />
                         </a>
-                        <p className={classes.panelText}>Contribute to Kraken</p>
-                        <div className={classes.panelFooter} />
                     </div>
 
                     <div className={classes.panel}>
-                        <div className={classes.panelImageContainer}>
-                            <Octicon icon={Gear} />
-                        </div>
                         <a href="#section6" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
+                                <Octicon icon={Globe} />
+                            </div>
                             <h3 className={classes.panelTitle}>Donate</h3>
+                            <p className={classes.panelText}>Help with costs of maintaining Kraken</p>
+                            <div className={classes.panelFooter} />
                         </a>
-                        <p className={classes.panelText}>Help with costs of maintaining Kraken</p>
-                        <div className={classes.panelFooter} />
                     </div>
                 </div>
 
@@ -203,7 +204,7 @@ class HowTo extends Component {
                     </p>
                     <br />
                 </div>
-            </div>
+            </div >
         )
     }
 }

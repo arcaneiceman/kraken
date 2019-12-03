@@ -2,7 +2,7 @@
     background: linear-gradient(0deg,#22567c,#557A95);
     padding: 80px 100px 60px;
     margin: 0 -100px;
-    height: 200px;
+    height: 15%;
     border-bottom-left-radius: 100% 25%;
     border-bottom-right-radius: 100% 25%;
     position: relative;
@@ -56,8 +56,10 @@
     font-size: 40px;
 }
 
-.panelLink{
-    color: inherit
+.panelLink:hover, .panelLink:visited, .panelLink:link, .panelLink:active
+{
+    color: inherit;
+    text-decoration: none;
 }
 
 .panelTitle{
