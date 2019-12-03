@@ -27,7 +27,7 @@ class ForgotPassword extends Component {
             return
 
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         try{
             const email = form.elements["email"].value;
             await AuthenticationService.requestNewPassword(email)
@@ -41,8 +41,8 @@ class ForgotPassword extends Component {
     render() {
         // NavLinks for Toolbar
         let navLinks = [];
-        navLinks.push({ text: 'Get Started', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
-        navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
+        navLinks.push({ text: 'Register', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
         navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
 

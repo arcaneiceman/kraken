@@ -40,7 +40,7 @@ class Login extends Component {
         }
 
         await this.promisedSetState({loadingStatus: 'PROGRESS', errorMessage : null, successMessage : null})
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         try{
             const email = form.elements["email"].value;
             const password = form.elements["password"].value;
@@ -64,8 +64,8 @@ class Login extends Component {
 
         // NavLinks for Toolbar
         let navLinks = [];
-        navLinks.push({ text: 'Get Started', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
-        navLinks.push({ text: 'How To', onClick: () => { this.props.history.push('/how-to')}})
+        navLinks.push({ text: 'Register', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron'/> : <Toolbar navLinks={navLinks} type='web'/>
 
@@ -127,7 +127,7 @@ class Login extends Component {
                             </div>
                         </Form>
                         <div className={classes.form_footer}>
-                            <Link to="/register">Get Started</Link>
+                            <Link to="/register">Register</Link>
                             <Link to="/forgot-password">Forgot Password</Link>
                         </div>
                     </div>

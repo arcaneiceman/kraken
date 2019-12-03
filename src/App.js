@@ -7,7 +7,9 @@ import Activation from './containers/Activation/Activation'
 import ChangePassword from './containers/ChangePassword/ChangePassword'
 import ForgotPassword from './containers/ForgotPassword/ForgotPassword'
 import Upgrade from './containers/Upgrade/Upgrade';
+import Help from './containers/Help/Help'
 import AuthenticationService from './services/AuthenticationService'
+
 import krakenLogo from './assets/kraken-logo.png';
 
 class App extends Component {
@@ -24,7 +26,7 @@ class App extends Component {
 			<BrowserRouter>
 				<div className="App">
 					<div style={{display: 'flex', justifyContent: 'center'}}>
-						<img alt="" src={krakenLogo} style={{ opacity: '0.05', objectFit: 'contain', position: 'absolute', maxHeight: window.innerHeight, 'zIndex': -1 }} />
+						<img alt="" src={krakenLogo} style={{ marginTop: '50px', opacity: '0.05', objectFit: 'contain', position: 'absolute', maxHeight: window.innerHeight, 'zIndex': -1 }} />
 					</div>
 					<Switch>
 						{/* Insecure Routes */}
@@ -33,7 +35,7 @@ class App extends Component {
 						<Route path="/register" component={Register} />
 						<Route path="/forgot-password" component={ForgotPassword} />
 						<Route path="/upgrade" component={Upgrade} />
-						<Route path="/how-to" />
+						<Route path="/help" component={Help}/>
 						{/* Secure Routes */}
 						<Route path="/change-password" component={ChangePassword} />
 						<Route path="/" component={Dashboard} />

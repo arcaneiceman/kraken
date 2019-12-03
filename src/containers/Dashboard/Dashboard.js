@@ -210,7 +210,7 @@ class Dashboard extends Component {
         // NavLinks for Toolbar
         const navLinks = [];
         navLinks.push({ text: 'Create New Request', onClick: this.launchNewActiveRequestModal, isPrimary: true });
-        navLinks.push({ text: 'How To', onClick: () => { this.props.history.push('/how-to')}})
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
         navLinks.push({ text: 'Change Password', onClick: () => { this.props.history.push('/change-password'); } })
         navLinks.push({ text: 'Logout', onClick: this.logout });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />

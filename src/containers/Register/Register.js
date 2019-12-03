@@ -67,7 +67,7 @@ class Register extends Component {
         // NavLinks for Toolbar
         let navLinks = [];
         navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } , isPrimary : true });
-        navLinks.push({ text: 'How To', onClick: () => { this.props.history.push('/how-to')}})
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
 

@@ -21,7 +21,7 @@ class Activation extends Component {
 
     resendActivationEmail = async (email) => {
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         try {
             await AuthenticationService.resendActivationEmail(email);
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Activation Email Resent' })
@@ -40,14 +40,14 @@ class Activation extends Component {
             return
 
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        try{
+        await new Promise(resolve => setTimeout(resolve, 500));
+        try {
             const email = form.elements["email"].value;
             const activationKey = form.elements["activationKey"].value;
             await AuthenticationService.activate(email, activationKey)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Activation Sucessful. Taking you to Dashboard...' })
         }
-        catch(error){
+        catch (error) {
             await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
         }
     }
@@ -59,10 +59,9 @@ class Activation extends Component {
 
         // NavLinks for Toolbar
         let navLinks = [];
-        navLinks.push({ text: 'Get Started', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
-        navLinks.push({ text: 'How to', onClick: () => { this.props.history.push('/how-to')}})
+        navLinks.push({ text: 'Register', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help') } })
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
-        navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
 
         // Status
