@@ -45,9 +45,9 @@ class Dashboard extends Component {
 
     launchNewActiveRequestModal = async () => {
         try {
-            const { data } = await PasswordListService.getPasswordLists()
-            this.setState({
-                availablePasswordLists: data.content.map(passwordList => { return passwordList.name; }),
+            const response = await PasswordListService.getPasswordLists()
+            await this.promisedSetState({
+                availablePasswordLists: response.data.content,
                 newActiveRequestModalVisible: true
             });
         }
@@ -149,7 +149,7 @@ class Dashboard extends Component {
         event.preventDefault();
         const form = event.currentTarget;
         const passwordLists = this.state.newActiveRequestPasswordLists;
-        let passwordList = form.elements["passwordLists"].value;
+        let passwordList = form.elements["passwordLists"].value.replace(/ *\([^)]*\) */g, "");;
         if (!passwordLists.includes(passwordList) && passwordList !== 'Choose...') {
             passwordLists.push(passwordList);
             this.setState({ newActiveRequestPasswordLists: passwordLists });
@@ -210,7 +210,7 @@ class Dashboard extends Component {
         // NavLinks for Toolbar
         const navLinks = [];
         navLinks.push({ text: 'Create New Request', onClick: this.launchNewActiveRequestModal, isPrimary: true });
-        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help') } })
         navLinks.push({ text: 'Change Password', onClick: () => { this.props.history.push('/change-password'); } })
         navLinks.push({ text: 'Logout', onClick: this.logout });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
@@ -267,11 +267,6 @@ class Dashboard extends Component {
                 metadataFields = null
                 valueToMatchInBase64Field = null
         }
-
-        // Available Password Lists
-        const availablePasswordLists = this.state.availablePasswordLists.map(passwordList => {
-            return (<option key={passwordList}>{passwordList}</option>);
-        });
 
         // Password Lists
         const passwordLists = this.state.newActiveRequestPasswordLists.map(passwordList => {
@@ -343,10 +338,10 @@ class Dashboard extends Component {
                         <Form.Group className={classes.formGroup}>
                             <Form.Label className={classes.modal_form_label}>
                                 Password Lists
-                    </Form.Label>
+                            </Form.Label>
                             <Form.Text className="text-muted">
                                 Add password list using the input below. Remove them by clicking on the pill
-                    </Form.Text>
+                            </Form.Text>
                             <Row>
                                 <Col sm="12">
                                     <div className={classes.newRequestParameterBox}>
@@ -358,7 +353,8 @@ class Dashboard extends Component {
                                 <Col sm="10">
                                     <Form.Control name="passwordLists" as="select">
                                         <option disabled>Choose...</option>
-                                        {availablePasswordLists}
+                                        {this.state.availablePasswordLists.map(availablePasswordList =>
+                                            <option>{availablePasswordList.name} ({availablePasswordList.jobDelimiterSetSize} jobs)</option>)}
                                     </Form.Control>
                                 </Col>
                                 <Col sm="0.1"><span /></Col>
