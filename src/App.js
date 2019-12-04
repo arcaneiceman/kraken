@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import Home from './containers/Home/Home'
 import Dashboard from './containers/Dashboard/Dashboard'
 import Login from './containers/Login/Login'
 import Register from './containers/Register/Register'
@@ -26,7 +27,7 @@ class App extends Component {
 			<BrowserRouter>
 				<div className="App">
 					<div style={{display: 'flex', justifyContent: 'center'}}>
-						<img alt="" src={krakenLogo} style={{ marginTop: '50px', opacity: '0.05', objectFit: 'contain', position: 'absolute', maxHeight: window.innerHeight, 'zIndex': -1 }} />
+						<img alt="" src={krakenLogo} style={{ marginTop: '2.5%', opacity: '0.05', objectFit: 'contain', position: 'absolute', maxHeight: window.innerHeight, 'zIndex': -1 }} />
 					</div>
 					<Switch>
 						{/* Insecure Routes */}
@@ -36,9 +37,10 @@ class App extends Component {
 						<Route path="/forgot-password" component={ForgotPassword} />
 						<Route path="/upgrade" component={Upgrade} />
 						<Route path="/help" component={Help}/>
+						<Route path="/" component={Home} />
 						{/* Secure Routes */}
 						<Route path="/change-password" component={ChangePassword} />
-						<Route path="/" component={Dashboard} />
+						<Route path="/dashboard" component={Dashboard} />
 					</Switch>
 				</div>
 			</BrowserRouter>

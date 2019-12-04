@@ -1,10 +1,22 @@
 .navbar { 
+    height: 2.5%;
     background: #557A95;
 }
 
 .navbarElectron {
+    height: 2.5%;
     background: #557A95;
     line-height: 0.5
+}
+
+.logo {
+    width: 2.5%;
+}
+
+.brand{
+    display: flex;
+    justify-content: start;
+    align-items: center;
 }
 
 .link {

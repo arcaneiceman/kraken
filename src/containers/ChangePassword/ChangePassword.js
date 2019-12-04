@@ -77,7 +77,7 @@ class ChangePassword extends Component {
 
         // NavLinks for Toolbar
         let navLinks = [];
-        navLinks.push({ text: 'Dashboard', onClick: () => { this.props.history.push('/'); }, isPrimary: true })
+        navLinks.push({ text: 'Dashboard', onClick: () => { this.props.history.push('/dashboard'); }, isPrimary: true })
         navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
         navLinks.push({ text: 'Change Password', onClick: () => { this.props.history.push('/change-password'); } })
         navLinks.push({ text: 'Logout', onClick: this.logout });

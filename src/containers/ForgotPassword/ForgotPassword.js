@@ -48,7 +48,7 @@ class ForgotPassword extends Component {
 
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn())
-            setTimeout(() => { this.props.history.push('/'); }, 1000);
+            setTimeout(() => { this.props.history.push('/dashboard'); }, 1000);
 
         let status;
         switch (this.state.loadingStatus) {

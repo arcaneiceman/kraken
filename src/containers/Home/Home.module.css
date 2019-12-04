@@ -1,0 +1,39 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo{
+    width: 50vw;
+    height: 50vh;
+    align-self: center;
+    object-fit: contain;
+}
+
+.title{
+    height: 20vh;
+    width: auto;
+    font-size: 10em;
+    text-align: center;
+}
+
+.subTitle{
+    height: 10%;
+    font-size: 2.5em;
+    text-align: center
+}
+
+.buttonContainer{
+    height: 10%;
+    display: flex;
+    justify-content: center
+}
+
+.button{
+    font-size: 2em;
+    min-width: 5%;
+    min-height: 2.5%;
+    margin: 2.5%;
+    padding:1%;
+}

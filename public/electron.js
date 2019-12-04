@@ -17,7 +17,7 @@ function createWindow() {
 		mainWindow.isResizable = true
 	}
 	else {
-		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html")}`)
+		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html/login")}`)
 		mainWindow.isResizable = false
 	}
 	mainWindow.on("closed", () => (mainWindow = null));
