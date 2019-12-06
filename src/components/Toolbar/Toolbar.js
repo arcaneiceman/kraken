@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav'
 import krakenLogo from './../../assets/kraken-logo.png';
+import { useHistory } from "react-router-dom";
 
 import classes from './Toolbar.module.css'
 
@@ -15,11 +16,12 @@ const Toolbar = (props) => {
             return (<Nav.Link className={classes.link} onClick={navLink.onClick} key={navLink.text}> {navLink.text} </Nav.Link>)
     });
 
+    const history = useHistory();
     return (
         <Navbar className={props.type === 'electron' ? classes.navbarElectron : classes.navbar} sticky="top" variant="dark" >
-            <Navbar.Brand className={classes.brand} href="/dashboard">
-                <img alt="" src={krakenLogo} className={classes.logo} /> 
-                <span>Kraken <sub>beta</sub></span>
+            <Navbar.Brand as="div" className={classes.brand}>
+                <img alt="" src={krakenLogo} className={classes.logo} onClick={() => {history.push("/dashboard")}}/> 
+                <span onClick={() => {history.push("/dashboard")}}>Kraken <sub>beta</sub></span>
                 <Nav.Link className={classes.link} onClick={() => { window.location.href = "mailto:waliusmani@gmail.com" }}>Contact Creator</Nav.Link>
             </Navbar.Brand>
             <Navbar.Collapse className={classes.collapse}>

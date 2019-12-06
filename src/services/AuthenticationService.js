@@ -23,6 +23,12 @@ const authenticate = (email, password, recaptchaResponse) => {
         .then(response => { setToken(response.data.token) })
 }
 
+const socialAuthenticate = (provider, accessToken) => {
+    const data = { provider, accessToken }
+    return axios.post('/account/social-authenticate', data)
+        .then(response => { setToken(response.data.token) })
+}
+
 const isLoggedIn = () => {
     const token = localStorage.getItem('currentToken');
     const user = localStorage.getItem('currentUser');
@@ -92,6 +98,7 @@ const AuthenticationService = {
     resendActivationEmail,
     activate,
     authenticate,
+    socialAuthenticate,
     isLoggedIn,
     logout,
     requestNewPassword,

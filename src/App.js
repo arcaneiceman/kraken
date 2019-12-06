@@ -30,6 +30,9 @@ class App extends Component {
 						<img alt="" src={krakenLogo} style={{ marginTop: '2.5%', opacity: '0.05', objectFit: 'contain', position: 'absolute', maxHeight: window.innerHeight, 'zIndex': -1 }} />
 					</div>
 					<Switch>
+						{/* Secure Routes */}
+						<Route path="/change-password" component={ChangePassword} />
+						<Route path="/dashboard" component={Dashboard} />
 						{/* Insecure Routes */}
 						<Route path="/activation" component={Activation} />
 						<Route path="/login" component={Login} />
@@ -38,9 +41,6 @@ class App extends Component {
 						<Route path="/upgrade" component={Upgrade} />
 						<Route path="/help" component={Help}/>
 						<Route path="/" component={Home} />
-						{/* Secure Routes */}
-						<Route path="/change-password" component={ChangePassword} />
-						<Route path="/dashboard" component={Dashboard} />
 					</Switch>
 				</div>
 			</BrowserRouter>
