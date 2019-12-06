@@ -77,7 +77,7 @@ class Login extends Component {
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn())
-            setTimeout(() => { this.props.history.push('/dashboard'); }, 1000);
+            this.props.history.push('/dashboard');
 
         // NavLinks for Toolbar
         let navLinks = [];

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import AuthenticationService from '../../services/AuthenticationService'
 import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
@@ -34,17 +34,17 @@ class Register extends Component {
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        try{
+        try {
             const name = form.elements["name"].value;
             const email = form.elements["email"].value;
             const password = form.elements["password"].value;
-            const confirmPassword = form.elements["confirmPassword"].value; 
+            const confirmPassword = form.elements["confirmPassword"].value;
             await AuthenticationService.register(name, email, password, confirmPassword)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', errorMessage: 'Success! Taking you to Activation...' })
             await new Promise(resolve => setTimeout(resolve, 1000));
             this.props.history.push('/activation?email=' + email)
         }
-        catch(error){
+        catch (error) {
             await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.message })
         }
     }
@@ -62,12 +62,12 @@ class Register extends Component {
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn())
-            return <Redirect to="/" />;
+            this.props.history.push('/dashboard');
 
         // NavLinks for Toolbar
         let navLinks = [];
-        navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } , isPrimary : true });
-        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
+        navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); }, isPrimary: true });
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help') } })
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
 
