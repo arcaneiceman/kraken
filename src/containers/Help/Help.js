@@ -183,6 +183,8 @@ class HowTo extends Component {
                     </ScrollableAnchor>
                     <p>
                         If you would like to contribute to Kraken (either the server or client), email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
+                        <br/>
+                        <strong>Disclaimer : </strong> THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE CAUSED BY THE (MIS)USE OF THIS SOFTWARE!
                     </p>
                     <br />
 

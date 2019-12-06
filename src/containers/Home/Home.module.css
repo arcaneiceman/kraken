@@ -12,7 +12,7 @@
 }
 
 .title{
-    height: 20vh;
+    height: 18vh;
     width: auto;
     font-size: 10em;
     text-align: center;
@@ -21,6 +21,14 @@
 .subTitle{
     height: 10%;
     font-size: 2.5em;
+    text-align: center
+}
+
+.disclaimerTitle{
+    text-align: center
+}
+
+.disclaimer{
     text-align: center
 }
 
