@@ -54,7 +54,6 @@ class Login extends Component {
     }
 
     socialAuthenticate = async (provider, authObject) => {
-        console.log(authObject)
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
         await new Promise(resolve => setTimeout(resolve, 500));
         try {
@@ -67,8 +66,7 @@ class Login extends Component {
     }
 
     socialAuthenticateError = async (error) => {
-        console.log(error)
-        //await this.promisedSetState
+        await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.message, successMessage: null })
     }
 
     togglePasswordHidden = () => {
