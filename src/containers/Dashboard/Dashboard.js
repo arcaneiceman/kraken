@@ -256,7 +256,7 @@ class Dashboard extends Component {
                 valueToMatchInBase64Field =
                     <Col>
                         <Form.Group className={classes.formGroup}>
-                            <Form.Label className={classes.modal_form_label}>Capture File</Form.Label>
+                            <Form.Label className={classes.modal_form_label}>Packet Capture File</Form.Label>
                             <Form.Text className="text-muted"> Must be in pcap or cap format. Max 50mb</Form.Text>
                             <Form.Control onChange={this.setValueToMatchInBase64} name="file" type="file" required></Form.Control>
                             <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
