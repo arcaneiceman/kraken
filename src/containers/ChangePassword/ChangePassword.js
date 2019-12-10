@@ -62,7 +62,6 @@ class ChangePassword extends Component {
 
     logout = async () => {
         try {
-            await AuthenticationService.deactivateAuthRefresh();
             await AuthenticationService.logout();
         }
         finally {

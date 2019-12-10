@@ -54,7 +54,6 @@ class Login extends Component {
     }
 
     socialAuthenticate = async (provider, authObject) => {
-        debugger;
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
         await new Promise(resolve => setTimeout(resolve, 500));
         try {
@@ -68,7 +67,6 @@ class Login extends Component {
     }
 
     socialAuthenticateError = async (error) => {
-        debugger;
         await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: "Social Authentication Failed", successMessage: null })
         console.log(error)
     }
@@ -138,10 +136,9 @@ class Login extends Component {
                                 <SocialLoginWrapper
                                     autoCleanUri	
                                     provider='github'
-                                    gatekeeper='http://localhost:5000/gatekeeper/github'
+                                    gatekeeper={process.env.REACT_APP_API_URL.replace("/api", "") + '/gatekeeper/github'}
                                     appId='c3748a4951a1807e6eef'
-                                    scope='user:email'
-                                    redirect='http://localhost:3000/login'
+                                    redirect= 'https://kraken.work/login'
                                     onLoginSuccess={(authObject) => this.socialAuthenticate('github', authObject)}
                                     onLoginFailure={(error) => this.socialAuthenticateError(error)}>
                                     <GithubLoginButton />

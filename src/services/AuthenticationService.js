@@ -42,7 +42,7 @@ const isLoggedIn = () => {
 const logout = () => {
     clearInterval(refreshTimer)
     return axios.post('/account/logout')
-        .then(() => {
+        .finally(() => {
             localStorage.removeItem('currentToken')
             localStorage.removeItem('currentUser')
             localStorage.removeItem('currentExp')

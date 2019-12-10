@@ -103,7 +103,6 @@ class Dashboard extends Component {
 
     logout = async () => {
         try {
-            await AuthenticationService.deactivateAuthRefresh();
             await AuthenticationService.logout();
         }
         finally {
