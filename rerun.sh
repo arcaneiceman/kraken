@@ -5,4 +5,4 @@ git pull
 echo "Installing..."
 npm install
 echo "Building..."
-npm run web-build
+npm run web-build`
