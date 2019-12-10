@@ -82,6 +82,28 @@ class HowTo extends Component {
                     <div className={classes.panel}>
                         <a href="#section5" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
+                                <Octicon icon={Globe} />
+                            </div>
+                            <h3 className={classes.panelTitle}>Privacy Policy</h3>
+                            <p className={classes.panelText}>Check how we (don't) use your data</p>
+                            <div className={classes.panelFooter} />
+                        </a>
+                    </div>
+
+                    <div className={classes.panel}>
+                        <a href="#section6" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
+                                <Octicon icon={Globe} />
+                            </div>
+                            <h3 className={classes.panelTitle}>Disclaimer</h3>
+                            <p className={classes.panelText}>Please do not misuse this software</p>
+                            <div className={classes.panelFooter} />
+                        </a>
+                    </div>
+
+                    <div className={classes.panel}>
+                        <a href="#section7" className={classes.panelLink}>
+                            <div className={classes.panelImageContainer}>
                                 <Octicon icon={GitPullRequest} />
                             </div>
                             <h3 className={classes.panelTitle}>Help Out</h3>
@@ -91,7 +113,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section6" className={classes.panelLink}>
+                        <a href="#section8" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Globe} />
                             </div>
@@ -183,21 +205,46 @@ class HowTo extends Component {
                     <br />
 
                     <ScrollableAnchor id={'section5'}>
-                        <h3>Help Out</h3>
+                        <h3>Privacy Policy</h3>
                     </ScrollableAnchor>
                     <p>
-                        If you would like to contribute to Kraken (either the server or client), email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
-                        <br/>
-                        Feel free to contribute to the repository by creating a pull request or issue at &nbsp;
-                        <a href="https://github.com/arcaneiceman/kraken-client">
-                            <button style={{textAlign:'center'}}><Octicon icon={LogoGithub} /></button>
-                        </a>
-                        <br />
-                        <strong>Disclaimer : </strong> THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE CAUSED BY THE (MIS)USE OF THIS SOFTWARE!
+                        Your privacy is important to us. It is Kraken's policy to respect your privacy regarding any information we may collect from you across our website, https://kraken.work, and other sites we own and operate.
+                        We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.
+                        Information that is asked for is name and email. All other data is within your control and can be removed on the dashboard. No hash that is uploaded is kept longer than to service the active request.
+                        We only retain collected information for as long as necessary to provide you with your requested service. What data we store, we’ll protect within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.
+                        We don’t share any personally identifying information publicly or with third-parties, except when required to by law.
+                        You are free to refuse our request for your personal information, with the understanding that we may be unable to provide you with some of your desired services.
+                        Your continued use of our website will be regarded as acceptance of our practices around privacy and personal information. If you have any questions about how we handle user data and personal information, feel free to contact us.
+                        This policy is effective as of 1 January 2020.
                     </p>
                     <br />
 
                     <ScrollableAnchor id={'section6'}>
+                        <h3>Disclaimer</h3>
+                    </ScrollableAnchor>
+                    <p>
+                        <strong>Disclaimer : </strong> THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE CAUSED BY THE (MIS)USE OF THIS SOFTWARE!
+                        <br />
+                        This tool is meant for enthusiasts to attempt to break into system they control to learn pentration testing and do not want to go through the hassle of setting up their
+                        own cracking cluster
+                    </p>
+                    <br />
+
+                    <ScrollableAnchor id={'section7'}>
+                        <h3>Help Out</h3>
+                    </ScrollableAnchor>
+                    <p>
+                        If you would like to contribute to Kraken (either the server or client), email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
+                        <br />
+                        Feel free to contribute to the repository by creating a pull request or issue at &nbsp;
+                        <a href="https://github.com/arcaneiceman/kraken-client">
+                            <button style={{ textAlign: 'center' }}><Octicon icon={LogoGithub} /></button>
+                        </a>
+                        <br />
+                    </p>
+                    <br />
+
+                    <ScrollableAnchor id={'section8'}>
                         <h3>Donate</h3>
                     </ScrollableAnchor>
                     <p>
