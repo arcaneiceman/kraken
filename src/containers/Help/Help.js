@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import isElectron from 'is-electron';
 import Toolbar from '../../components/Toolbar/Toolbar'
+import AuthenticationService from '../../services/AuthenticationService'
 import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, Globe, LogoGithub } from '@githubprimer/octicons-react';
 import ScrollableAnchor from 'react-scrollable-anchor'
 import { configureAnchors } from 'react-scrollable-anchor'
@@ -18,7 +19,10 @@ class HowTo extends Component {
     render() {
         // NavLinks for Toolbar
         let navLinks = [];
-        navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); }, isPrimary: true });
+        if (AuthenticationService.isLoggedIn())
+            navLinks.push({ text: 'Dashboard', onClick: () => { this.props.history.push('/dashboard'); }, isPrimary: true });
+        else
+            navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); }, isPrimary: true });
         navLinks.push({ text: 'Register', onClick: () => { this.props.history.push('/register') } })
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
