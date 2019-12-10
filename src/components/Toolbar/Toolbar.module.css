@@ -10,14 +10,8 @@
 }
 
 .logo {
-    width: 2.5%;
-}
-
-.brand{
     cursor: pointer;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    width: 2.5%;
 }
 
 .link {

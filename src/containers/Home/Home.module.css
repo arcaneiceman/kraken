@@ -6,20 +6,20 @@
 
 .logo{
     width: 50vw;
-    height: 50vh;
+    height: 40vh;
     align-self: center;
     object-fit: contain;
 }
 
 .title{
-    height: 18vh;
+    max-height: 15vh;
     width: auto;
-    font-size: 10em;
+    font-size: 6em;
     text-align: center;
 }
 
 .subTitle{
-    height: 10%;
+    max-height: 10vh;
     font-size: 2.5em;
     text-align: center
 }
@@ -33,13 +33,12 @@
 }
 
 .buttonContainer{
-    height: 10%;
     display: flex;
     justify-content: center
 }
 
 .button{
-    font-size: 2em;
+    font-size: 1.5em;
     min-width: 5%;
     min-height: 2.5%;
     margin: 2.5%;

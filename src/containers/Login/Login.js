@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Toolbar from '../../components/Toolbar/Toolbar'
 import SocialLoginWrapper from '../../components/SocialLoginWrapper/SocialLoginWrapper'
-import { FacebookLoginButton, GoogleLoginButton } from "react-social-login-buttons";
+import { FacebookLoginButton, GoogleLoginButton, GithubLoginButton } from "react-social-login-buttons";
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Spinner from 'react-bootstrap/Spinner'
@@ -54,6 +54,7 @@ class Login extends Component {
     }
 
     socialAuthenticate = async (provider, authObject) => {
+        debugger;
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
         await new Promise(resolve => setTimeout(resolve, 500));
         try {
@@ -61,12 +62,15 @@ class Login extends Component {
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Success! Taking you to Dashboard', errorMessage: null })
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message, successMessage: null })
+            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message , successMessage: null })
+            console.log(error)
         }
     }
 
     socialAuthenticateError = async (error) => {
-        await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.message, successMessage: null })
+        debugger;
+        await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: "Social Authentication Failed", successMessage: null })
+        console.log(error)
     }
 
     togglePasswordHidden = () => {
@@ -116,6 +120,7 @@ class Login extends Component {
                             {/* Social Form */}
                             <div className={classes.loginSocial}>
                                 <SocialLoginWrapper
+                                    autoCleanUri	
                                     provider='facebook'
                                     appId='768877590254144'
                                     onLoginSuccess={(authObject) => this.socialAuthenticate('facebook', authObject)}
@@ -123,12 +128,31 @@ class Login extends Component {
                                     <FacebookLoginButton />
                                 </SocialLoginWrapper>
                                 <SocialLoginWrapper
+                                    autoCleanUri	
                                     provider='google'
                                     appId='305647727727-fvc3p4740bjn7fl27rbve4c935cnls05.apps.googleusercontent.com'
                                     onLoginSuccess={(authObject) => this.socialAuthenticate('google', authObject)}
                                     onLoginFailure={(error) => this.socialAuthenticateError(error)}>
                                     <GoogleLoginButton />
                                 </SocialLoginWrapper>
+                                <SocialLoginWrapper
+                                    autoCleanUri	
+                                    provider='github'
+                                    gatekeeper='http://localhost:5000/gatekeeper/github'
+                                    appId='c3748a4951a1807e6eef'
+                                    scope='user:email'
+                                    redirect='http://localhost:3000/login'
+                                    onLoginSuccess={(authObject) => this.socialAuthenticate('github', authObject)}
+                                    onLoginFailure={(error) => this.socialAuthenticateError(error)}>
+                                    <GithubLoginButton />
+                                </SocialLoginWrapper>
+                                {/* <SocialLoginWrapper
+                                    provider='linkedin'
+                                    appId='861pfz1qn01ga3'
+                                    onLoginSuccess={(authObject) => this.socialAuthenticate('linkedin', authObject)}
+                                    onLoginFailure={(error) => this.socialAuthenticateError(error)}>
+                                    <LinkedInLoginButton />
+                                </SocialLoginWrapper> */}
                             </div>
 
                             { /* Seperator */}
@@ -170,17 +194,30 @@ class Login extends Component {
                                 <div className={classes.submit_container}>
                                     <Button variant="success" className={classes.submit} type="submit">Login</Button>
                                 </div>
+
+                                {/* Footer */}
+                                <div className={classes.loginContainerFooter}>
+                                    <a href="/register">Register</a>
+                                    <a href="/forgot-password">Forgot Password</a>
+                                </div>
+
                             </Form>
 
                         </div>
 
-                        {/* Footer */}
-                        <div className={classes.loginContainerFooter}>
-                            <a href="/register">Register</a>
-                            <a href="/forgot-password">Forgot Password</a>
-                        </div>
-
                     </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', margin: "10px" }}>
+                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                            <input type="hidden" name="cmd" value="_donations" />
+                            <input type="hidden" name="business" value="ZAKGHMTXN8D5E" />
+                            <input type="hidden" name="item_name" value="Supporting website" />
+                            <input type="hidden" name="currency_code" value="CAD" />
+                            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+                            <img alt="" border="0" src="https://www.paypal.com/en_CA/i/scr/pixel.gif" width="1" height="1" />
+                        </form>
+                    </div>
+
                 </div>
             </div>
         );

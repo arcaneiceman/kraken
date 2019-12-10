@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import isElectron from 'is-electron';
 import Toolbar from '../../components/Toolbar/Toolbar'
-import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, Globe } from '@githubprimer/octicons-react';
+import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, Globe, LogoGithub } from '@githubprimer/octicons-react';
 import ScrollableAnchor from 'react-scrollable-anchor'
 import { configureAnchors } from 'react-scrollable-anchor'
 import krakenLogo from './../../assets/kraken-logo.png';
@@ -184,6 +184,11 @@ class HowTo extends Component {
                     <p>
                         If you would like to contribute to Kraken (either the server or client), email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
                         <br/>
+                        Feel free to contribute to the repository by creating a pull request or issue at &nbsp;
+                        <a href="https://github.com/arcaneiceman/kraken-client">
+                            <button style={{textAlign:'center'}}><Octicon icon={LogoGithub} /></button>
+                        </a>
+                        <br />
                         <strong>Disclaimer : </strong> THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE CAUSED BY THE (MIS)USE OF THIS SOFTWARE!
                     </p>
                     <br />

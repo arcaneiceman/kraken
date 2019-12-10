@@ -19,11 +19,11 @@ const Toolbar = (props) => {
     const history = useHistory();
     return (
         <Navbar className={props.type === 'electron' ? classes.navbarElectron : classes.navbar} sticky="top" variant="dark" >
-            <Navbar.Brand as="div" className={classes.brand}>
-                <img alt="" src={krakenLogo} className={classes.logo} onClick={() => {history.push("/dashboard")}}/> 
-                <span onClick={() => {history.push("/dashboard")}}>Kraken <sub>beta</sub></span>
-                <Nav.Link className={classes.link} onClick={() => { window.location.href = "mailto:waliusmani@gmail.com" }}>Contact Creator</Nav.Link>
+            <img alt="" src={krakenLogo} className={classes.logo} onClick={() => { history.push("/dashboard") }} />
+            <Navbar.Brand>
+                <span onClick={() => { history.push("/dashboard") }}>Kraken <sub>beta</sub></span>
             </Navbar.Brand>
+            <Nav.Link className={classes.link} onClick={() => { window.location.href = "mailto:waliusmani@gmail.com" }}>Contact Creator</Nav.Link>
             <Navbar.Collapse className={classes.collapse}>
                 <Nav>
                     {navLinks}

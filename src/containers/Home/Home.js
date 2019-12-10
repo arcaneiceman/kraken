@@ -27,7 +27,7 @@ class Home extends Component {
                         THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE CAUSED BY THE (MIS)USE OF THIS SOFTWARE!
                     </span>
                     <div className={classes.buttonContainer}>
-                        <Button onClick={() => { this.props.history.push('/login'); }} className={classes.button}> Login </Button>
+                        <Button onClick={() => { this.props.history.push('/login'); }} className={classes.button}> &nbsp; Login &nbsp;  </Button>
                         <Button onClick={() => { this.props.history.push('/register'); }} className={classes.button}> Register </Button>
                     </div>
                 </div>
