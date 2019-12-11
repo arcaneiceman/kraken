@@ -133,6 +133,26 @@ class Dashboard extends Component {
         form.reset();
     }
 
+    addAllCrunchParameter = () => {
+        const crunchParams = this.state.newActiveRequestCrunchParameters;
+        var newCrunchParam = {
+            minSize: 1,
+            maxSize: 12,
+            characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            startString: ""
+        }
+        let found = crunchParams.find(element => {
+            return (element.minSize === newCrunchParam.minSize &&
+                element.maxSize === newCrunchParam.maxSize &&
+                element.characters === newCrunchParam.characters &&
+                element.startString === newCrunchParam.startString);
+        })
+        if (!found) {
+            crunchParams.push(newCrunchParam);
+            this.setState({ newActiveRequestCrunchParameters: crunchParams });
+        }
+    }
+
     removeCrunchParameter = (minSize, maxSize, characters, startString) => {
         const crunchParams = this.state.newActiveRequestCrunchParameters;
         const result = crunchParams.filter(element => {
@@ -154,6 +174,16 @@ class Dashboard extends Component {
             this.setState({ newActiveRequestPasswordLists: passwordLists });
         }
         form.reset();
+    }
+
+    addAllPasswordLists = () => {
+        const passwordLists = this.state.newActiveRequestPasswordLists;
+        this.state.availablePasswordLists.forEach(availablePasswordList => {
+            if (!passwordLists.includes(availablePasswordList)) {
+                passwordLists.push(availablePasswordList);
+            }
+        })
+        this.setState({ newActiveRequestPasswordLists: passwordLists });
     }
 
     removePasswordList = (passwordList) => {
@@ -349,15 +379,15 @@ class Dashboard extends Component {
                                 </Col>
                             </Row>
                             <Row>
-                                <Col sm="10">
+                                <Col sm="9">
                                     <Form.Control name="passwordLists" as="select">
                                         <option disabled>Choose...</option>
                                         {this.state.availablePasswordLists.map(availablePasswordList =>
                                             <option>{availablePasswordList.name} ({availablePasswordList.jobDelimiterSetSize} jobs)</option>)}
                                     </Form.Control>
                                 </Col>
-                                <Col sm="0.1"><span /></Col>
-                                <Col sm="2"><Button type="submit">Add</Button></Col>
+                                <Col sm="1"><Button type="submit">Add</Button></Col>
+                                <Col ><Button onClick={this.addAllPasswordLists}>Add All</Button></Col>
                             </Row>
                         </Form.Group>
                     </Form>
@@ -383,13 +413,11 @@ class Dashboard extends Component {
                                     <Form.Control name="minSize" type="number" placeholder="Min" min="1" max="12" required />
                                     <Form.Control.Feedback type="invalid">Min must be between 1 and 12</Form.Control.Feedback>
                                 </Col>
-                                <Col sm="0.1"><span /></Col>
                                 <Col sm="2">
                                     <Form.Control name="maxSize" type="number" placeholder="Max" min="1" max="12" required />
                                     <Form.Control.Feedback type="invalid">Max must be between 1 and 12</Form.Control.Feedback>
                                 </Col>
-                                <Col sm="0.1"><span /></Col>
-                                <Col sm="3">
+                                <Col sm="2">
                                     <Form.Control name="characters" type="text" list="character-options" placeholder="Chars" required />
                                     <datalist id="character-options">
                                         <option>Custom...</option>
@@ -402,13 +430,12 @@ class Dashboard extends Component {
                                         <option>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</option>
                                     </datalist>
                                 </Col>
-                                <Col sm="0.1"><span /></Col>
                                 <Col sm="3">
                                     <Form.Control name="startString" type="text" maxLength="12" placeholder="Start (Optional)" />
                                     <Form.Control.Feedback type="invalid">Start must be below 12</Form.Control.Feedback>
                                 </Col>
-                                <Col sm="0.1"><span /></Col>
-                                <Col sm="2"><Button type="submit">Add</Button></Col>
+                                <Col sm="1"><Button type="submit">Add</Button></Col>
+                                <Col ><Button onClick={this.addAllCrunchParameter}>Add All</Button></Col>
                             </Row>
                         </Form.Group>
                     </Form>
