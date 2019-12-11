@@ -432,7 +432,7 @@ class Dashboard extends Component {
                                 </Col>
                                 <Col sm="3">
                                     <Form.Control name="startString" type="text" maxLength="12" placeholder="start (Optional)" />
-                                    <Form.Control.Feedback type="invalid">Start must be below 12</Form.Control.Feedback>
+                                    <Form.Control.Feedback type="invalid">Start String should be equal to  min character</Form.Control.Feedback>
                                 </Col>
                                 <Col sm="1"><Button type="submit">Add</Button></Col>
                                 <Col ><Button onClick={this.addAllCrunchParameter}>Add All</Button></Col>
