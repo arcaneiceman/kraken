@@ -179,8 +179,8 @@ class Dashboard extends Component {
     addAllPasswordLists = () => {
         const passwordLists = this.state.newActiveRequestPasswordLists;
         this.state.availablePasswordLists.forEach(availablePasswordList => {
-            if (!passwordLists.includes(availablePasswordList)) {
-                passwordLists.push(availablePasswordList);
+            if (!passwordLists.includes(availablePasswordList.name)) {
+                passwordLists.push(availablePasswordList.name);
             }
         })
         this.setState({ newActiveRequestPasswordLists: passwordLists });
