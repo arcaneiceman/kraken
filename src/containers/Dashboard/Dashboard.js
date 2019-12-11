@@ -410,15 +410,15 @@ class Dashboard extends Component {
                             </Row>
                             <Row>
                                 <Col sm="2">
-                                    <Form.Control name="minSize" type="number" placeholder="Min" min="1" max="12" required />
+                                    <Form.Control name="minSize" type="number" placeholder="min" min="1" max="12" required />
                                     <Form.Control.Feedback type="invalid">Min must be between 1 and 12</Form.Control.Feedback>
                                 </Col>
                                 <Col sm="2">
-                                    <Form.Control name="maxSize" type="number" placeholder="Max" min="1" max="12" required />
+                                    <Form.Control name="maxSize" type="number" placeholder="max" min="1" max="12" required />
                                     <Form.Control.Feedback type="invalid">Max must be between 1 and 12</Form.Control.Feedback>
                                 </Col>
                                 <Col sm="2">
-                                    <Form.Control name="characters" type="text" list="character-options" placeholder="Chars" required />
+                                    <Form.Control name="characters" type="text" list="character-options" placeholder="charset" required />
                                     <datalist id="character-options">
                                         <option>Custom...</option>
                                         <option>0123456789</option>
@@ -431,7 +431,7 @@ class Dashboard extends Component {
                                     </datalist>
                                 </Col>
                                 <Col sm="3">
-                                    <Form.Control name="startString" type="text" maxLength="12" placeholder="Start (Optional)" />
+                                    <Form.Control name="startString" type="text" maxLength="12" placeholder="start (Optional)" />
                                     <Form.Control.Feedback type="invalid">Start must be below 12</Form.Control.Feedback>
                                 </Col>
                                 <Col sm="1"><Button type="submit">Add</Button></Col>
