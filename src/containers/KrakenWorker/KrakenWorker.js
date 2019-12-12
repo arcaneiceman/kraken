@@ -55,11 +55,11 @@ class KrakenWorker extends Component {
         console.log("Activating Worker")
 
         let data = {}
-        try{
+        try {
             let response = await WorkerService.getWorker(this.state.workerId)
             data = response.data
         }
-        catch (error){
+        catch (error) {
             try {
                 await this.promisedSetState({
                     secondsSinceActivation: 0,
@@ -433,12 +433,15 @@ class KrakenWorker extends Component {
         let completeJobs = this.state.completeJobs;
         let errorJobs = this.state.errorJobs;
 
-        if (message.data.status === "SUCCESS") {
-            let completeJob = jobQueueClone.find((job) => (job.jobId === message.data.jobId))
-            if (completeJob !== null) {
-                // Remove Job from Complete Queue
-                jobQueueClone.splice(jobQueueClone.indexOf(completeJob), 1)
-    
+        let completeJob = jobQueueClone.find((job) => (job.jobId === message.data.jobId))
+        if (message.data.status !== 'ERROR' && completeJob !== null) { // SUCCESS OR INCONCLUSIVE
+            // Remove Job from Complete Queue
+            jobQueueClone.splice(jobQueueClone.indexOf(completeJob), 1)
+
+            // Mark As Sucess
+            success = true;
+
+            if (message.data.status === 'SUCCESS') {
                 // Update Count
                 switch (completeJob.trackingStatus) {
                     case 'COMPLETE':
@@ -450,9 +453,6 @@ class KrakenWorker extends Component {
                     default:
                         break;
                 }
-
-                // Mark As Succes
-                success = true;
             }
         }
         else {
@@ -468,6 +468,7 @@ class KrakenWorker extends Component {
 
         this.cycle("Job Reporter", success)
     }
+
 
     sendHeartbeat = async () => {
         try {
