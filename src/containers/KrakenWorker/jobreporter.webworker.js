@@ -18,13 +18,9 @@ self.onmessage = (e) => {
         xhttp.send(JSON.stringify(request));
 
         switch (xhttp.status) {
-            case 200: // Job Accepted
+            case 200:
                 response.jobId = e.data.jobId;
                 response.status = "SUCCESS"
-                break;
-            case 404: // Server No Longer Cares
-                response.jobId = e.data.jobId;
-                response.status = "INCONCLUSIVE"
                 break;
             default:
                 response.jobId = e.data.jobId;

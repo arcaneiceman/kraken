@@ -213,7 +213,7 @@ class KrakenWorker extends Component {
             - Reporter (sending job to server)
     */
     cycle = async (from, success) => {
-        console.log("Cycle : from " + from + " with success: " + success)
+        console.log("Cycle > " + from + " with success: " + success)
         if (!success)
             return;
 
@@ -344,7 +344,7 @@ class KrakenWorker extends Component {
 
         let isDoneCracking = false
         let runningJob = jobQueueClone.find((job) => (job.jobId === message.data.jobId))
-        if (runningJob !== null) {
+        if (typeof runningJob !== 'undefined') {
             switch (message.data.crackingStatus) {
                 case "CRACKED":
                     isDoneCracking = true
@@ -434,7 +434,8 @@ class KrakenWorker extends Component {
         let errorJobs = this.state.errorJobs;
 
         let completeJob = jobQueueClone.find((job) => (job.jobId === message.data.jobId))
-        if (message.data.status !== 'ERROR' && completeJob !== null) { // SUCCESS OR INCONCLUSIVE
+        if (typeof message.data.status !== 'undefined' && typeof completeJob  !== 'undefined') {
+            
             // Remove Job from Complete Queue
             jobQueueClone.splice(jobQueueClone.indexOf(completeJob), 1)
 

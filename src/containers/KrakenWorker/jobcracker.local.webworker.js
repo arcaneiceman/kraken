@@ -23,7 +23,8 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             await writeFile(candidateValueFileName, message.candidateValues.join("\n"));
             await writeFile(outFileName, '');
             let valueToMatch = atob(message.valueToMatchInBase64)
-            let hashcatMD5Mode, match ;
+            let hashcatMD5Mode = null
+            let match = null
             switch (message.requestType) {
                 case 'WPA':
                     console.log("Processing WPA Request...");
