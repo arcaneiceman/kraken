@@ -52,7 +52,7 @@ class KrakenWorker extends Component {
     }
 
     activateWorker = async () => {
-        console.log("Activating Worker")
+        console.debug("Activating Worker")
 
         let data = {}
         try {
@@ -70,7 +70,7 @@ class KrakenWorker extends Component {
                 data = response.data
             }
             catch (error) {
-                console.log("Create Worker error " + error.response.data.message)
+                console.error("Create Worker error " + error.response.data.message)
                 return
             }
         }
@@ -117,7 +117,7 @@ class KrakenWorker extends Component {
     }
 
     deactivateWorker = async () => {
-        console.log("Deactivating Worker")
+        console.debug("Deactivating Worker")
 
         // Stop All Web Workers
         this.state.crackerPool.forEach((element) => element.terminate())
@@ -213,7 +213,7 @@ class KrakenWorker extends Component {
             - Reporter (sending job to server)
     */
     cycle = async (from, success) => {
-        console.log("Cycle > " + from + " with success: " + success)
+        console.debug("Cycle > " + from + " with success: " + success)
         if (!success)
             return;
 
@@ -234,7 +234,7 @@ class KrakenWorker extends Component {
     }
 
     postToJobFetcher = async () => {
-        console.log("Posting request to job fetcher")
+        console.debug("Posting request to job fetcher")
 
         // Set State to Fetching
         await this.promisedSetState({ workerGettingJob: true })
@@ -256,7 +256,7 @@ class KrakenWorker extends Component {
     retrieveFromJobFetcher = async (message) => {
         let success = false;
         let jobQueueClone = this.state.workerJobQueue.slice()
-        console.log("Retreiving response from job fetcher")
+        console.debug("Retreiving response from job fetcher")
         if (message.data.status === "SUCCESS") {
             // Declare Job
             const job = {
@@ -281,7 +281,7 @@ class KrakenWorker extends Component {
             success = true
         }
         else {
-            console.log("Get Job Failed")
+            console.debug("Get Job Failed")
         }
 
         await this.promisedSetState({
@@ -293,7 +293,7 @@ class KrakenWorker extends Component {
     }
 
     postToCrackers = async () => {
-        console.log("Posting Job to Crackers")
+        console.debug("Posting Job to Crackers")
 
         // Set State to Cracking
         await this.promisedSetState({ workerCracking: true })
@@ -348,7 +348,7 @@ class KrakenWorker extends Component {
             switch (message.data.crackingStatus) {
                 case "CRACKED":
                     isDoneCracking = true
-                    console.log("Job " + runningJob.jobId + " Found")
+                    console.debug("Job " + runningJob.jobId + " Found")
                     // Target Found, Assign Result
                     runningJob.result = message.data.result
 
@@ -365,7 +365,7 @@ class KrakenWorker extends Component {
                     // If: this is the last cracker to return chunk for job
                     if (runningJob.runningChunkCount === runningJob.completeChunkCount) {
                         isDoneCracking = true
-                        console.log("Job " + runningJob.jobId + " Complete")
+                        console.debug("Job " + runningJob.jobId + " Complete")
 
                         // Mark Job as complete
                         runningJob.trackingStatus = "COMPLETE"
@@ -373,12 +373,12 @@ class KrakenWorker extends Component {
                         let executionTime = Date.now() - runningJob.executionStartTime;
                         console.log(" Job took " + executionTime + " ms to complete. Multipler of " + runningJob.multiplier)
                         multiplierRecommendation = Math.floor((60000 * runningJob.multiplier) / executionTime) // 60000 is 1 minute
-                        console.log("Setting Multiplier Recommendation to " + multiplierRecommendation)
+                        console.debug("Setting Multiplier Recommendation to " + multiplierRecommendation)
                     }
                     break;
                 case "ERROR":
                     isDoneCracking = true
-                    console.log("Job " + runningJob.jobId + " Error")
+                    console.debug("Job " + runningJob.jobId + " Error")
 
                     // Update Tracking Status
                     runningJob.trackingStatus = "ERROR"
@@ -399,12 +399,12 @@ class KrakenWorker extends Component {
             this.cycle("Job From Cracker (Pool)", true)
         }
         else {
-            console.log("Call back came to Retreive Job but job not found in running queue")
+            console.error("Call back came to Retreive Job but job not found in running queue")
         }
     }
 
     postToJobReporter = async () => {
-        console.log("Posting job to job reporter")
+        console.debug("Posting job to job reporter")
 
         // Set State to Reporting
         await this.promisedSetState({ workerReportingJob: true })
@@ -457,7 +457,7 @@ class KrakenWorker extends Component {
             }
         }
         else {
-            console.log("Report Job Failed")
+            console.error("Report Job Failed")
         }
 
         await this.promisedSetState({
@@ -477,7 +477,7 @@ class KrakenWorker extends Component {
             this.setState({ workerLastHeartbeat: new Date() })
         }
         catch (error) {
-            console.log("Heartbeat Error " + error.response.data.message)
+            console.error("Heartbeat Error " + error.response.data.message)
             if (error.response.data.code === 231)
                 this.deactivateWorker();
         }

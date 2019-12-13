@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import isElectron from 'is-electron';
 import Toolbar from '../../components/Toolbar/Toolbar'
 import AuthenticationService from '../../services/AuthenticationService'
-import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, Globe, LogoGithub } from '@githubprimer/octicons-react';
+import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, LogoGithub, Heart , Alert, Shield} from '@githubprimer/octicons-react';
 import ScrollableAnchor from 'react-scrollable-anchor'
 import { configureAnchors } from 'react-scrollable-anchor'
 import krakenLogo from './../../assets/kraken-logo.png';
@@ -82,7 +82,7 @@ class HowTo extends Component {
                     <div className={classes.panel}>
                         <a href="#section5" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
-                                <Octicon icon={Globe} />
+                                <Octicon icon={Shield} />
                             </div>
                             <h3 className={classes.panelTitle}>Privacy Policy</h3>
                             <p className={classes.panelText}>Check how we (don't) use your data</p>
@@ -93,7 +93,7 @@ class HowTo extends Component {
                     <div className={classes.panel}>
                         <a href="#section6" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
-                                <Octicon icon={Globe} />
+                                <Octicon icon={Alert} />
                             </div>
                             <h3 className={classes.panelTitle}>Disclaimer</h3>
                             <p className={classes.panelText}>Please do not misuse this software</p>
@@ -115,7 +115,7 @@ class HowTo extends Component {
                     <div className={classes.panel}>
                         <a href="#section8" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
-                                <Octicon icon={Globe} />
+                                <Octicon icon={Heart} />
                             </div>
                             <h3 className={classes.panelTitle}>Donate</h3>
                             <p className={classes.panelText}>Help with costs of maintaining Kraken</p>
