@@ -278,10 +278,9 @@ class HowTo extends Component {
                     </ScrollableAnchor>
                     <p>
                         <h5>Contribute Code to Kraken</h5>
-                        If you would like to contribute to Kraken server, email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a> and possibly join me in my journey to make
-                        usable security tools. 
-                        <br />
-                        If your would like to contribute to Kraken Client, feel free to do so by creating a pull request or an issue at &nbsp;
+                        If you would like to contribute to Kraken server, email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a> 
+                        and possibly join me in my journey to make usable security tools by becoming part of the Kraken team. If you would like to contribute 
+                        to Kraken Client, feel free to do so by creating a pull request or an issue at &nbsp;
                         <a href="https://github.com/arcaneiceman/kraken-client">
                             <button style={{ textAlign: 'center' }}><Octicon icon={LogoGithub} /></button>
                         </a>
