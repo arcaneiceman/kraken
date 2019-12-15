@@ -31,7 +31,6 @@ class ChangePassword extends Component {
             return
 
         await this.promisedSetState({loadingStatus: 'PROGRESS', errorMessage : null, successMessage : null})
-        await new Promise(resolve => setTimeout(resolve, 500));
 
         try{
             const oldPassword = form.elements["old_password"].value;

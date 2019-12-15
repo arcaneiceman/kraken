@@ -65,7 +65,6 @@ class Dashboard extends Component {
             return
 
         await this.promisedSetState({ newActiveRequestFormValidated: true, newActiveRequestErrorMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1000));
         try {
             await ActiveRequestService.createActiveRequest(
                 this.state.newActiveRequestType,

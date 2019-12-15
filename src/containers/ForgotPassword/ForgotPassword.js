@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AuthenticationService from '../../services/AuthenticationService';
 import Form from 'react-bootstrap/Form'
+import { Redirect } from 'react-router-dom'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Spinner from 'react-bootstrap/Spinner'
 import Button from 'react-bootstrap/Button'
@@ -17,6 +18,8 @@ class ForgotPassword extends Component {
         loadingStatus: null,
         errorMessage: null,
         successMessage: null,
+        
+        directAccess: true
     }
 
     requestNewPassword = async (event) => {
@@ -26,29 +29,30 @@ class ForgotPassword extends Component {
         if (!form.checkValidity())
             return
 
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 500));
-        try{
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
+        try {
             const email = form.elements["email"].value;
             await AuthenticationService.requestNewPassword(email)
-            await this.promisedSetState({loadingStatus: 'SUCCESS', successMessage: 'An email has been sent with password information', errorMessage: null })
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'An email has been sent with password information', errorMessage: null })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/dashboard')
         }
-        catch(error){
+        catch (error) {
             await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
         }
     }
 
     render() {
+        // Go to Dashboard if Logged In
+        if (AuthenticationService.isLoggedIn() && this.state.directAccess)
+            return <Redirect to="/dashboard" />
+
         // NavLinks for Toolbar
         let navLinks = [];
         navLinks.push({ text: 'Register', onClick: () => { this.props.history.push('/register'); }, isPrimary: true })
-        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help')}})
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help') } })
         navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login'); } });
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
-
-        // Go to Dashboard if Logged In
-        if (AuthenticationService.isLoggedIn())
-            setTimeout(() => { this.props.history.push('/dashboard'); }, 1000);
 
         let status;
         switch (this.state.loadingStatus) {

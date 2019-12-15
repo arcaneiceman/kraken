@@ -22,6 +22,8 @@ class Register extends Component {
 
         passwordHidden: true,
         confirmPasswordHidden: true,
+
+        directAccess: true
     }
 
     attemptRegister = async (event) => {
@@ -32,9 +34,7 @@ class Register extends Component {
         if (!form.checkValidity())
             return
 
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
         try {
             const name = form.elements["name"].value;
             const email = form.elements["email"].value;
@@ -42,7 +42,7 @@ class Register extends Component {
             const confirmPassword = form.elements["confirmPassword"].value;
             await AuthenticationService.register(name, email, password, confirmPassword)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', errorMessage: 'Success! Taking you to Activation...' })
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 500));
             this.props.history.push('/activation?email=' + email)
         }
         catch (error) {
@@ -62,7 +62,7 @@ class Register extends Component {
 
     render() {
         // Go to Dashboard if Logged In
-        if (AuthenticationService.isLoggedIn())
+        if (AuthenticationService.isLoggedIn() && this.state.directAccess)
             return <Redirect to="/dashboard" />
 
         // NavLinks for Toolbar

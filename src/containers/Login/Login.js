@@ -26,6 +26,8 @@ class Login extends Component {
         successMessage: null,
 
         passwordHidden: true,
+
+        directAccess: true
     }
 
     login = async (event) => {
@@ -41,13 +43,14 @@ class Login extends Component {
             return
         }
 
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
         try {
             const email = form.elements["email"].value;
             const password = form.elements["password"].value;
             await AuthenticationService.authenticate(email, password, recaptchaResponse)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Success! Taking you to Dashboard', errorMessage: null })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/dashboard')
         }
         catch (error) {
             await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message, successMessage: null })
@@ -55,11 +58,12 @@ class Login extends Component {
     }
 
     socialAuthenticate = async (provider, authObject) => {
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess : false })
         try {
             await AuthenticationService.socialAuthenticate(provider, authObject._token.accessToken)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Success! Taking you to Dashboard', errorMessage: null })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/dashboard')
         }
         catch (error) {
             await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message , successMessage: null })
@@ -79,7 +83,7 @@ class Login extends Component {
 
     render() {
         // Go to Dashboard if Logged In
-        if (AuthenticationService.isLoggedIn())
+        if (AuthenticationService.isLoggedIn() && this.state.directAccess)
             return <Redirect to="/dashboard" />
 
         // NavLinks for Toolbar
@@ -88,7 +92,6 @@ class Login extends Component {
         navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help') } })
         navLinks.push({ text: 'Forgot Password', onClick: () => { this.props.history.push('/forgot-password'); } })
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
-
 
         let status;
         switch (this.state.loadingStatus) {

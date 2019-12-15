@@ -18,11 +18,12 @@ class Activation extends Component {
         loadingStatus: null,
         errorMessage: null,
         successMessage: null,
+
+        directAccess: true
     }
 
     resendActivationEmail = async (email) => {
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 500));
         try {
             await AuthenticationService.resendActivationEmail(email);
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Activation Email Resent' })
@@ -40,13 +41,14 @@ class Activation extends Component {
         if (!form.checkValidity())
             return
 
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess : false })
         try {
             const email = form.elements["email"].value;
             const activationKey = form.elements["activationKey"].value;
             await AuthenticationService.activate(email, activationKey)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Activation Sucessful. Taking you to Dashboard...' })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/dashboard')
         }
         catch (error) {
             await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
@@ -55,7 +57,7 @@ class Activation extends Component {
 
     render() {
         // Go to Dashboard if Logged In
-        if (AuthenticationService.isLoggedIn())
+        if (AuthenticationService.isLoggedIn() && this.state.directAccess)
             return <Redirect to="/dashboard" />
 
         // NavLinks for Toolbar
