@@ -8,6 +8,7 @@ import isElectron from 'is-electron';
 import Form from 'react-bootstrap/Form'
 import Octicon, { Person, Key } from '@githubprimer/octicons-react';
 import InputGroup from 'react-bootstrap/InputGroup'
+import { Redirect } from 'react-router-dom'
 
 import classes from './Activation.module.css'
 
@@ -55,7 +56,7 @@ class Activation extends Component {
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn())
-            this.props.history.push('/dashboard');
+            return <Redirect to="/dashboard" />
 
         // NavLinks for Toolbar
         let navLinks = [];

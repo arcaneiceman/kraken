@@ -9,6 +9,7 @@ import Button from 'react-bootstrap/Button'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Octicon, { Person, Key, Star, EyeClosed, Eye } from '@githubprimer/octicons-react';
 import isElectron from 'is-electron';
+import { Redirect } from 'react-router-dom'
 
 import classes from './Register.module.css'
 
@@ -62,7 +63,7 @@ class Register extends Component {
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn())
-            this.props.history.push('/dashboard');
+            return <Redirect to="/dashboard" />
 
         // NavLinks for Toolbar
         let navLinks = [];

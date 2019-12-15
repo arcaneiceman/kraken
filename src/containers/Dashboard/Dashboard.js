@@ -10,7 +10,7 @@ import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
 import { Redirect } from 'react-router-dom'
-import Octicon, { Alert } from '@githubprimer/octicons-react';
+import Octicon, { Alert, Question } from '@githubprimer/octicons-react';
 import ActiveRequestService from '../../services/ActiveRequestService';
 import AuthenticationService from '../../services/AuthenticationService';
 import PasswordListService from '../../services/PasswordListService';
@@ -115,16 +115,18 @@ class Dashboard extends Component {
         const form = event.currentTarget;
         const crunchParams = this.state.newActiveRequestCrunchParameters;
         var newCrunchParam = {
-            minSize: form.elements["minSize"].value,
-            maxSize: form.elements["maxSize"].value,
+            min: form.elements["min"].value,
+            max: form.elements["max"].value,
             characters: form.elements["characters"].value,
-            startString: form.elements["startString"].value
+            pattern: form.elements["pattern"].value,
+            start: form.elements["start"].value
         }
         let found = crunchParams.find(element => {
-            return (element.minSize === newCrunchParam.minSize &&
-                element.maxSize === newCrunchParam.maxSize &&
+            return (element.min === newCrunchParam.min &&
+                element.max === newCrunchParam.max &&
                 element.characters === newCrunchParam.characters &&
-                element.startString === newCrunchParam.startString);
+                element.pattern === newCrunchParam.pattern &&
+                element.start === newCrunchParam.start);
         })
         if (!found) {
             crunchParams.push(newCrunchParam);
@@ -136,16 +138,18 @@ class Dashboard extends Component {
     addAllCrunchParameter = () => {
         const crunchParams = this.state.newActiveRequestCrunchParameters;
         var newCrunchParam = {
-            minSize: 1,
-            maxSize: 12,
+            min: 1,
+            max: 12,
             characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
-            startString: ""
+            pattern: null,
+            start: null,
         }
         let found = crunchParams.find(element => {
-            return (element.minSize === newCrunchParam.minSize &&
-                element.maxSize === newCrunchParam.maxSize &&
+            return (element.min === newCrunchParam.min &&
+                element.max === newCrunchParam.max &&
                 element.characters === newCrunchParam.characters &&
-                element.startString === newCrunchParam.startString);
+                element.pattern === newCrunchParam.pattern &&
+                element.start === newCrunchParam.start);
         })
         if (!found) {
             crunchParams.push(newCrunchParam);
@@ -153,13 +157,14 @@ class Dashboard extends Component {
         }
     }
 
-    removeCrunchParameter = (minSize, maxSize, characters, startString) => {
+    removeCrunchParameter = (min, max, characters, pattern, start) => {
         const crunchParams = this.state.newActiveRequestCrunchParameters;
         const result = crunchParams.filter(element => {
-            return !(element.minSize === minSize &&
-                element.maxSize === maxSize &&
+            return !(element.min === min &&
+                element.max === max &&
                 element.characters === characters &&
-                element.startString === startString)
+                element.pattern === pattern &&
+                element.start === start)
         })
         this.setState({ newActiveRequestCrunchParameters: result });
     }
@@ -305,11 +310,16 @@ class Dashboard extends Component {
 
         // Crunch Parameters
         const crunchParameters = this.state.newActiveRequestCrunchParameters.map(crunchParameter => {
-            let key = crunchParameter.startString === '' ?
-                crunchParameter.minSize + " " + crunchParameter.maxSize + " " + crunchParameter.characters :
-                crunchParameter.minSize + " " + crunchParameter.maxSize + " " + crunchParameter.characters + " -s " + crunchParameter.startString;
+            let key = crunchParameter.min + " " + crunchParameter.max + " " + crunchParameter.characters;
+            if (crunchParameter.pattern !== null && crunchParameter.pattern !== "") {
+                key = key + " -t " + crunchParameter.pattern
+            }
+            if (crunchParameter.start !== null && crunchParameter.start !== "") {
+                key = key + " -s " + crunchParameter.start
+            }
             return (<Button key={key} className={classes.newRequestParameterPill}
-                onClick={() => this.removeCrunchParameter(crunchParameter.minSize, crunchParameter.maxSize, crunchParameter.characters, crunchParameter.startString)}>{key}</Button>)
+                onClick={() => this.removeCrunchParameter(crunchParameter.min, crunchParameter.max, crunchParameter.characters,
+                    crunchParameter.pattern, crunchParameter.startString)}>{key}</Button>)
         });
 
         // Error Message
@@ -396,11 +406,14 @@ class Dashboard extends Component {
                     <Form onSubmit={this.addCrunchParameter}>
                         <Form.Group className={classes.formGroup}>
                             <Form.Label className={classes.modal_form_label}>
-                                Crunch Parameters
-                    </Form.Label>
+                                Crunch Parameters&nbsp;
+                                <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html" target="_blank" rel="noopener noreferrer">
+                                    <Octicon icon={Question} />
+                                </a>
+                            </Form.Label>
                             <Form.Text className="text-muted">
                                 Add crunch parameters using the inputs below. Remove them by clicking on the pill
-                    </Form.Text>
+                            </Form.Text>
                             <Row>
                                 <Col sm="12">
                                     <div className={classes.newRequestParameterBox}>
@@ -409,15 +422,15 @@ class Dashboard extends Component {
                                 </Col>
                             </Row>
                             <Row>
-                                <Col sm="2">
-                                    <Form.Control name="minSize" type="number" placeholder="min" min="1" max="12" required />
+                                <Col sm="3">
+                                    <Form.Control name="min" type="number" placeholder="min" min="1" max="12" required />
                                     <Form.Control.Feedback type="invalid">Min must be between 1 and 12</Form.Control.Feedback>
                                 </Col>
-                                <Col sm="2">
-                                    <Form.Control name="maxSize" type="number" placeholder="max" min="1" max="12" required />
+                                <Col sm="3">
+                                    <Form.Control name="max" type="number" placeholder="max" min="1" max="12" required />
                                     <Form.Control.Feedback type="invalid">Max must be between 1 and 12</Form.Control.Feedback>
                                 </Col>
-                                <Col sm="2">
+                                <Col sm="6">
                                     <Form.Control name="characters" type="text" list="character-options" placeholder="charset" required />
                                     <datalist id="character-options">
                                         <option>Custom...</option>
@@ -430,8 +443,16 @@ class Dashboard extends Component {
                                         <option>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</option>
                                     </datalist>
                                 </Col>
+                                <Col sm="2">
+                                </Col>
+                            </Row>
+                            <Row style={{ marginTop: "5px" }}>
+                                <Col sm="6">
+                                    <Form.Control name="pattern" type="text" maxLength="12" placeholder="[-t] pattern (optional)" />
+                                    <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+                                </Col>
                                 <Col sm="3">
-                                    <Form.Control name="startString" type="text" maxLength="12" placeholder="start (Optional)" />
+                                    <Form.Control name="start" type="text" maxLength="12" placeholder="[-s] start (optional)" />
                                     <Form.Control.Feedback type="invalid">Start String should be equal to  min character</Form.Control.Feedback>
                                 </Col>
                                 <Col sm="1"><Button type="submit">Add</Button></Col>

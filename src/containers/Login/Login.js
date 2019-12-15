@@ -7,6 +7,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Spinner from 'react-bootstrap/Spinner'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
+import { Redirect } from 'react-router-dom'
 import AuthenticationService from '../../services/AuthenticationService'
 import Octicon, { Person, Key, EyeClosed, Eye } from '@githubprimer/octicons-react';
 import isElectron from 'is-electron';
@@ -79,7 +80,7 @@ class Login extends Component {
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn())
-            this.props.history.push('/dashboard');
+            return <Redirect to="/dashboard" />
 
         // NavLinks for Toolbar
         let navLinks = [];

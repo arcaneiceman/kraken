@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import isElectron from 'is-electron';
 import Toolbar from '../../components/Toolbar/Toolbar'
 import AuthenticationService from '../../services/AuthenticationService'
-import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, LogoGithub, Heart , Alert, Shield} from '@githubprimer/octicons-react';
+import Gist from 'react-gist'
+import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, LogoGithub, Heart, Alert, Shield } from '@githubprimer/octicons-react';
 import ScrollableAnchor from 'react-scrollable-anchor'
 import { configureAnchors } from 'react-scrollable-anchor'
 import krakenLogo from './../../assets/kraken-logo.png';
@@ -36,7 +37,7 @@ class HowTo extends Component {
                 <div className={classes.panelContainer}>
 
                     <div className={classes.panel}>
-                        <a href="#section1" className={classes.panelLink}>
+                        <a href="#introduction" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Star} />
                             </div>
@@ -47,7 +48,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section2" className={classes.panelLink}>
+                        <a href="#installation" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={DesktopDownload} />
                             </div>
@@ -58,7 +59,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section3" className={classes.panelLink}>
+                        <a href="#how-to" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Rocket} />
                             </div>
@@ -69,7 +70,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section4" className={classes.panelLink}>
+                        <a href="#supported-algo" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Gear} />
                             </div>
@@ -80,7 +81,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section5" className={classes.panelLink}>
+                        <a href="#privacy-policy" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Shield} />
                             </div>
@@ -91,7 +92,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section6" className={classes.panelLink}>
+                        <a href="#disclaimer" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Alert} />
                             </div>
@@ -102,18 +103,18 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section7" className={classes.panelLink}>
+                        <a href="#help-out" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={GitPullRequest} />
                             </div>
                             <h3 className={classes.panelTitle}>Help Out</h3>
-                            <p className={classes.panelText}>Contribute to Kraken</p>
+                            <p className={classes.panelText}>Contribute to Kraken and Acknowledgements</p>
                             <div className={classes.panelFooter} />
                         </a>
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#section8" className={classes.panelLink}>
+                        <a href="#donate" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Heart} />
                             </div>
@@ -129,7 +130,7 @@ class HowTo extends Component {
                         <img alt="" src={krakenLogo} width="225" height="225" />
                     </div>
 
-                    <ScrollableAnchor id={'section1'}>
+                    <ScrollableAnchor id={'introduction'}>
                         <h3>What is Kraken</h3>
                     </ScrollableAnchor>
                     <p>
@@ -137,10 +138,14 @@ class HowTo extends Component {
                         It allows you to parallelize password-list and `crunch` based cracking across multiple machines to create a cluster of crackers
                         which can be run within the brower without installation or a desktop application (coming soon). Kraken is easy to use, fault tolerant
                         and can adjust to different cracking speeds automatically.
+                        <br/>
+                        I made Kraken because I wanted to learn more about offensive security and frustration that using tools like aircrack and hashcat meant I could only 
+                        run them on a single machine. Plus installing so many programs through command line was a bit annoying too! I wanted to make brute force cracking as seamless 
+                        and easy as possible. If you want to help me on this journey through <a href="#help-out">code</a> or <a href="#donate">monetarily</a>, I would be glad to chat.
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'section2'}>
+                    <ScrollableAnchor id={'installation'}>
                         <h3>Installation</h3>
                     </ScrollableAnchor>
                     <h5>Browser Based Client</h5>
@@ -155,37 +160,74 @@ class HowTo extends Component {
                     <p> Coming Soon!</p>
                     <br />
 
-                    <ScrollableAnchor id={'section3'}>
+                    <ScrollableAnchor id={'how-to'}>
                         <h3>How do I use Kraken</h3>
                     </ScrollableAnchor>
                     <p>
+
+                        <ul>
+                            <li><a href="#how-to_wpa-guide">Guide for WPA/WPA2</a></li>
+                            <li><a href="#how-to_ntlm-guide">Guide for NTLM (Windows Machine) [Coming Soon]</a> </li>
+                        </ul>
+                        <br />
+
+                        <ScrollableAnchor id={'how-to_wpa-guide'}><h4>Guide for WPA/WPA2</h4></ScrollableAnchor>
+                        <br />
+
                         <h5>Step 1</h5>
+                        The first step is to aquire a packet capture in pcap or cap format which contains the 4 way WPA/WPA2 handshake. There are numerous guides you can find on the
+                        net for <a href="https://louisabraham.github.io/articles/WPA-wifi-cracking-MBP.html"> mac</a>,
+                        <a href="https://www.aircrack-ng.org/doku.php?id=cracking_wpa"> linux </a> and
+                        <a href="http://mohanthemass.blogspot.com/2015/03/wi-fi-wifi-is-short-form-for-wireless.html"> windows</a>.
+                        Since these guides may go offline, I've rehashed some of them and added them here so you don't have to navigate endlessly through the web to find something that works:
+                        <ul>
+                            <li>
+                                <strong>OSX:</strong> script scans the current area, lists all the Wifi's available and passively listens until it captures a handshake.
+                                <br />
+                                I assume your Wifi Interface name is <strong>en0</strong> but you can change this to match the interface name on your machine from the 'ifconfig' commmand.
+                                <Gist id='0476dc5b7b60209277e5069f1735f0e8' />
+                                This script will create a packet capture file called <strong>capture.cap</strong> that you can upload to Kraken.
+                                <br />
+                                <strong>Note: </strong> You can make this process faster by performing a deauthentication attack but in my tests, my machine cannot sniff and
+                                inject packets at the same time.
+                            </li>
+                            <li>
+                                <strong>Linux:</strong> [Coming Soon]
+                            </li>
+                            <li>
+                                <strong>Windows:</strong> [Coming Soon]
+                            </li>
+                        </ul>
+                        <br />
+
+                        <h5>Step 2</h5>
                         Start by clicking the "Create New Request" button on the toolbar which should open a modal.
                         <br />
                         <img src={createRequestButton} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
 
-                        <h5>Step 2</h5>
+                        <h5>Step 3</h5>
                         Fill the fields of the modal and press submit. The following example shows a WPA/WPA2 request being created.
                         <br />
                         <img src={createRequestModal} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
                         <ol>
                             <li><strong>Request Name :</strong> This is the friendly name that Kraken will use to refer to this request. It does not have to be unique</li>
                             <li><strong>Request Type :</strong> This indicates what type of request it will be. Currently we support only WPA/WPA2</li>
-                            <li><strong>WPA/WPA2 Target Network :</strong> Unique to WPA/WPA2, this field indicate which SSID you want to target in your packet capture</li>
-                            <li><strong>WPA/WPA2 Packet Capture :</strong> Unique to WPA/WPA2, this is the packet capture file that contains the target handshake</li>
+                            <li><strong>Target Network SSID:</strong> Unique to WPA/WPA2, this field indicate which SSID you want to target in your packet capture </li>
+                            <li><strong>Packet Capture CAP/PCAP:</strong> Unique to WPA/WPA2, this is the packet capture file that contains the target handshake </li>
                             <li>
                                 <strong>Password List :</strong> This field specifies which password lists you want to use to attempt to crack target WPA/WPA2 handshake.
-                                You can add lists by clicking on the dropdown and pressing the add button and remove them by clicking on the pill in the display.
+                                You can add lists by clicking on the dropdown and pressing the add button and remove them by clicking on the pill in the display. There are many
+                                password lists to choose from including <strong>darkc0de.lst</strong>, <strong>rockyou.txt</strong>, <strong>bigWPA</strong> and others.
                             </li>
                             <li>
                                 <strong>Crunch Parameters : </strong> This field specifies the crunch parameters you want to use to attempt to crack target WPA/WPA2 handshake.
-                                Crunch is a program that allows you to generate candidate values based on 3 parameters : <strong>Minimum Length</strong>, <strong>Maximum Length </strong>
+                            Crunch is a program that allows you to generate candidate values based on 3 parameters : <strong>Minimum Length</strong>, <strong>Maximum Length </strong>
                                 and <strong>Character Set</strong>. You can optionally also provide a starting value. In the example above, crunch will generate all combinations of
-                                numbers of length 8. Click here learn more about <a href="https://tools.kali.org/password-attacks/crunch">crunch</a>.
+                            numbers of length 8. Click here learn more about <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html">crunch</a>.
                             </li>
                         </ol>
 
-                        <h5>Step 3</h5>
+                        <h5>Step 4</h5>
                         A new request should have been created in the active request column. Now click the start worker button to create a worker. The worker will be assinged a random name
                         and should be visible in "Your Workers" column. If you have an active request, the worker will automatically fetch jobs from the server and start processing them.
                         <img src={startWorkerButton} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
@@ -193,10 +235,11 @@ class HowTo extends Component {
                         In the browser client, workers run within the browser with cracking being performed in Javascript and hence is much slower than the desktop client.
                         If you close the tab in which the worker is running, the worker will go offline. In the desktop client, cracking is performed by Hashcat which can utilize
                         the machine's CPU and other hardware like GPU and is <strong>much faster</strong>.
+
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'section4'}>
+                    <ScrollableAnchor id={'supported-algo'}>
                         <h3>Supported Algorithms</h3>
                     </ScrollableAnchor>
                     <p>
@@ -204,7 +247,7 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'section5'}>
+                    <ScrollableAnchor id={'privacy-policy'}>
                         <h3>Privacy Policy</h3>
                     </ScrollableAnchor>
                     <p>
@@ -219,7 +262,7 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'section6'}>
+                    <ScrollableAnchor id={'disclaimer'}>
                         <h3>Disclaimer</h3>
                     </ScrollableAnchor>
                     <p>
@@ -230,25 +273,39 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'section7'}>
+                    <ScrollableAnchor id={'help-out'}>
                         <h3>Help Out</h3>
                     </ScrollableAnchor>
                     <p>
-                        If you would like to contribute to Kraken (either the server or client), email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
+                        <h5>Contribute Code to Kraken</h5>
+                        If you would like to contribute to Kraken server, email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a> and possibly join me in my journey to make
+                        usable security tools. 
                         <br />
-                        Feel free to contribute to the repository by creating a pull request or issue at &nbsp;
+                        If your would like to contribute to Kraken Client, feel free to do so by creating a pull request or an issue at &nbsp;
                         <a href="https://github.com/arcaneiceman/kraken-client">
                             <button style={{ textAlign: 'center' }}><Octicon icon={LogoGithub} /></button>
                         </a>
+                        I would gladly accept help if you want to join me as a part of the Kraken team as well.
                         <br />
+
+                        <h5>Shout Out</h5>
+                        I would like to give a shout out to the following teams/people that helped me make this possible in no particular order.
+                        <ul>
+                            <li><strong><a href="https://github.com/derv82">Derv82</a></strong></li>
+                            <li><strong><a href="http://ttt.studio/">TTT</a></strong></li>
+                            <li>All others who write amazing code to make all this possible</li>
+                        </ul>
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'section8'}>
+                    <ScrollableAnchor id={'donate'}>
                         <h3>Donate</h3>
                     </ScrollableAnchor>
                     <p>
-                        If you like Kraken and want to donate to keep Kraken running healthy, feel free to donate to my Paypal
+                        Hi there! If you would like to contribute $1 or more for the smooth running of Kraken, it would be greatly appreciated.
+                        If only a 100 people dontate, I could keep kraken running for 6 months! Any amount raised above the running costs will
+                        be used to buy better infrastructure! If anyone has good/cheeper infrastructure suggestions, please feel free to email
+                        me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>. Thank you!
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
                             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
                                 <input type="hidden" name="cmd" value="_donations" />
