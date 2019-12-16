@@ -56,7 +56,6 @@ class KrakenWorker extends Component {
         console.debug("Activating Worker")
 
         await this.promisedSetState({ workerActive: "INITIALIZING" })
-        await new Promise(resolve => setTimeout(resolve, 5000));
         let data = {}
         try {
             let response = await WorkerService.getWorker(this.state.workerId)
