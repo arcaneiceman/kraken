@@ -6,12 +6,15 @@ import SummaryTable from './../../components/SummaryTable/SummaryTable';
 import Octicon, { Trashcan } from '@githubprimer/octicons-react';
 import CompleteRequestService from '../../services/CompleteRequestService';
 import NotificationService from '../../utils/NotificiationService';
+import Spinner from 'react-bootstrap/Spinner'
 
 import classes from './CompletedRequests.module.css'
 
 class CompletedRequests extends Component {
 
     state = {
+        loadingStatus: null,
+
         // Page Size
         pageSize: 4,
 
@@ -69,11 +72,26 @@ class CompletedRequests extends Component {
             </tr>)
         }
 
+        // Loading Elements
+        let loadingSpinner;
+        let loadingBackground;
+        switch (this.state.loadingStatus) {
+            case "PROGRESS":
+                loadingBackground = <div className={classes.loadingBackground} />
+                loadingSpinner = <Spinner className={classes.loadingSpinner} animation="border" />
+                break;
+            default:
+                loadingBackground = null;
+                loadingSpinner = null;
+        }
+
         // Render
         return (
             <div>
                 <SectionHeading heading={'Completed Requests'} />
                 <div className={classes.content}>
+                    {loadingBackground}
+                    {loadingSpinner}
                     {detailSection}
                     <SummaryTable
                         tableHeadings={tableHeadings}
@@ -88,14 +106,20 @@ class CompletedRequests extends Component {
         );
     }
 
-    componentDidMount() {
-        this.getSummary()
-        this.getCompleteRequests()
-        const timer = setInterval(() => {
+    componentDidMount = async () => {
+        try {
+            await this.promisedSetState({ loadingStatus: "PROGRESS" })
             this.getSummary()
             this.getCompleteRequests()
-        }, 15000);
-        this.setState({ getCompletedRequestsTimer: timer })
+            const timer = setInterval(() => {
+                this.getSummary()
+                this.getCompleteRequests()
+            }, 15000);
+            this.setState({ getCompletedRequestsTimer: timer })
+        }
+        finally {
+            await this.promisedSetState({ loadingStatus: null })
+        }
     }
 
     componentWillUnmount() {
@@ -103,19 +127,26 @@ class CompletedRequests extends Component {
     }
 
     nextPage = async () => {
-        const currentPage = this.state.currentPage;
-        const totalPages = this.state.totalPages;
-        if (currentPage + 1 <= totalPages) {
-            await this.promisedSetState({currentPage: currentPage + 1})
-            this.getCompleteRequests();
+        if (this.state.currentPage + 1 <= this.state.totalPages) {
+            try{
+                await this.promisedSetState({ currentPage: this.state.currentPage + 1, loadingStatus: "PROGRESS" })
+                this.getCompleteRequests();
+            }
+            finally{
+                await this.promisedSetState({ loadingStatus: null })
+            }
         }
     }
 
     prevPage = async () => {
-        const currentPage = this.state.currentPage;
-        if (currentPage - 1 >= 1) {
-            await this.promisedSetState({currentPage: currentPage - 1})
-            this.getCompleteRequests();
+        if (this.state.currentPage - 1 >= 1) {
+            try {
+                await this.promisedSetState({ currentPage: this.state.currentPage - 1, loadingStatus: "PROGRESS" })
+                this.getCompleteRequests();
+            }
+            finally {
+                await this.promisedSetState({ loadingStatus: null })
+            }
         }
     }
 
@@ -147,12 +178,16 @@ class CompletedRequests extends Component {
 
     deleteCompletedRequest = async (completeRequestId) => {
         try {
+            await this.promisedSetState({ loadingStatus: "PROGRESS" })
             await CompleteRequestService.deleteCompleteRequest(completeRequestId)
             this.getSummary()
             this.getCompleteRequests()
         }
         catch (error) {
             NotificationService.showNotification(error.response.data.message, false)
+        }
+        finally {
+            await this.promisedSetState({ loadingStatus: null })
         }
     }
 

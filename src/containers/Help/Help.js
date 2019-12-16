@@ -175,14 +175,28 @@ class HowTo extends Component {
                         <br />
 
                         <h5>Step 1</h5>
-                        The first step is to aquire a packet capture in pcap or cap format which contains the 4 way WPA/WPA2 handshake. There are numerous guides you can find on the
-                        net for <a href="https://louisabraham.github.io/articles/WPA-wifi-cracking-MBP.html"> mac</a>,
+                        The first step is to aquire a packet capture in pcap or cap format which contains the 4 way WPA/WPA2 handshake. To learn more about capturing handshakes
+                        click <a href="https://www.kalitutorials.net/2014/06/hack-wpa-2-psk-capturing-handshake.html">here</a>.
+                        There are numerous guides you can find on the net for 
+                        <a href="https://louisabraham.github.io/articles/WPA-wifi-cracking-MBP.html"> mac</a>,
                         <a href="https://www.aircrack-ng.org/doku.php?id=cracking_wpa"> linux </a> and
                         <a href="http://mohanthemass.blogspot.com/2015/03/wi-fi-wifi-is-short-form-for-wireless.html"> windows</a>.
-                        Since these guides may go offline, I've rehashed some of them and added them here so you don't have to navigate endlessly through the web to find something that works:
+                        These guides assume that your WiFi card supports the kind of attack you want to perform; If you want to passively capture handshakes, your card must be able to
+                        go into monitor mode otherwise for <strong>deauthentication</strong> attack it needs to  perform packet injection as well.
+                        These guides may go offline, I've rehashed some of them and added them here so you don't have to navigate endlessly through the web to find something that works:
                         <ul>
                             <li>
-                                <strong>OSX:</strong> script scans the current area, lists all the Wifi's available and passively listens until it captures a handshake.
+                                <strong>Linux:</strong> Capturing a handshake on Linux is by far the easiest and fastest in my opinion because of how easy it is to perform an <strong>active</strong> capture. 
+                                <br/>
+                                Start by installing <strong>aircrack-ng</strong> by typing `sudo apt-get install aircrack-ng` into the terminal. 
+                                <br/>
+                                Use `ifconfig` to find your WiFi interface. Lets assume its 'wlan0'. 
+                                <br/>
+                                Just run `sudo besside-ng wlan0` and watch the magic happen. The `besside-ng` program should create a file called <strong>wpa.cap</strong> which you can upload to Kraken.
+                            </li>
+                            <li>
+                                <strong>OSX:</strong> The script below performs a <strong>passive</strong> capture by scanning the current area, listing all the Wifi's available and after you provide it a target, 
+                                listens until it captures a handshake.
                                 <br />
                                 I assume your Wifi Interface name is <strong>en0</strong> but you can change this to match the interface name on your machine from the 'ifconfig' commmand.
                                 <Gist id='0476dc5b7b60209277e5069f1735f0e8' />
@@ -190,9 +204,6 @@ class HowTo extends Component {
                                 <br />
                                 <strong>Note: </strong> You can make this process faster by performing a deauthentication attack but in my tests, my machine cannot sniff and
                                 inject packets at the same time.
-                            </li>
-                            <li>
-                                <strong>Linux:</strong> [Coming Soon]
                             </li>
                             <li>
                                 <strong>Windows:</strong> [Coming Soon]

@@ -7,12 +7,15 @@ import Pagination from './../../components/Pagination/Pagination';
 import Octicon, { Trashcan } from '@githubprimer/octicons-react';
 import WorkerService from '../../services/WorkerService'
 import NotificationService from '../../utils/NotificiationService';
+import Spinner from 'react-bootstrap/Spinner'
 
 import classes from './Workers.module.css'
 
 class Workers extends Component {
 
     state = {
+        loadingStatus: null,
+
         // Page Size
         pageSize: 4,
 
@@ -29,7 +32,6 @@ class Workers extends Component {
     }
 
     render() {
-
         // Create Detail Section
         const detailSection = (
             <div className={classes.detailContainer}>
@@ -70,11 +72,26 @@ class Workers extends Component {
             </tr>)
         }
 
+        // Loading Elements
+        let loadingSpinner;
+        let loadingBackground;
+        switch (this.state.loadingStatus) {
+            case "PROGRESS":
+                loadingBackground = <div className={classes.loadingBackground} />
+                loadingSpinner = <Spinner className={classes.loadingSpinner} animation="border" />
+                break;
+            default:
+                loadingBackground = null;
+                loadingSpinner = null;
+        }
+
         // Render
         return (
             <div>
                 <SectionHeading heading={'Your Workers'} />
                 <div className={classes.main}>
+                    {loadingBackground}
+                    {loadingSpinner}
                     {detailSection}
                     <SummaryTable
                         tableHeadings={tableHeadings}
@@ -89,14 +106,20 @@ class Workers extends Component {
         );
     }
 
-    componentDidMount() {
-        this.getSummary();
-        this.getWorkers();
-        const timer = setInterval(() => {
+    componentDidMount = async () => {
+        try {
+            await this.promisedSetState({ loadingStatus: "PROGRESS" })
             this.getSummary();
             this.getWorkers();
-        }, 15000);
-        this.setState({ getWorkerTimer: timer })
+            const timer = setInterval(() => {
+                this.getSummary();
+                this.getWorkers();
+            }, 15000);
+            this.setState({ getWorkerTimer: timer })
+        }
+        finally{
+            await this.promisedSetState({ loadingStatus: null })
+        }
     }
 
     componentWillUnmount() {
@@ -105,16 +128,25 @@ class Workers extends Component {
 
     nextPage = async () => {
         if (this.state.currentPage + 1 <= this.state.totalPages) {
-            await this.promisedSetState({ currentPage: this.state.currentPage + 1 })
-            this.getWorkers()
+            try {
+                await this.promisedSetState({ currentPage: this.state.currentPage + 1, loadingStatus: "PROGRESS" })
+                this.getWorkers()
+            }
+            finally {
+                await this.promisedSetState({ loadingStatus: null })
+            }
         }
     }
 
     prevPage = async () => {
-        const currentPage = this.state.currentPage;
-        if (currentPage - 1 >= 1) {
-            await this.promisedSetState({ currentPage: currentPage - 1 })
-            this.getWorkers()
+        if (this.state.currentPage - 1 >= 1) {
+            try {
+                await this.promisedSetState({ currentPage: this.state.currentPage - 1, loadingStatus: "PROGRESS" })
+                this.getWorkers()
+            }
+            finally {
+                await this.promisedSetState({ loadingStatus: null })
+            }
         }
     }
 
@@ -148,6 +180,7 @@ class Workers extends Component {
 
     deleteWorker = async (workerId) => {
         try {
+            await this.promisedSetState({ loadingStatus: "PROGRESS" })
             await WorkerService.deleteWorker(workerId)
             this.getSummary();
             this.getWorkers();
@@ -155,7 +188,11 @@ class Workers extends Component {
         catch (error) {
             NotificationService.showNotification(error.response.data.message, false)
         }
+        finally {
+            await this.promisedSetState({ loadingStatus: null })
+        }
     }
+
     promisedSetState = (newState) => {
         return new Promise((resolve) => {
             this.setState(newState, () => {

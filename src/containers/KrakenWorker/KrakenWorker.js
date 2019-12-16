@@ -4,6 +4,7 @@ import AuthenticationService from '../../services/AuthenticationService';
 import WorkerService from '../../services/WorkerService'
 import SectionHeading from '../../components/SectionHeading/SectionHeading';
 import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner'
 import DetailBox from '../../components/DetailBox/DetailBox';
 import Octicon, { Rocket } from '@githubprimer/octicons-react';
 import isElectron from 'is-electron';
@@ -23,7 +24,7 @@ class KrakenWorker extends Component {
 
     state = {
         /* State Variables */
-        workerActive: false,
+        workerActive: "INACTIVE",
         workerActiveCoreCount: window.navigator.hardwareConcurrency === 1 ? 1 : (window.navigator.hardwareConcurrency - 1),
         workerGettingJob: false,
         workerCracking: false,
@@ -54,6 +55,8 @@ class KrakenWorker extends Component {
     activateWorker = async () => {
         console.debug("Activating Worker")
 
+        await this.promisedSetState({ workerActive: "INITIALIZING" })
+        await new Promise(resolve => setTimeout(resolve, 5000));
         let data = {}
         try {
             let response = await WorkerService.getWorker(this.state.workerId)
@@ -70,6 +73,7 @@ class KrakenWorker extends Component {
                 data = response.data
             }
             catch (error) {
+                await this.promisedSetState({ workerActive: "ERROR" })
                 console.error("Create Worker error " + error.response.data.message)
                 return
             }
@@ -98,7 +102,7 @@ class KrakenWorker extends Component {
         }
 
         await this.promisedSetState({
-            workerActive: true,
+            workerActive: "ACTIVE",
             workerId: data.id,
             workerName: data.name,
             workerHeartbeatTimer: heartbeatTimer,
@@ -141,7 +145,7 @@ class KrakenWorker extends Component {
 
         // Set State to deactivate worker
         await this.promisedSetState({
-            workerActive: false,
+            workerActive: "INACTIVE",
             workerGettingJob: false,
             workerCracking: false,
             workerReportingJob: false,
@@ -156,52 +160,76 @@ class KrakenWorker extends Component {
     }
 
     render() {
-        let display = null;
-        if (this.state.workerActive) {
-            const inProgressJobs = this.state.workerJobQueue.filter((job) => job.trackingStatus === "PENDING" || job.trackingStatus === "RUNNING")
-                .reduce((sum, job) => { return sum + job.multiplier }, 0)
-            display =
-                <div>
-                    <SectionHeading heading={'Worker'} />
-                    <div className={classes.main_active}>
-                        <div>
-                            <div className={classes.content}>
-                                <DetailBox boxValue={inProgressJobs.toString()} boxText={'In Progress'} />
-                                <DetailBox boxValue={this.state.errorJobs.toString()} boxText={'Errors'} />
-                                <div className={classes.lastDetailItem}>
-                                    <DetailBox boxValue={this.state.completeJobs.toString()} boxText={'Completed Jobs'} />
+        switch (this.state.workerActive) {
+            case "INACTIVE":
+                return (
+                    <div>
+                        <SectionHeading heading={'Add a Worker'} />
+                        <div className={classes.main_inactive}>
+                            <h3 className={classes.startText}> Start Worker Here</h3>
+                            <Button className={classes.startButton} onClick={this.activateWorker}> Work <Octicon icon={Rocket} /></Button>
+                        </div>
+                    </div>
+                );
+            case "INITIALIZING":
+                return (
+                    <div>
+                        <SectionHeading heading={'Add a Worker'} />
+                        <div className={classes.main_inactive}>
+                            <h3 className={classes.startText}> Start Worker Here</h3>
+                            <Button className={classes.startButton}>
+                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                            </Button>
+                        </div>
+                    </div>
+                );
+            case "ERROR":
+                return (
+                    <div>
+                        <SectionHeading heading={'Add a Worker'} />
+                        <div className={classes.main_inactive}>
+                            <h3 className={classes.startText}> Start Worker Here</h3>
+                            <Button className={classes.startButton} variant="danger" onClick={this.activateWorker}> Error! Click to try again</Button>
+                        </div>
+                    </div>
+                );
+            case "ACTIVE":
+                const inProgressJobs = this.state.workerJobQueue.filter((job) => job.trackingStatus === "PENDING" || job.trackingStatus === "RUNNING")
+                    .reduce((sum, job) => { return sum + job.multiplier }, 0)
+                return (
+                    <div>
+                        <SectionHeading heading={'Worker'} />
+                        <div className={classes.main_active}>
+                            <div>
+                                <div className={classes.content}>
+                                    <DetailBox boxValue={inProgressJobs.toString()} boxText={'In Progress'} />
+                                    <DetailBox boxValue={this.state.errorJobs.toString()} boxText={'Errors'} />
+                                    <div className={classes.lastDetailItem}>
+                                        <DetailBox boxValue={this.state.completeJobs.toString()} boxText={'Completed Jobs'} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className={classes.heading}>Name</h3>
+                                    <div><strong style={{ margin: '10px' }}>{this.state.workerName}</strong></div>
+                                </div>
+                                <div >
+                                    <h3 className={classes.heading}>Uptime</h3>
+                                    <div><strong style={{ margin: '10px' }}>{this.toHHMMSS(this.state.secondsSinceActivation)}</strong></div>
                                 </div>
                             </div>
-                            <div>
-                                <h3 className={classes.heading}>Name</h3>
-                                <div><strong style={{ margin: '10px' }}>{this.state.workerName}</strong></div>
-                            </div>
-                            <div >
-                                <h3 className={classes.heading}>Uptime</h3>
-                                <div><strong style={{ margin: '10px' }}>{this.toHHMMSS(this.state.secondsSinceActivation)}</strong></div>
+                            <div className={classes.stopButtonContainer}>
+                                <Button variant="danger" onClick={this.deactivateWorker}>Stop</Button>
                             </div>
                         </div>
-                        <div className={classes.stopButtonContainer}>
-                            <Button variant="danger" onClick={this.deactivateWorker}>Stop</Button>
-                        </div>
-                    </div>
-                </div >
+                    </div >
+                );
+            default:
+                return (<div>Error</div>)
         }
-        else {
-            display =
-                <div>
-                    <SectionHeading heading={'Add a Worker'} />
-                    <div className={classes.main_inactive}>
-                        <h3 className={classes.startText}> Start Worker Here</h3>
-                        <Button className={classes.startButton} onClick={this.activateWorker}> Work <Octicon icon={Rocket} /></Button>
-                    </div>
-                </div>;
-        }
-        return (display);
     }
 
     componentWillUnmount() {
-        if (this.state.workerActive)
+        if (this.state.workerActive === "ACTIVE")
             this.deactivateWorker()
     }
 
@@ -217,7 +245,7 @@ class KrakenWorker extends Component {
         if (!success)
             return;
 
-        if (!this.state.workerActive)
+        if (this.state.workerActive !== 'ACTIVE')
             return;
 
         // If PENDING jobs not present AND not already getting...
@@ -434,8 +462,8 @@ class KrakenWorker extends Component {
         let errorJobs = this.state.errorJobs;
 
         let completeJob = jobQueueClone.find((job) => (job.jobId === message.data.jobId))
-        if (typeof message.data.status !== 'undefined' && typeof completeJob  !== 'undefined') {
-            
+        if (typeof message.data.status !== 'undefined' && typeof completeJob !== 'undefined') {
+
             // Remove Job from Complete Queue
             jobQueueClone.splice(jobQueueClone.indexOf(completeJob), 1)
 

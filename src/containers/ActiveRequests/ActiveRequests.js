@@ -7,12 +7,15 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import ActiveRequestService from '../../services/ActiveRequestService';
 import NotificationService from '../../utils/NotificiationService';
 import Octicon, { Trashcan } from '@githubprimer/octicons-react';
+import Spinner from 'react-bootstrap/Spinner'
 
 import classes from './ActiveRequests.module.css'
 
 class ActiveRequests extends Component {
 
     state = {
+        loadingStatus: null,
+
         // Page Size
         pageSize: 4,
 
@@ -77,11 +80,26 @@ class ActiveRequests extends Component {
             </tr>)
         }
 
+        // Loading Elements
+        let loadingSpinner;
+        let loadingBackground;
+        switch (this.state.loadingStatus) {
+            case "PROGRESS":
+                loadingBackground = <div className={classes.loadingBackground} />
+                loadingSpinner = <Spinner className={classes.loadingSpinner} animation="border" />
+                break;
+            default:
+                loadingBackground = null;
+                loadingSpinner = null;
+        }
+
         // Render
         return (
             <div>
                 <SectionHeading heading={'Your Active Requests'} />
                 <div className={classes.main}>
+                    {loadingBackground}
+                    {loadingSpinner}
                     {summarySection}
                     <SummaryTable
                         tableHeadings={tableHeadings}
@@ -96,14 +114,20 @@ class ActiveRequests extends Component {
         );
     }
 
-    componentDidMount() {
-        this.getActiveRequests()
-        this.getSummary()
-        const timer = setInterval(() => { 
+    componentDidMount = async () => {
+        try {
+            await this.promisedSetState({ loadingStatus: "PROGRESS" })
             this.getActiveRequests()
             this.getSummary()
-        }, 15000);
-        this.setState({ getActiveRequestTimer: timer })
+            const timer = setInterval(() => {
+                this.getActiveRequests()
+                this.getSummary()
+            }, 15000);
+            this.setState({ getActiveRequestTimer: timer })
+        }
+        finally {
+            await this.promisedSetState({ loadingStatus: null })
+        }
     }
 
     componentWillUnmount() {
@@ -119,19 +143,26 @@ class ActiveRequests extends Component {
     }
 
     nextPage = async () => {
-        const currentPage = this.state.currentPage;
-        const totalPages = this.state.totalPages;
-        if (currentPage + 1 <= totalPages) {
-            await this.promisedSetState({ currentPage: currentPage + 1 })
-            this.getActiveRequests()
+        if (this.state.currentPage + 1 <= this.state.totalPages) {
+            try{
+                await this.promisedSetState({ currentPage: this.state.currentPage + 1, loadingStatus: "PROGRESS" })
+                this.getActiveRequests()
+            }
+            finally{
+                await this.promisedSetState({ loadingStatus: null })
+            }
         }
     }
 
     prevPage = async () => {
-        const currentPage = this.state.currentPage;
-        if (currentPage - 1 >= 1) {
-            await this.promisedSetState({ currentPage: currentPage - 1 })
-            this.getActiveRequests()
+        if (this.state.currentPage - 1 >= 1) {
+            try {
+                await this.promisedSetState({ currentPage: this.state.currentPage - 1, loadingStatus: "PROGRESS" })
+                this.getActiveRequests()
+            }
+            finally {
+                await this.promisedSetState({ loadingStatus: null })
+            }
         }
     }
 
@@ -151,26 +182,30 @@ class ActiveRequests extends Component {
     }
 
     getActiveRequests = async () => {
-        try{
+        try {
             const response = await ActiveRequestService.getActiveRequests(this.state.currentPage, this.state.pageSize)
             await this.promisedSetState({
                 activeRequests: response.data.content,
                 totalPages: response.data.totalPages === 0 ? 1 : response.data.totalPages,
             })
         }
-        catch(error){
+        catch (error) {
             NotificationService.showNotification(error.response.data.message, false)
         }
     }
 
-    deleteActiveRequest = async(activeRequestId) => {
-        try{
+    deleteActiveRequest = async (activeRequestId) => {
+        try {
+            await this.promisedSetState({ loadingStatus: "PROGRESS" })
             await ActiveRequestService.deleteActiveRequest(activeRequestId);
             this.getSummary()
             this.getActiveRequests()
         }
-        catch(error){
+        catch (error) {
             NotificationService.showNotification(error.response.data.message, false)
+        }
+        finally {
+            await this.promisedSetState({ loadingStatus: null })
         }
     }
 
