@@ -18,6 +18,7 @@ import NotificationService from '../../utils/NotificiationService';
 import isElectron from 'is-electron';
 
 import classes from './Dashboard.module.css'
+import Spinner from 'react-bootstrap/Spinner';
 
 class Dashboard extends Component {
 
@@ -27,6 +28,7 @@ class Dashboard extends Component {
         /* Page State */
         newActiveRequestModalVisible: false,
         newActiveRequestFormValidated: false,
+        newActiveRequestFormLoadingStatus: false,
         newActiveRequestErrorMessage: null,
 
         /* New Active Request State */
@@ -64,8 +66,8 @@ class Dashboard extends Component {
         if (!form.checkValidity())
             return
 
-        await this.promisedSetState({ newActiveRequestFormValidated: true, newActiveRequestErrorMessage: null })
         try {
+            await this.promisedSetState({ newActiveRequestFormValidated: true, newActiveRequestErrorMessage: null, newActiveRequestFormLoadingStatus: true })
             await ActiveRequestService.createActiveRequest(
                 this.state.newActiveRequestType,
                 this.state.newActiveRequestName,
@@ -80,6 +82,9 @@ class Dashboard extends Component {
         catch (error) {
             console.log("LOGGED ERROR")
             await this.promisedSetState({ newActiveRequestFormValidated: false, newActiveRequestErrorMessage: error.response.data.message })
+        }
+        finally {
+            await this.promisedSetState({ newActiveRequestFormLoadingStatus: false })
         }
     }
 
@@ -327,6 +332,17 @@ class Dashboard extends Component {
             errorMessage = <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.newActiveRequestErrorMessage}</strong></div>
         }
 
+        // Submit Button
+        let submitButton = null
+        if (this.state.newActiveRequestFormLoadingStatus) {
+            submitButton = <Button variant="primary">
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+            </Button>
+        }
+        else {
+            submitButton = <Button type="submit" variant="primary" form="main-form">Submit</Button>
+        }
+
         // Return Modal
         return (
             <Modal size="lg" aria-labelledby="contained-modal-title-vcenter"
@@ -464,7 +480,7 @@ class Dashboard extends Component {
                 <Modal.Footer>
                     {errorMessage}
                     <Button variant="secondary" onClick={this.closeNewActiveRequestModal}>Close</Button>
-                    <Button type="submit" variant="primary" form="main-form">Submit</Button>
+                    {submitButton}
                 </Modal.Footer>
             </Modal >);
     }
