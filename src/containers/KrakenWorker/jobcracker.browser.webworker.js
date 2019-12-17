@@ -4,7 +4,7 @@ import CryptoJS from './utils/Crypto/crypto-js';
 import md4 from '../KrakenWorker/utils/Crypto/md4';
 
 self.onmessage = (message) => {
-    console.log("Cracker received job with id " + message.data.jobId)
+    console.debug("Cracker received job with id " + message.data.jobId)
     let returnObject = { jobId: message.data.jobId, crackingStatus: null, result: null }
     try {
         let match = null;
@@ -28,7 +28,6 @@ self.onmessage = (message) => {
         }
         if (match !== null && match !== undefined && match !== "") {
             returnObject.crackingStatus = 'CRACKED';
-            console.log(match)
             returnObject.result = match;
         }
         else {

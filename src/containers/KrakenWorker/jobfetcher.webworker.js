@@ -17,7 +17,7 @@ self.onmessage = (e) => {
                 break;
             default:
                 response.status = "ERROR"
-                console.log("Get Job Error " + xhttp.status)
+                console.error("Get Job Error " + xhttp.status)
         }
     }
     finally {

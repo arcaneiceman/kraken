@@ -38,7 +38,7 @@ class KrakenWorker extends Component {
         workerSparkplugTimer: null,
         workerActivationTimer: null,
         workerJobQueue: [],
-        workerRecommendedMultiplier: 1, // Default Mutliplier is 1
+        workerRecommendedMultiplier: null,
         executionStartTime: null,
 
         /* Web Workers */
@@ -66,8 +66,7 @@ class KrakenWorker extends Component {
             // Create New Worker
             try {
                 await this.promisedSetState({
-                    workerJobQueue: [],
-                    workerRecommendedMultiplier: 1,
+                    workerRecommendedMultiplier: 1, // Default Mutliplier is 1
                     secondsSinceActivation: 0,
                     completeJobs: 0,
                     errorJobs: 0
@@ -139,13 +138,6 @@ class KrakenWorker extends Component {
         clearInterval(this.state.workerSparkplugTimer);
         clearInterval(this.state.workerActivationTimer);
 
-        // Change Running -> Pending
-        let jobQueueClone = this.state.workerJobQueue.slice();
-        jobQueueClone.forEach((job) => {
-            if (job.trackingStatus === "RUNNING")
-                job.trackingStatus = "PENDING"
-        });
-
         // Set State to deactivate worker
         await this.promisedSetState({
             workerActive: "INACTIVE",
@@ -153,11 +145,12 @@ class KrakenWorker extends Component {
             workerCracking: false,
             workerReportingJob: false,
 
+            workerLastHeartbeat: null,
             workerHeartbeatTimer: null,
             workerSparkplugTimer: null,
             workerActivationTimer: null,
-            workerJobQueue: jobQueueClone,
             executionStartTime: null,
+            workerJobQueue: [],
 
             crackerPool: [],
             jobFetcher: null,
@@ -279,7 +272,7 @@ class KrakenWorker extends Component {
             multiplier: Math.max(Math.min(this.state.workerRecommendedMultiplier, 1000), 1),
             activeCoreCount: this.state.workerActiveCoreCount
         }
-        console.log("Getting Job with multiplier " + params.multiplier)
+        console.debug("Getting Job with multiplier " + params.multiplier)
 
         // Send Request To Fetcher
         this.state.jobFetcher.postMessage(params)
@@ -313,7 +306,7 @@ class KrakenWorker extends Component {
             success = true
         }
         else {
-            console.debug("Get Job Failed")
+            console.error("Get Job Failed")
         }
 
         await this.promisedSetState({
@@ -403,7 +396,7 @@ class KrakenWorker extends Component {
                         runningJob.trackingStatus = "COMPLETE"
 
                         let executionTime = Date.now() - runningJob.executionStartTime;
-                        console.log(" Job took " + executionTime + " ms to complete. Multipler of " + runningJob.multiplier)
+                        console.log("Job with multipler of " + runningJob.multiplier + " took " + executionTime + " ms to complete")
                         multiplierRecommendation = Math.floor((60000 * runningJob.multiplier) / executionTime) // 60000 is 1 minute
                         console.debug("Setting Multiplier Recommendation to " + multiplierRecommendation)
                     }

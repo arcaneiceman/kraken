@@ -25,7 +25,7 @@ self.onmessage = (e) => {
             default:
                 response.jobId = e.data.jobId;
                 response.status = "ERROR"
-                console.log("Report Job Error " + xhttp.status)
+                console.error("Report Job Error " + xhttp.status)
         }
     }
     finally{

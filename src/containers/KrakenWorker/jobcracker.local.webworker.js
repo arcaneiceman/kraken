@@ -14,7 +14,7 @@ const JobCrackerLocal = (webWorkerId, callback) => {
     let hashCatProcess;
 
     const postMessage = async (message) => {
-        console.log("Cracker received job with id " + message.jobId)
+        console.debug("Cracker received job with id " + message.jobId)
         let returnObject = { data: { jobId: message.jobId, crackingStatus: null, result: null } }
         const candidateValueFileName = 'tmp-candidate-values'
         const valueToMatchFileName = 'tmp-value-to-match'
