@@ -388,7 +388,7 @@ class Dashboard extends Component {
                                     <Form.Control name="requestType" onChange={this.setRequestType} as="select" required>
                                         <option disabled selected>Choose...</option>
                                         <option value="WPA">WPA/WPA2</option>
-                                        <option value="NTLM">NTLM</option>
+                                        {/* <option value="NTLM">NTLM</option> */}
                                     </Form.Control>
                                     <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
                                 </Form.Group>
