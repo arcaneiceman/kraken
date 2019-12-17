@@ -1,21 +1,25 @@
 /* eslint-disable no-restricted-globals */
 import Crack from './utils/WPA/Crack';
-import CryptoJS from './utils/Crypto/crypto-js'
+import CryptoJS from './utils/Crypto/crypto-js';
+import md4 from '../KrakenWorker/utils/Crypto/md4';
 
 self.onmessage = (message) => {
-    console.log( "Cracker received job with id " + message.data.jobId )
+    console.log("Cracker received job with id " + message.data.jobId)
     let returnObject = { jobId: message.data.jobId, crackingStatus: null, result: null }
     try {
         let match = null;
         let valueToMatch = atob(message.data.valueToMatchInBase64)
         switch (message.data.requestType) {
             case 'WPA':
-                //console.log("Processing WPA Request...");
                 const crack = new Crack(valueToMatch)
                 match = message.data.candidateValues.find((element) => { return crack.tryPSK(element) })
                 break;
+            case 'NTLM':
+                valueToMatch = valueToMatch.toLowerCase();
+                match = message.data.candidateValues.find((element) => { 
+                    return md4(element.split("").join("\0") + "\0") === valueToMatch });
+                break;
             case 'MD5':
-                //console.log("Processing MD5 Request...");
                 valueToMatch = valueToMatch.toLowerCase();
                 match = message.data.candidateValues.find((element) => { return CryptoJS.MD5(element).toString() === valueToMatch; });
                 break;
@@ -34,7 +38,7 @@ self.onmessage = (message) => {
     catch (e) {
         returnObject.crackingStatus = 'ERROR';
     }
-    finally{
+    finally {
         self.postMessage(returnObject)
     }
 };

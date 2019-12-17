@@ -54,7 +54,7 @@ class KrakenWorker extends Component {
 
     activateWorker = async () => {
         console.debug("Activating Worker")
-
+        
         await this.promisedSetState({ workerActive: "INITIALIZING" })
         let data = {}
         try {

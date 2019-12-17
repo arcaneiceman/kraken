@@ -15,10 +15,11 @@ import ActiveRequestService from '../../services/ActiveRequestService';
 import AuthenticationService from '../../services/AuthenticationService';
 import PasswordListService from '../../services/PasswordListService';
 import NotificationService from '../../utils/NotificiationService';
+import Spinner from 'react-bootstrap/Spinner';
 import isElectron from 'is-electron';
 
+
 import classes from './Dashboard.module.css'
-import Spinner from 'react-bootstrap/Spinner';
 
 class Dashboard extends Component {
 
@@ -301,6 +302,17 @@ class Dashboard extends Component {
                         </Form.Group>
                     </Col>
                 break;
+            case 'NTLM':
+                valueToMatchInBase64Field =
+                    <Col>
+                        <Form.Group className={classes.formGroup}>
+                            <Form.Label className={classes.modal_form_label}>NTLM (NT Hash)</Form.Label>
+                            <Form.Text className="text-muted"> Case Agnostic </Form.Text>
+                            <Form.Control onChange={this.setValueToMatchInBase64} name="text" type="text" required></Form.Control>
+                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
+                        </Form.Group>
+                    </Col>
+                break;
             default:
                 metadataFields = null
                 valueToMatchInBase64Field = null
@@ -376,6 +388,7 @@ class Dashboard extends Component {
                                     <Form.Control name="requestType" onChange={this.setRequestType} as="select" required>
                                         <option disabled selected>Choose...</option>
                                         <option value="WPA">WPA/WPA2</option>
+                                        <option value="NTLM">NTLM</option>
                                     </Form.Control>
                                     <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
                                 </Form.Group>

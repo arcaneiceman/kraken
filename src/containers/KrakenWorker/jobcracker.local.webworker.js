@@ -27,13 +27,15 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             let match = null
             switch (message.requestType) {
                 case 'WPA':
-                    console.log("Processing WPA Request...");
                     const crack = new Crack(valueToMatch)
                     await writeFile(valueToMatchFileName, new Buffer(crack.hccapx._io._buffer))
                     hashcatMD5Mode = 2500;
                     break;
+                case 'NTLM':
+                    await writeFile(valueToMatchFileName, valueToMatch.toUpperCase().split("").join("\0") + "\0".toString());
+                    hashcatMD5Mode = 1000
+                    break;
                 case 'MD5':
-                    console.log("Processing MD5 Request...");
                     await writeFile(valueToMatchFileName, valueToMatch.toLowerCase())
                     hashcatMD5Mode = 0
                     break;
