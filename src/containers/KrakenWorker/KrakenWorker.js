@@ -58,12 +58,16 @@ class KrakenWorker extends Component {
         await this.promisedSetState({ workerActive: "INITIALIZING" })
         let data = {}
         try {
+            // Use Previously Created Worker
             let response = await WorkerService.getWorker(this.state.workerId)
             data = response.data
         }
         catch (error) {
+            // Create New Worker
             try {
                 await this.promisedSetState({
+                    workerJobQueue: [],
+                    workerRecommendedMultiplier: 1,
                     secondsSinceActivation: 0,
                     completeJobs: 0,
                     errorJobs: 0
@@ -153,8 +157,11 @@ class KrakenWorker extends Component {
             workerSparkplugTimer: null,
             workerActivationTimer: null,
             workerJobQueue: jobQueueClone,
-            webWorkerList: [],
             executionStartTime: null,
+
+            crackerPool: [],
+            jobFetcher: null,
+            jobReporter: null,
         })
     }
 
@@ -503,8 +510,10 @@ class KrakenWorker extends Component {
         }
         catch (error) {
             console.error("Heartbeat Error " + error.response.data.message)
-            if (error.response.data.code === 231)
-                this.deactivateWorker();
+            if (error.response.data.code === 231){ // Worker Not Found
+                this.deactivateWorker(); // Deactivate Worker
+                this.activateWorker(); // Reactivate Worker
+            }
         }
     }
 
