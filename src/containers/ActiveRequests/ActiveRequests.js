@@ -8,6 +8,8 @@ import ActiveRequestService from '../../services/ActiveRequestService';
 import NotificationService from '../../utils/NotificiationService';
 import Octicon, { Trashcan } from '@githubprimer/octicons-react';
 import Spinner from 'react-bootstrap/Spinner'
+import Modal from 'react-bootstrap/Modal'
+import Button from 'react-bootstrap/Button'
 
 import classes from './ActiveRequests.module.css'
 
@@ -15,6 +17,7 @@ class ActiveRequests extends Component {
 
     state = {
         loadingStatus: null,
+        deleteConfirmationId: null,
 
         // Page Size
         pageSize: 4,
@@ -63,7 +66,7 @@ class ActiveRequests extends Component {
                     <td className={classes.tableItem}>{activeRequest.completedJobCount}</td>
                     <td className={classes.tableItem}>{activeRequest.errorJobCount}</td>
                     <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}
-                        onClick={() => this.deleteActiveRequest(activeRequest.id)}>
+                        onClick={() => this.promisedSetState({ deleteConfirmationId: activeRequest.id })}>
                         <Octicon icon={Trashcan} />
                     </td>
                 </tr>
@@ -93,9 +96,13 @@ class ActiveRequests extends Component {
                 loadingSpinner = null;
         }
 
+        // Delete Confirmation Modal
+        let deleteConfirmationModal = this.buildModal();
+
         // Render
         return (
             <div>
+                {deleteConfirmationModal}
                 <SectionHeading heading={'Your Active Requests'} />
                 <div className={classes.main}>
                     {loadingBackground}
@@ -111,6 +118,27 @@ class ActiveRequests extends Component {
                         totalPages={this.state.totalPages} />
                 </div>
             </div>
+        );
+    }
+
+    buildModal = () => {
+        return (
+            <Modal show={this.state.deleteConfirmationId !== null}
+                onHide={() => this.promisedSetState({ deleteConfirmationId: null })}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>This action will permanently delete this <strong>Active Request</strong>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => this.promisedSetState({ deleteConfirmationId: null })}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={() => this.deleteActiveRequest()}>
+                        Yes, Delete it
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 
@@ -144,11 +172,11 @@ class ActiveRequests extends Component {
 
     nextPage = async () => {
         if (this.state.currentPage + 1 <= this.state.totalPages) {
-            try{
+            try {
                 await this.promisedSetState({ currentPage: this.state.currentPage + 1, loadingStatus: "PROGRESS" })
                 this.getActiveRequests()
             }
-            finally{
+            finally {
                 await this.promisedSetState({ loadingStatus: null })
             }
         }
@@ -194,18 +222,20 @@ class ActiveRequests extends Component {
         }
     }
 
-    deleteActiveRequest = async (activeRequestId) => {
-        try {
-            await this.promisedSetState({ loadingStatus: "PROGRESS" })
-            await ActiveRequestService.deleteActiveRequest(activeRequestId);
-            this.getSummary()
-            this.getActiveRequests()
-        }
-        catch (error) {
-            NotificationService.showNotification(error.response.data.message, false)
-        }
-        finally {
-            await this.promisedSetState({ loadingStatus: null })
+    deleteActiveRequest = async () => {
+        if (this.state.deleteConfirmationId !== null) {
+            try {
+                await this.promisedSetState({ loadingStatus: "PROGRESS" })
+                await ActiveRequestService.deleteActiveRequest(this.state.deleteConfirmationId);
+                this.getSummary()
+                this.getActiveRequests()
+            }
+            catch (error) {
+                NotificationService.showNotification(error.response.data.message, false)
+            }
+            finally {
+                await this.promisedSetState({ loadingStatus: null, deleteConfirmationId: null })
+            }
         }
     }
 

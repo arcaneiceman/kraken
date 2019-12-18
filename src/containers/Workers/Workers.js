@@ -8,6 +8,8 @@ import Octicon, { Trashcan } from '@githubprimer/octicons-react';
 import WorkerService from '../../services/WorkerService'
 import NotificationService from '../../utils/NotificiationService';
 import Spinner from 'react-bootstrap/Spinner'
+import Modal from 'react-bootstrap/Modal'
+import Button from 'react-bootstrap/Button'
 
 import classes from './Workers.module.css'
 
@@ -15,6 +17,7 @@ class Workers extends Component {
 
     state = {
         loadingStatus: null,
+        deleteConfirmationId: null,
 
         // Page Size
         pageSize: 4,
@@ -55,7 +58,7 @@ class Workers extends Component {
                     <td className={classes.tableItem}>{activeWorker.type.toLowerCase()}</td>
                     <td className={classes.tableItem}><StatusBox status={activeWorker.status} /></td>
                     <td className={classes.tableItem}>{new Date(activeWorker.lastCheckIn).toLocaleString()}</td>
-                    <td onClick={() => { this.deleteWorker(activeWorker.id); }}
+                    <td onClick={() => { this.promisedSetState({ deleteConfirmationId: activeWorker.id }) }}
                         className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}>
                         <Octicon icon={Trashcan} fill='red' />
                     </td>
@@ -84,10 +87,13 @@ class Workers extends Component {
                 loadingBackground = null;
                 loadingSpinner = null;
         }
+        // Delete Confirmation Modal
+        let deleteConfirmationModal = this.buildModal();
 
         // Render
         return (
             <div>
+                {deleteConfirmationModal}
                 <SectionHeading heading={'Your Workers'} />
                 <div className={classes.main}>
                     {loadingBackground}
@@ -106,6 +112,27 @@ class Workers extends Component {
         );
     }
 
+    buildModal = () => {
+        return (
+            <Modal show={this.state.deleteConfirmationId !== null}
+                onHide={() => this.promisedSetState({ deleteConfirmationId: null })}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>This action will permanently delete this <strong>Active Worker</strong>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => this.promisedSetState({ deleteConfirmationId: null })}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={() => this.deleteWorker()}>
+                        Yes, Delete it
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+
     componentDidMount = async () => {
         try {
             await this.promisedSetState({ loadingStatus: "PROGRESS" })
@@ -117,7 +144,7 @@ class Workers extends Component {
             }, 15000);
             this.setState({ getWorkerTimer: timer })
         }
-        finally{
+        finally {
             await this.promisedSetState({ loadingStatus: null })
         }
     }
@@ -178,18 +205,20 @@ class Workers extends Component {
         }
     }
 
-    deleteWorker = async (workerId) => {
-        try {
-            await this.promisedSetState({ loadingStatus: "PROGRESS" })
-            await WorkerService.deleteWorker(workerId)
-            this.getSummary();
-            this.getWorkers();
-        }
-        catch (error) {
-            NotificationService.showNotification(error.response.data.message, false)
-        }
-        finally {
-            await this.promisedSetState({ loadingStatus: null })
+    deleteWorker = async () => {
+        if (this.state.deleteConfirmationId !== null) {
+            try {
+                await this.promisedSetState({ loadingStatus: "PROGRESS" })
+                await WorkerService.deleteWorker(this.state.deleteConfirmationId)
+                this.getSummary();
+                this.getWorkers();
+            }
+            catch (error) {
+                NotificationService.showNotification(error.response.data.message, false)
+            }
+            finally {
+                await this.promisedSetState({ loadingStatus: null, deleteConfirmationId: null })
+            }
         }
     }
 

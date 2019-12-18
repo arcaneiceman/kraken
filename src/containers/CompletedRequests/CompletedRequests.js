@@ -4,8 +4,10 @@ import SectionHeading from './../../components/SectionHeading/SectionHeading';
 import DetailBox from './../../components/DetailBox/DetailBox';
 import SummaryTable from './../../components/SummaryTable/SummaryTable';
 import Octicon, { Trashcan } from '@githubprimer/octicons-react';
+import Button from 'react-bootstrap/Button'
 import CompleteRequestService from '../../services/CompleteRequestService';
 import NotificationService from '../../utils/NotificiationService';
+import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner'
 
 import classes from './CompletedRequests.module.css'
@@ -14,6 +16,7 @@ class CompletedRequests extends Component {
 
     state = {
         loadingStatus: null,
+        deleteConfirmationId: null,
 
         // Page Size
         pageSize: 4,
@@ -56,7 +59,7 @@ class CompletedRequests extends Component {
                     <td className={classes.tableItem}>{completedRequest.totalJobCount} / {completedRequest.completedJobCount} / {completedRequest.errorJobCount}</td>
                     <td className={classes.tableItem}>{completedRequest.value === null ? 'Not Found' : <strong>{completedRequest.value}</strong>}</td>
                     <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}
-                        onClick={() => this.deleteCompletedRequest(completedRequest.id)} >
+                        onClick={() => this.promisedSetState({ deleteConfirmationId: completedRequest.id })} >
                         <Octicon icon={Trashcan} />
                     </td>
                 </tr>
@@ -85,9 +88,13 @@ class CompletedRequests extends Component {
                 loadingSpinner = null;
         }
 
+        // Delete Confirmation Modal
+        let deleteConfirmationModal = this.buildModal();
+
         // Render
         return (
             <div>
+                {deleteConfirmationModal}
                 <SectionHeading heading={'Completed Requests'} />
                 <div className={classes.content}>
                     {loadingBackground}
@@ -103,6 +110,27 @@ class CompletedRequests extends Component {
                         totalPages={totalPages} />
                 </div>
             </div>
+        );
+    }
+
+    buildModal = () => {
+        return (
+            <Modal show={this.state.deleteConfirmationId !== null}
+                onHide={() => this.promisedSetState({ deleteConfirmationId: null })}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>This action will permanently delete this <strong>Completed Request</strong>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => this.promisedSetState({ deleteConfirmationId: null })}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={() => this.deleteCompletedRequest()}>
+                        Yes, Delete it
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 
@@ -128,11 +156,11 @@ class CompletedRequests extends Component {
 
     nextPage = async () => {
         if (this.state.currentPage + 1 <= this.state.totalPages) {
-            try{
+            try {
                 await this.promisedSetState({ currentPage: this.state.currentPage + 1, loadingStatus: "PROGRESS" })
                 this.getCompleteRequests();
             }
-            finally{
+            finally {
                 await this.promisedSetState({ loadingStatus: null })
             }
         }
@@ -176,18 +204,20 @@ class CompletedRequests extends Component {
         }
     }
 
-    deleteCompletedRequest = async (completeRequestId) => {
-        try {
-            await this.promisedSetState({ loadingStatus: "PROGRESS" })
-            await CompleteRequestService.deleteCompleteRequest(completeRequestId)
-            this.getSummary()
-            this.getCompleteRequests()
-        }
-        catch (error) {
-            NotificationService.showNotification(error.response.data.message, false)
-        }
-        finally {
-            await this.promisedSetState({ loadingStatus: null })
+    deleteCompletedRequest = async () => {
+        if (this.state.deleteConfirmationId !== null) {
+            try {
+                await this.promisedSetState({ loadingStatus: "PROGRESS" })
+                await CompleteRequestService.deleteCompleteRequest(this.state.deleteConfirmationId)
+                this.getSummary()
+                this.getCompleteRequests()
+            }
+            catch (error) {
+                NotificationService.showNotification(error.response.data.message, false)
+            }
+            finally {
+                await this.promisedSetState({ loadingStatus: null, deleteConfirmationId: null })
+            }
         }
     }
 
