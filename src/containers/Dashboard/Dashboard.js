@@ -421,7 +421,7 @@ class Dashboard extends Component {
                                     <Form.Control name="passwordLists" as="select">
                                         <option disabled>Choose...</option>
                                         {this.state.availablePasswordLists.map(availablePasswordList =>
-                                            <option>{availablePasswordList.name} ({availablePasswordList.jobDelimiterSetSize} jobs)</option>)}
+                                            <option key={availablePasswordList.name}>{availablePasswordList.name} ({availablePasswordList.jobDelimiterSetSize} jobs)</option>)}
                                     </Form.Control>
                                 </Col>
                                 <Col sm="1"><Button type="submit">Add</Button></Col>
