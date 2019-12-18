@@ -63,6 +63,7 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             else {
                 returnObject.data.crackingStatus = 'DONE';
             }
+            callback(returnObject)
         }
         catch (error) {
             console.log(error);
@@ -75,8 +76,6 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             await deleteFile(valueToMatchFileName)
             // Delete Out
             await deleteFile(outFileName)
-            // Callback
-            callback(returnObject)
         }
     }
 

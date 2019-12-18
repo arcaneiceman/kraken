@@ -425,7 +425,7 @@ class KrakenWorker extends Component {
             this.cycle("Job From Cracker (Pool)", true)
         }
         else {
-            console.error("Call back came to Retreive Job but job not found in running queue")
+            console.error("Call back came to Retreive Job with id " + message.data.jobId + " but job not found in running queue")
         }
     }
 
