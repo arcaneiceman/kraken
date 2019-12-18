@@ -193,13 +193,14 @@ class KrakenWorker extends Component {
                     </div>
                 );
             case "ACTIVE":
+                const inProgressJobCount = this.state.workerJobQueue.reduce((sum, job) => { return sum + job.multiplier }, 0)
                 return (
                     <div>
                         <SectionHeading heading={'Worker'} />
                         <div className={classes.main_active}>
                             <div>
                                 <div className={classes.content}>
-                                    <DetailBox boxValue={this.state.workerJobQueue.length.toString()} boxText={'In Progress'} />
+                                    <DetailBox boxValue={inProgressJobCount.toString()} boxText={'In Progress'} />
                                     <DetailBox boxValue={this.state.errorJobs.toString()} boxText={'Errors'} />
                                     <div className={classes.lastDetailItem}>
                                         <DetailBox boxValue={this.state.completeJobs.toString()} boxText={'Completed Jobs'} />
