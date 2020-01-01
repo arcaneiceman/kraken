@@ -341,7 +341,7 @@ class KrakenWorker extends Component {
                     {errorMessage}
                     {cancelButton}
                     {tryAgainButton}
-                    {autoInstallButton}
+                    {/* {autoInstallButton} */}
                 </Modal.Footer>
             </Modal>
         );
