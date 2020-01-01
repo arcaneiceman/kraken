@@ -82,3 +82,8 @@
     display: flex;
     justify-content: center
 }
+
+.errorMessage {
+    flex-grow: 1;
+    color: red;
+}

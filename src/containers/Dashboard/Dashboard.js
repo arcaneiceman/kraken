@@ -347,9 +347,10 @@ class Dashboard extends Component {
         // Submit Button
         let submitButton = null
         if (this.state.newActiveRequestFormLoadingStatus) {
-            submitButton = <Button variant="primary">
-                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-            </Button>
+            submitButton =
+                <Button variant="primary">
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                </Button>
         }
         else {
             submitButton = <Button type="submit" variant="primary" form="main-form">Submit</Button>

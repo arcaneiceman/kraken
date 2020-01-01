@@ -6,9 +6,12 @@ import SectionHeading from '../../components/SectionHeading/SectionHeading';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner'
 import DetailBox from '../../components/DetailBox/DetailBox';
-import Octicon, { Rocket } from '@githubprimer/octicons-react';
+import Octicon, { Rocket, Alert } from '@githubprimer/octicons-react';
 import isElectron from 'is-electron';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import JobCrackerLocal from './jobcracker.local.webworker';
+import Modal from 'react-bootstrap/Modal'
 
 import classes from './KrakenWorker.module.css'
 
@@ -26,6 +29,9 @@ class KrakenWorker extends Component {
         /* State Variables */
         workerActive: "INACTIVE",
         workerActiveCoreCount: window.navigator.hardwareConcurrency === 1 ? 1 : (window.navigator.hardwareConcurrency - 1),
+        workerDependencyModalVisible: false,
+        workerDependencyModalLoadingStatus: false,
+        workerDependencyModalErrorMessage: null,
         workerGettingJob: false,
         workerCracking: false,
         workerReportingJob: false,
@@ -54,7 +60,39 @@ class KrakenWorker extends Component {
 
     activateWorker = async () => {
         console.debug("Activating Worker")
-        
+
+        // Create Web Workers Pool
+        let crackerPoolClone = [];
+        if (isElectron()) { // Electron (Desktop Client)
+            let cracker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
+            let testResponse = await cracker.test()
+            switch (testResponse) {
+                case "MET":
+                    await this.promisedSetState({
+                        workerDependencyModalLoadingStatus: false,
+                        workerDependencyModalErrorMessage: null,
+                        workerDependencyModalVisible: false
+                    })
+                    crackerPoolClone.push(cracker)
+                    break;
+                default:
+                    await this.promisedSetState({
+                        workerDependencyModalLoadingStatus: false,
+                        workerDependencyModalErrorMessage: testResponse,
+                        workerDependencyModalVisible: true
+                    })
+                    return;
+            }
+        }
+        else { // Browser
+            for (let i = 0; i < this.state.workerActiveCoreCount; i++) {
+                let cracker = new JobCrackerBrowser()
+                cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
+                crackerPoolClone.push(cracker)
+            }
+        }
+
+        // Create Worker
         await this.promisedSetState({ workerActive: "INITIALIZING" })
         let data = {}
         try {
@@ -89,20 +127,7 @@ class KrakenWorker extends Component {
         const sparkPlugTimer = setInterval(() => { this.cycle("Interval", true); }, 30000);
         const activationTimer = setInterval(() => { this.setState({ secondsSinceActivation: this.state.secondsSinceActivation + 1 }) }, 1000);
 
-        // Create Web Workers Pool
-        let crackerPoolClone = [];
-        if (isElectron()) {
-            let cracker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
-            crackerPoolClone.push(cracker)
-        }
-        else {
-            for (let i = 0; i < this.state.workerActiveCoreCount; i++) {
-                let cracker = new JobCrackerBrowser()
-                cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
-                crackerPoolClone.push(cracker)
-            }
-        }
-
+        // Save
         await this.promisedSetState({
             workerActive: "ACTIVE",
             workerId: data.id,
@@ -161,12 +186,16 @@ class KrakenWorker extends Component {
     render() {
         switch (this.state.workerActive) {
             case "INACTIVE":
+                // Unmet dependecy modal
+                let unmetDependencyModal = this.buildUnmetDependencyModal();
+
                 return (
                     <div>
+                        {unmetDependencyModal}
                         <SectionHeading heading={'Add a Worker'} />
                         <div className={classes.main_inactive}>
                             <h3 className={classes.startText}> Start Worker Here</h3>
-                            <Button className={classes.startButton} onClick={this.activateWorker}> Work <Octicon icon={Rocket} /></Button>
+                            <Button className={classes.startButton} onClick={this.activateWorker}> Launch <Octicon icon={Rocket} /></Button>
                         </div>
                     </div>
                 );
@@ -229,6 +258,93 @@ class KrakenWorker extends Component {
     componentWillUnmount() {
         if (this.state.workerActive === "ACTIVE")
             this.deactivateWorker()
+    }
+
+    buildUnmetDependencyModal = () => {
+        // Temporary Cracker Component
+        let cracker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
+
+        // Body
+        let body;
+        try {
+            let installationSteps = cracker.getInstallationSteps()
+            switch (installationSteps) {
+                case "windows":
+                    body =
+                        <div>
+                            <strong>Hashcat</strong> was not found on your system. To install it on windows go to
+                            <a href="https://hashcat.net/hashcat/" target="_blank" rel="noopener noreferrer">hashcat homepage</a> and download
+                            the binary file or <a href="https://hashcat.net/files/hashcat-5.1.0.7z">click here</a>.
+                            <br />
+                            Place the appropriate binary (hashcat64.exe or hashcat32.exe) in the folder where Kraken is located.
+                            <br />
+                            Click try again
+                        </div>
+                    break;
+                default:
+                    const terminalCommands = installationSteps.map(step => {
+                        return <SyntaxHighlighter language="bash" style={github}>
+                            {step}
+                        </SyntaxHighlighter>
+                    })
+                    body =
+                        <div>
+                            <strong>Hashcat</strong> was not found on your system. To install it, open a terminal and execute the following:
+                            {terminalCommands}
+                        </div>
+            }
+        }
+        catch (error) {
+            body = <div><Octicon icon={Alert} /></div>
+        }
+
+        // Error Message
+        let errorMessage = null;
+        if (this.state.workerDependencyModalErrorMessage !== null) {
+            errorMessage = <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.workerDependencyModalErrorMessage}</strong></div>
+        }
+
+        let cancelButton;
+        let tryAgainButton;
+        let autoInstallButton;
+        if (this.state.workerDependencyModalLoadingStatus) { // Is Loading
+            cancelButton = <Button variant="outline-secondary">Cancel</Button>
+            tryAgainButton = <Button variant="ouline-warning"> Test </Button>
+            autoInstallButton = <Button variant="outline-primary"><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /></Button>
+        }
+        else { // Is NOT loading
+            cancelButton =
+                <Button variant="secondary" onClick={() => this.promisedSetState({ workerDependencyModalVisible: false, workerDependencyModalErrorMessage: null })}>
+                    Cancel
+                </Button>
+            tryAgainButton = <Button variant="warning" onClick={this.activateWorker}> Test</Button>
+            autoInstallButton = <Button variant="outline-primary">Auto Install (Coming Soon)</Button>
+            // autoInstallButton =
+            //     <Button variant="Primary" onClick={() => {
+            //         this.promisedSetState({ workerDependencyModalLoadingStatus: true, workerDependencyModalErrorMessage: null });
+            //         cracker.install()
+            //         this.activateWorker()
+            //     }}>
+            //         Auto Install
+            //     </Button>
+        }
+        return (
+            <Modal size='lg' show={this.state.workerDependencyModalVisible}
+                onHide={() => this.promisedSetState({ workerDependencyModalVisible: false })}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Dependecy Error</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {body}
+                </Modal.Body>
+                <Modal.Footer>
+                    {errorMessage}
+                    {cancelButton}
+                    {tryAgainButton}
+                    {autoInstallButton}
+                </Modal.Footer>
+            </Modal>
+        );
     }
 
     /*
@@ -504,7 +620,7 @@ class KrakenWorker extends Component {
         }
         catch (error) {
             console.error("Heartbeat Error " + error.response.data.message)
-            if (error.response.data.code === 231){ // Worker Not Found
+            if (error.response.data.code === 231) { // Worker Not Found
                 this.deactivateWorker(); // Deactivate Worker
                 this.activateWorker(); // Reactivate Worker
             }

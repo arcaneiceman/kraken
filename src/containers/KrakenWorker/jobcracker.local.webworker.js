@@ -1,8 +1,9 @@
 import Crack from './utils/WPA/Crack';
 
-let fs, exec, promisify, writeFile, readFile, deleteFile
+let fs, os, exec, promisify, writeFile, readFile, deleteFile
 if (window.require) {
     fs = window.require("fs");
+    os = window.require("os")
     exec = window.require("child_process").exec
     promisify = window.require("util").promisify;
     writeFile = promisify(fs.writeFile)
@@ -42,7 +43,8 @@ const JobCrackerLocal = (webWorkerId, callback) => {
                 default:
                     throw new Error("Request Type Unknown : " + message.requestType)
             }
-            hashCatProcess = exec('hashcat ' +
+            const hashcatBinary = getHashcatBinary()
+            hashCatProcess = exec(hashcatBinary + ' ' +
                 '--potfile-disable --attack-mode 0 --outfile-format 2 --hash-type ' + hashcatMD5Mode + ' ' + // Options
                 '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName,      // Files
                 (e, stdout, stderr) => { console.log(stdout); });                                 // Print
@@ -86,11 +88,70 @@ const JobCrackerLocal = (webWorkerId, callback) => {
         }
     }
 
+    const test = async () => {
+        try {
+            const hashcatBinary = getHashcatBinary()
+            let output;
+            let error;
+            hashCatProcess = await exec(hashcatBinary + ' ' + 
+                '--version', (e, stdout, stderr) => { output = stdout; error = stderr })
+            let promise = new Promise((resolve, reject) => {
+                hashCatProcess.on('close', (code) => {
+                    if (code === 0 || code === 1)
+                        resolve(output)
+                    else
+                        reject(error)
+                });
+            })
+            await promise
+            return output.includes('v5.') ? "MET" : output
+        }
+        catch (error) {
+            return error;
+        }
+    }
+
+    const getInstallationSteps = () => {
+        switch (os.platform()){
+            case 'darwin':
+                return ['ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"', "brew install hashcat"];
+            case 'linux':
+                return ['sudo apt-get install hashcat'];
+            case 'win32':
+                return "windows"
+            default:
+                throw new Error("Platform is not Windows, Mac or Linux")
+        }
+    }
+
+    // Private Functions
+    const getHashcatBinary = () => {
+        switch (os.platform()){
+            case 'darwin':
+                return 'hashcat';
+            case 'linux':
+                return 'hashcat';
+            case 'win32':
+                switch(process.arch){
+                    case 'x64':
+                        return './hashcat64'
+                    case 'x32':
+                        return './hashcat32'
+                    default:
+                        throw new Error("Platform is Windows but could not determine architecture")
+                }
+            default:
+                throw new Error("Platform is not Windows, Mac or Linux")
+        }
+    }
+
     return {
         webWorkerId: webWorkerId,
         postMessage: postMessage,
         terminate: terminate,
         callback: callback,
+        test: test,
+        getInstallationSteps : getInstallationSteps
     }
 }
 

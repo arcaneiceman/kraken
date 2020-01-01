@@ -88,7 +88,7 @@ class Workers extends Component {
                 loadingSpinner = null;
         }
         // Delete Confirmation Modal
-        let deleteConfirmationModal = this.buildModal();
+        let deleteConfirmationModal = this.buildDeletionConfirmationModal();
 
         // Render
         return (
@@ -112,7 +112,7 @@ class Workers extends Component {
         );
     }
 
-    buildModal = () => {
+    buildDeletionConfirmationModal = () => {
         return (
             <Modal show={this.state.deleteConfirmationId !== null}
                 onHide={() => this.promisedSetState({ deleteConfirmationId: null })}>

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import isElectron from 'is-electron';
 import Toolbar from '../../components/Toolbar/Toolbar'
 import AuthenticationService from '../../services/AuthenticationService'
-import Gist from 'react-gist'
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, LogoGithub, Heart, Alert, Shield } from '@githubprimer/octicons-react';
 import ScrollableAnchor from 'react-scrollable-anchor'
 import { configureAnchors } from 'react-scrollable-anchor'
@@ -15,6 +16,7 @@ import worker from './../../assets/screenshots/worker.png'
 import classes from './Help.module.css'
 
 configureAnchors({ offset: -100 });
+
 class HowTo extends Component {
 
     render() {
@@ -138,9 +140,9 @@ class HowTo extends Component {
                         It allows you to parallelize password-list and `crunch` based cracking across multiple machines to create a cluster of crackers
                         which can be run within the brower without installation or a desktop application (coming soon). Kraken is easy to use, fault tolerant
                         and can adjust to different cracking speeds automatically.
-                        <br/>
-                        I made Kraken because I wanted to learn more about offensive security and frustration that using tools like aircrack and hashcat meant I could only 
-                        run them on a single machine. Plus installing so many programs through command line was a bit annoying too! I wanted to make brute force cracking as seamless 
+                        <br />
+                        I made Kraken because I wanted to learn more about offensive security and frustration that using tools like aircrack and hashcat meant I could only
+                        run them on a single machine. Plus installing so many programs through command line was a bit annoying too! I wanted to make brute force cracking as seamless
                         and easy as possible. If you want to help me on this journey through <a href="#help-out">code</a> or <a href="#donate">monetarily</a>, I would be glad to chat.
                     </p>
                     <br />
@@ -177,7 +179,7 @@ class HowTo extends Component {
                         <h5>Step 1</h5>
                         The first step is to aquire a packet capture in pcap or cap format which contains the 4 way WPA/WPA2 handshake. To learn more about capturing handshakes
                         click <a href="https://www.kalitutorials.net/2014/06/hack-wpa-2-psk-capturing-handshake.html">here</a>.
-                        There are numerous guides you can find on the net for 
+                        There are numerous guides you can find on the net for
                         <a href="https://louisabraham.github.io/articles/WPA-wifi-cracking-MBP.html"> mac</a>,
                         <a href="https://www.aircrack-ng.org/doku.php?id=cracking_wpa"> linux </a> and
                         <a href="http://mohanthemass.blogspot.com/2015/03/wi-fi-wifi-is-short-form-for-wireless.html"> windows</a>.
@@ -186,20 +188,48 @@ class HowTo extends Component {
                         These guides may go offline, I've rehashed some of them and added them here so you don't have to navigate endlessly through the web to find something that works:
                         <ul>
                             <li>
-                                <strong>Linux:</strong> Capturing a handshake on Linux is by far the easiest and fastest in my opinion because of how easy it is to perform an <strong>active</strong> capture. 
-                                <br/>
-                                Start by installing <strong>aircrack-ng</strong> by typing `sudo apt-get install aircrack-ng` into the terminal. 
-                                <br/>
-                                Use `ifconfig` to find your WiFi interface. Lets assume its 'wlan0'. 
-                                <br/>
-                                Just run `sudo besside-ng wlan0` and watch the magic happen. The `besside-ng` program should create a file called <strong>wpa.cap</strong> which you can upload to Kraken.
+                                <strong>Linux:</strong> Capturing a handshake on Linux is by far the easiest and fastest in my opinion because of how easy it is to perform an <strong>active</strong> capture.
+                                Start by opening a terminal (Alt + T) or the launcher and select terminal and install <strong>aircrack-ng</strong> suite.
+                                <SyntaxHighlighter language="bash" style={github}>
+                                    { 'sudo apt-get install aircrack-ng' }
+                                </SyntaxHighlighter>
+                                Use <strong>ifconfig</strong> to identify your WiFi interface. Lets assume its <strong>wlan0</strong>.
+                                <SyntaxHighlighter language="bash" style={github}>
+                                    { 'ifconfig' }
+                                </SyntaxHighlighter>
+                                Run <strong>besside-ng</strong> and watch the magic happen.
+                                <SyntaxHighlighter language="bash" style={github}>
+                                    { 'sudo besside-ng wlan0' }
+                                </SyntaxHighlighter>
+                                The `besside-ng` program should create a file called <strong>wpa.cap</strong> in your <strong>home</strong> directory which you can upload to Kraken.
                             </li>
                             <li>
-                                <strong>OSX:</strong> The script below performs a <strong>passive</strong> capture by scanning the current area, listing all the Wifi's available and after you provide it a target, 
+                                <strong>OSX:</strong> The script below performs a <strong>passive</strong> capture by scanning the current area, listing all the Wifi's available and after you provide it a target,
                                 listens until it captures a handshake.
                                 <br />
                                 I assume your Wifi Interface name is <strong>en0</strong> but you can change this to match the interface name on your machine from the 'ifconfig' commmand.
-                                <Gist id='0476dc5b7b60209277e5069f1735f0e8' />
+                                <SyntaxHighlighter language="bash" style={github} showLineNumbers>
+                                    {
+                                        'echo "Scanning..." \n' +
+                                        'sudo airport scan # scan current area \n' +
+                                        '\n' +
+                                        'echo "What is the BSSID of the target network?" \n' +
+                                        'read BSSID \n' +
+                                        '\n' +
+                                        'echo "What channel is the target network running on?" \n' +
+                                        'read CHANNEL \n' +
+                                        '\n' +
+                                        'echo Targetting network $BSSID on channel $CHANNEL \n' +
+                                        '\n' +
+                                        'sudo airport -z # Leave with current network (if connected) \n' +
+                                        'sudo airport -c$CHANNEL # Activate Monitor Mode \n' +
+                                        'sudo tcpdump "type mgt subtype beacon and ether src $BSSID" -I -c 1 -i en0 -w beacon.cap # Send Beacon \n' +
+                                        'sudo tcpdump "ether proto 0x888e and ether host $BSSID" -I -c 4 -U -vvv -i en0 -w handshake.cap # Listen for Handshake \n' +
+                                        'mergecap -a -F pcap -w capture.cap beacon.cap handshake.cap # Merge captures \n' +
+                                        'sudo rm beacon.cap # remove raw cap \n' +
+                                        'sudo rm handshake.cap # remove raw cap'
+                                    }
+                                </SyntaxHighlighter>
                                 This script will create a packet capture file called <strong>capture.cap</strong> that you can upload to Kraken.
                                 <br />
                                 <strong>Note: </strong> You can make this process faster by performing a deauthentication attack but in my tests, my machine cannot sniff and
@@ -289,8 +319,8 @@ class HowTo extends Component {
                     </ScrollableAnchor>
                     <p>
                         <h5>Contribute Code to Kraken</h5>
-                        If you would like to contribute to Kraken server, email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a> 
-                        and possibly join me in my journey to make usable security tools by becoming part of the Kraken team. If you would like to contribute 
+                        If you would like to contribute to Kraken server, email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
+                        and possibly join me in my journey to make usable security tools by becoming part of the Kraken team. If you would like to contribute
                         to Kraken Client, feel free to do so by creating a pull request or an issue at &nbsp;
                         <a href="https://github.com/arcaneiceman/kraken-client">
                             <button style={{ textAlign: 'center' }}><Octicon icon={LogoGithub} /></button>
