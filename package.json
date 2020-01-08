@@ -9,13 +9,14 @@
 		"@svgr/webpack": "4.3.2",
 		"@typescript-eslint/eslint-plugin": "1.13.0",
 		"@typescript-eslint/parser": "1.13.0",
+		"asar": "^2.0.3",
 		"axios": "^0.19.0",
 		"babel-eslint": "10.0.2",
-		"babel-jest": "^24.8.0",
+		"babel-jest": "^24.9.0",
 		"babel-loader": "8.0.6",
-		"babel-plugin-named-asset-import": "^0.3.3",
-		"babel-preset-react-app": "^9.0.1",
-		"bootstrap": "^4.3.1",
+		"babel-plugin-named-asset-import": "^0.3.5",
+		"babel-preset-react-app": "^9.1.0",
+		"bootstrap": "^4.4.1",
 		"camelcase": "^5.2.0",
 		"case-sensitive-paths-webpack-plugin": "2.2.0",
 		"cross-env": "6.0.2",
@@ -23,9 +24,9 @@
 		"dotenv": "6.2.0",
 		"dotenv-expand": "4.2.0",
 		"electron-is-dev": "1.1.0",
-		"electron-log": "^3.0.8",
-		"eslint": "^6.1.0",
-		"eslint-config-react-app": "^5.0.0",
+		"electron-log": "^3.0.9",
+		"eslint": "^6.8.0",
+		"eslint-config-react-app": "^5.1.0",
 		"eslint-loader": "2.2.1",
 		"eslint-plugin-flowtype": "3.13.0",
 		"eslint-plugin-import": "2.18.2",
@@ -53,20 +54,20 @@
 		"postcss-normalize": "7.0.1",
 		"postcss-preset-env": "6.7.0",
 		"postcss-safe-parser": "4.0.1",
-		"react": "^16.9.0",
-		"react-app-polyfill": "^1.0.2",
-		"react-bootstrap": "^1.0.0-beta.11",
-		"react-dev-utils": "^9.0.2",
-		"react-dom": "^16.9.0",
+		"react": "^16.12.0",
+		"react-app-polyfill": "^1.0.5",
+		"react-bootstrap": "^1.0.0-beta.16",
+		"react-dev-utils": "^9.1.0",
+		"react-dom": "^16.12.0",
 		"react-gist": "^1.2.1",
 		"react-google-recaptcha": "^2.0.1",
-		"react-markdown": "^4.2.2",
+		"react-markdown": "^4.3.1",
 		"react-router-dom": "^5.1.0",
 		"react-scrollable-anchor": "^0.6.1",
 		"react-social-login": "^3.4.6",
 		"react-social-login-buttons": "^3.0.0",
 		"react-syntax-highlighter": "^12.2.1",
-		"react-toastify": "^5.4.1",
+		"react-toastify": "^5.5.0",
 		"resolve": "1.12.0",
 		"resolve-url-loader": "3.1.0",
 		"sass-loader": "7.2.0",
@@ -92,11 +93,49 @@
 	"main": "public/electron.js",
 	"homepage": "./",
 	"scripts": {
+		"postinstall": "electron-builder install-app-deps",
 		"web-start": "node web-scripts/start.js",
 		"web-build": "node web-scripts/build.js",
 		"web-test": "node scripts/test.js",
 		"electron-start": "concurrently \"cross-env BROWSER=none npm run web-start\" \"wait-on http://localhost:3000 && electron .\" ",
-		"electron-build": "electron-builder"
+		"electron-build": "node web-scripts/build.js && electron-builder --mac --windows --linux",
+		"electron-test": ""
+	},
+	"build": {
+		"appId": "com.arcaneiceman.kraken.kraken-client",
+		"files": [
+			"*.js",
+			"build",
+			"public/electron.js"
+		],
+		"mac": {
+			"icon": "src/assets/icons/application/icon.png",
+			"category": "public.app-category.utilities"
+		},
+		"nsis": {
+			"createDesktopShortcut": "always"
+		},
+		"dmg": {
+			"contents": [
+				{
+					"x": 110,
+					"y": 150
+				},
+				{
+					"x": 240,
+					"y": 150,
+					"type": "link",
+					"path": "/Applications"
+				}
+			]
+		},
+		"linux": {
+			"category": "Security"
+		},
+		"win": {
+			"target": "nsis",
+			"icon": "src/assets/icons/application/icon.png"
+		}
 	},
 	"eslintConfig": {
 		"extends": "react-app"

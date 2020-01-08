@@ -347,13 +347,12 @@ class HowTo extends Component {
                         be used to buy better infrastructure! If anyone has good/cheeper infrastructure suggestions, please feel free to email
                         me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>. Thank you!
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
                                 <input type="hidden" name="cmd" value="_donations" />
                                 <input type="hidden" name="business" value="ZAKGHMTXN8D5E" />
                                 <input type="hidden" name="item_name" value="Supporting website" />
                                 <input type="hidden" name="currency_code" value="CAD" />
                                 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-                                <img alt="" border="0" src="https://www.paypal.com/en_CA/i/scr/pixel.gif" width="1" height="1" />
                             </form>
                         </div>
                     </p>

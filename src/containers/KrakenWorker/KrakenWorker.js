@@ -283,7 +283,7 @@ class KrakenWorker extends Component {
                     break;
                 default:
                     const terminalCommands = installationSteps.map(step => {
-                        return <SyntaxHighlighter language="bash" style={github}>
+                        return <SyntaxHighlighter language="bash" style={github} key={step}>
                             {step}
                         </SyntaxHighlighter>
                     })
@@ -306,11 +306,11 @@ class KrakenWorker extends Component {
 
         let cancelButton;
         let tryAgainButton;
-        let autoInstallButton;
+        //let autoInstallButton;
         if (this.state.workerDependencyModalLoadingStatus) { // Is Loading
             cancelButton = <Button variant="outline-secondary">Cancel</Button>
             tryAgainButton = <Button variant="ouline-warning"> Test </Button>
-            autoInstallButton = <Button variant="outline-primary"><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /></Button>
+            //autoInstallButton = <Button variant="outline-primary"><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /></Button>
         }
         else { // Is NOT loading
             cancelButton =
@@ -318,7 +318,7 @@ class KrakenWorker extends Component {
                     Cancel
                 </Button>
             tryAgainButton = <Button variant="warning" onClick={this.activateWorker}> Test</Button>
-            autoInstallButton = <Button variant="outline-primary">Auto Install (Coming Soon)</Button>
+            //autoInstallButton = <Button variant="outline-primary">Auto Install (Coming Soon)</Button>
             // autoInstallButton =
             //     <Button variant="Primary" onClick={() => {
             //         this.promisedSetState({ workerDependencyModalLoadingStatus: true, workerDependencyModalErrorMessage: null });

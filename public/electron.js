@@ -1,37 +1,36 @@
 const electron = require("electron");
-const app = electron.app;
-const BrowserWindow = electron.BrowserWindow;
-
 const path = require("path");
 const isDev = require("electron-is-dev");
 let mainWindow;
 
 function createWindow() {
-	mainWindow = new BrowserWindow({
+	mainWindow = new electron.BrowserWindow({
 		width: 1200, height: 740,
 		webPreferences: { nodeIntegration: true }
 	});
 	if (isDev) {
 		mainWindow.loadURL("http://localhost:3000/login")
 		mainWindow.webContents.openDevTools()
-		mainWindow.isResizable = true
+		mainWindow.resizable = true
+		mainWindow.fullScreenable = true
 	}
 	else {
-		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html/login")}`)
-		mainWindow.isResizable = false
+		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html")}`)
+		mainWindow.resizable = false
+		mainWindow.fullScreenable = false
 	}
 	mainWindow.on("closed", () => (mainWindow = null));
 }
 
-app.on("ready", createWindow);
+electron.app.on("ready", createWindow);
 
-app.on("window-all-closed", () => {
+electron.app.on("window-all-closed", () => {
 	if (process.platform !== "darwin") {
-		app.quit();
+		electron.app.quit();
 	}
 });
 
-app.on("activate", () => {
+electron.app.on("activate", () => {
 	if (mainWindow === null) {
 		createWindow();
 	}

@@ -2,12 +2,19 @@ import React, { Component } from 'react';
 import Toolbar from '../../components/Toolbar/Toolbar'
 import krakenLogo from './../../assets/kraken-logo.png';
 import Button from 'react-bootstrap/Button'
+import isElectron from 'is-electron';
+import { Redirect } from 'react-router-dom'
+import AuthenticationService from '../../services/AuthenticationService';
 
 import classes from './Home.module.css'
 
 class Home extends Component {
 
     render() {
+        // If Electron -> Go to Login (which will then handle redirect to dashboard)
+        if (isElectron() || AuthenticationService.isLoggedIn())
+            return <Redirect to="/login" />
+
         // NavLinks for Toolbar
         const navLinks = [];
         navLinks.push({ text: 'Login', onClick: () => { this.props.history.push('/login') }, isPrimary: true });
