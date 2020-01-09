@@ -17,9 +17,9 @@ const JobCrackerLocal = (webWorkerId, callback) => {
     const postMessage = async (message) => {
         console.debug("Cracker received job with id " + message.jobId)
         let returnObject = { data: { jobId: message.jobId, crackingStatus: null, result: null } }
-        const candidateValueFileName = 'tmp-candidate-values'
-        const valueToMatchFileName = 'tmp-value-to-match'
-        const outFileName = 'tmp-out'
+        const candidateValueFileName = '/tmp/kraken-candidate-values'
+        const valueToMatchFileName = '/tmp/kraken-value-to-match'
+        const outFileName = '/tmp/kraken-out'
         try {
             await writeFile(candidateValueFileName, message.candidateValues.join("\n"));
             await writeFile(outFileName, '');
@@ -128,7 +128,7 @@ const JobCrackerLocal = (webWorkerId, callback) => {
     const getHashcatBinary = () => {
         switch (os.platform()){
             case 'darwin':
-                return 'hashcat';
+                return '/usr/local/bin/hashcat';
             case 'linux':
                 return 'hashcat';
             case 'win32':
