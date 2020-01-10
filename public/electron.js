@@ -5,21 +5,39 @@ let mainWindow;
 
 function createWindow() {
 	mainWindow = new electron.BrowserWindow({
-		width: 1200, height: 740,
+		width: 1200, height: 750,
 		webPreferences: { nodeIntegration: true }
 	});
 	if (isDev) {
 		mainWindow.loadURL("http://localhost:3000/login")
+		
 		mainWindow.webContents.openDevTools()
+		
 		mainWindow.resizable = true
 		mainWindow.fullScreenable = true
+
+		mainWindow.setResizable(true)
+		mainWindow.setFullScreenable(true)
 	}
 	else {
 		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html")}`)
+		
 		mainWindow.resizable = false
 		mainWindow.fullScreenable = false
+		
+		mainWindow.setResizable(false)
+		mainWindow.setFullScreenable(false)
 	}
 	mainWindow.on("closed", () => (mainWindow = null));
+	
+	electron.session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+		callback({
+		  responseHeaders: {
+			...details.responseHeaders,
+			'Content-Security-Policy': ['script-src \'self\'']
+		  }
+		})
+	  })
 }
 
 electron.app.on("ready", createWindow);
@@ -35,3 +53,4 @@ electron.app.on("activate", () => {
 		createWindow();
 	}
 });
+
