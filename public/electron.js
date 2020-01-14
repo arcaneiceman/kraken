@@ -22,6 +22,8 @@ function createWindow() {
 	else {
 		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html")}`)
 		
+		mainWindow.webContents.openDevTools()
+
 		mainWindow.resizable = false
 		mainWindow.fullScreenable = false
 		

@@ -1,11 +1,11 @@
 /* eslint-disable no-restricted-globals */
 import Crack from './utils/WPA/Crack';
 import CryptoJS from './utils/Crypto/crypto-js';
-import md4 from '../KrakenWorker/utils/Crypto/md4';
+import md4 from './utils/Crypto/md4';
 
 self.onmessage = (message) => {
     console.debug("Cracker received job with id " + message.data.jobId)
-    let returnObject = { jobId: message.data.jobId, crackingStatus: null, result: null }
+    let returnObject = { jobId: message.data.jobId, crackingStatus: null, result: null, error: null }
     try {
         let match = null;
         let valueToMatch = atob(message.data.valueToMatchInBase64)
@@ -34,8 +34,9 @@ self.onmessage = (message) => {
             returnObject.crackingStatus = 'DONE';
         }
     }
-    catch (e) {
+    catch (error) {
         returnObject.crackingStatus = 'ERROR';
+        returnObject.error = error;
     }
     finally {
         self.postMessage(returnObject)

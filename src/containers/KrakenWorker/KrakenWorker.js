@@ -6,35 +6,46 @@ import SectionHeading from '../../components/SectionHeading/SectionHeading';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner'
 import DetailBox from '../../components/DetailBox/DetailBox';
-import Octicon, { Rocket, Alert } from '@githubprimer/octicons-react';
+import Octicon, { Rocket, Alert, Gear } from '@githubprimer/octicons-react';
 import isElectron from 'is-electron';
+import NotificationService from '../../utils/NotificiationService';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import JobCrackerLocal from './jobcracker.local.webworker';
+import JobCrackerLocal from './jobcracker.local';
 import Modal from 'react-bootstrap/Modal'
+import Slider from 'rc-slider';
+import SummaryTable from './../../components/SummaryTable/SummaryTable';
+import 'rc-slider/assets/index.css';
 
 import classes from './KrakenWorker.module.css'
 
 // Web Workers 
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import JobFetcher from 'worker-loader!./jobfetcher.webworker';
+import JobFetcher from 'worker-loader!./jobfetcher';
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import JobCrackerBrowser from 'worker-loader!./jobcracker.browser.webworker';
+import JobCrackerBrowser from 'worker-loader!./jobcracker.browser';
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import JobReporter from 'worker-loader!./jobreporter.webworker'
+import JobReporter from 'worker-loader!./jobreporter'
 
 class KrakenWorker extends Component {
 
     state = {
         /* State Variables */
         workerActive: "INACTIVE",
-        workerActiveCoreCount: window.navigator.hardwareConcurrency === 1 ? 1 : (window.navigator.hardwareConcurrency - 1),
-        workerDependencyModalVisible: false,
-        workerDependencyModalLoadingStatus: false,
-        workerDependencyModalErrorMessage: null,
+        workerSettingsModalVisible: false,
         workerGettingJob: false,
         workerCracking: false,
         workerReportingJob: false,
+
+        /* Browser Worker Variables */
+        workerActiveCoreCount: 0,
+
+        /* Local Worker Variables */
+        workerDependencyModalVisible: false,
+        workerDependencyModalLoadingStatus: false,
+        workerDependencyModalErrorMessage: null,
+        workerPlatform: null,
+        workerDevices: [],
 
         /* Worker Variables */
         workerId: null,
@@ -47,7 +58,7 @@ class KrakenWorker extends Component {
         workerRecommendedMultiplier: null,
         executionStartTime: null,
 
-        /* Web Workers */
+        /* Workers */
         crackerPool: [],
         jobFetcher: null,
         jobReporter: null,
@@ -58,39 +69,28 @@ class KrakenWorker extends Component {
         errorJobs: 0
     }
 
+    changeActiveCoreCount = async (value) => {
+        await this.promisedSetState({ workerActiveCoreCount: value })
+        localStorage.setItem('currentActiveCoreCount', value)
+        if (this.state.workerActive === "ACTIVE") {
+            await this.deactivateWorker()
+            await this.activateWorker()
+        }
+    }
+
     activateWorker = async () => {
         console.debug("Activating Worker")
 
-        // Create Web Workers Pool
+        // Create Worker(s) Pool
         let crackerPoolClone = [];
-        if (isElectron()) { // Electron (Desktop Client)
-            let cracker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
-            let testResponse = await cracker.test()
-            switch (testResponse) {
-                case "MET":
-                    await this.promisedSetState({
-                        workerDependencyModalLoadingStatus: false,
-                        workerDependencyModalErrorMessage: null,
-                        workerDependencyModalVisible: false
-                    })
-                    crackerPoolClone.push(cracker)
-                    break;
-                default:
-                    await this.promisedSetState({
-                        workerDependencyModalLoadingStatus: false,
-                        workerDependencyModalErrorMessage: testResponse,
-                        workerDependencyModalVisible: true
-                    })
-                    return;
-            }
-        }
-        else { // Browser
+        if (isElectron()) // Electron (Desktop Client)
+            crackerPoolClone.push(JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers))
+        else // Browser
             for (let i = 0; i < this.state.workerActiveCoreCount; i++) {
                 let cracker = new JobCrackerBrowser()
                 cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
                 crackerPoolClone.push(cracker)
             }
-        }
 
         // Create Worker
         await this.promisedSetState({ workerActive: "INITIALIZING" })
@@ -109,7 +109,7 @@ class KrakenWorker extends Component {
                     completeJobs: 0,
                     errorJobs: 0
                 })
-                let response = await WorkerService.createWorker(this.getRandomName(), 'BROWSER')
+                let response = await WorkerService.createWorker(this.getRandomName(), this.getWorkerType())
                 data = response.data
             }
             catch (error) {
@@ -150,7 +150,7 @@ class KrakenWorker extends Component {
     deactivateWorker = async () => {
         console.debug("Deactivating Worker")
 
-        // Stop All Web Workers
+        // Stop All Workers
         this.state.crackerPool.forEach((element) => element.terminate())
         this.state.jobFetcher.terminate()
         this.state.jobReporter.terminate()
@@ -184,29 +184,41 @@ class KrakenWorker extends Component {
     }
 
     render() {
+        // Unmet dependecy modal
+        let unmetDependencyModal = this.buildUnmetDependencyModal();
+        // Settings Modal
+        let settingsModal = this.buildSettingsModal();
+
         switch (this.state.workerActive) {
             case "INACTIVE":
-                // Unmet dependecy modal
-                let unmetDependencyModal = this.buildUnmetDependencyModal();
 
                 return (
                     <div>
                         {unmetDependencyModal}
+                        {settingsModal}
                         <SectionHeading heading={'Add a Worker'} />
                         <div className={classes.main_inactive}>
                             <h3 className={classes.startText}> Start Worker Here</h3>
-                            <Button className={classes.startButton} onClick={this.activateWorker}> Launch <Octicon icon={Rocket} /></Button>
+                            <Button className={classes.startButton} onClick={this.activateWorker}> <Octicon icon={Rocket} /> <br /> Launch Worker</Button>
+                            <Button className={classes.settingsButton} onClick={async () => { await this.promisedSetState({ workerSettingsModalVisible: true }) }} variant="light">
+                                <Octicon icon={Gear} /> <br /> Worker Settings
+                            </Button>
                         </div>
                     </div>
                 );
             case "INITIALIZING":
                 return (
                     <div>
+                        {unmetDependencyModal}
+                        {settingsModal}
                         <SectionHeading heading={'Add a Worker'} />
                         <div className={classes.main_inactive}>
                             <h3 className={classes.startText}> Start Worker Here</h3>
                             <Button className={classes.startButton}>
                                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                            </Button>
+                            <Button className={classes.settingsButton} onClick={async () => { await this.promisedSetState({ workerSettingsModalVisible: true }) }} variant="light">
+                                <Octicon icon={Gear} /> <br /> Worker Settings
                             </Button>
                         </div>
                     </div>
@@ -214,10 +226,15 @@ class KrakenWorker extends Component {
             case "ERROR":
                 return (
                     <div>
+                        {unmetDependencyModal}
+                        {settingsModal}
                         <SectionHeading heading={'Add a Worker'} />
                         <div className={classes.main_inactive}>
                             <h3 className={classes.startText}> Start Worker Here</h3>
                             <Button className={classes.startButton} variant="danger" onClick={this.activateWorker}> Error! Click to try again</Button>
+                            <Button className={classes.settingsButton} onClick={async () => { await this.promisedSetState({ workerSettingsModalVisible: true }) }} variant="light">
+                                <Octicon icon={Gear} /> <br /> Worker Settings
+                            </Button>
                         </div>
                     </div>
                 );
@@ -225,6 +242,8 @@ class KrakenWorker extends Component {
                 const inProgressJobCount = this.state.workerJobQueue.reduce((sum, job) => { return sum + job.multiplier }, 0)
                 return (
                     <div>
+                        {unmetDependencyModal}
+                        {settingsModal}
                         <SectionHeading heading={'Worker'} />
                         <div className={classes.main_active}>
                             <div>
@@ -244,8 +263,11 @@ class KrakenWorker extends Component {
                                     <div><strong style={{ margin: '10px' }}>{this.toHHMMSS(this.state.secondsSinceActivation)}</strong></div>
                                 </div>
                             </div>
-                            <div className={classes.stopButtonContainer}>
-                                <Button variant="danger" onClick={this.deactivateWorker}>Stop</Button>
+                            <div className={classes.buttonContainer}>
+                                <Button className={classes.settingsButton} onClick={async () => { await this.promisedSetState({ workerSettingsModalVisible: true }) }} variant="light">
+                                    <Octicon icon={Gear} />
+                                </Button>
+                                <Button className={classes.stopButton} variant="danger" onClick={this.deactivateWorker}>Stop</Button>
                             </div>
                         </div>
                     </div >
@@ -255,47 +277,43 @@ class KrakenWorker extends Component {
         }
     }
 
-    componentWillUnmount() {
-        if (this.state.workerActive === "ACTIVE")
-            this.deactivateWorker()
-    }
-
     buildUnmetDependencyModal = () => {
-        // Temporary Cracker Component
-        let cracker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
-
         // Body
         let body;
-        try {
-            let installationSteps = cracker.getInstallationSteps()
-            switch (installationSteps) {
-                case "windows":
-                    body =
-                        <div>
-                            <strong>Hashcat</strong> was not found on your system. To install it on windows go to
+        switch (this.state.workerPlatform) {
+            case "windows":
+                body =
+                    <div>
+                        <strong>Hashcat</strong> was not found on your system. To install it on windows go to
                             <a href="https://hashcat.net/hashcat/" target="_blank" rel="noopener noreferrer">hashcat homepage</a> and download
                             the binary file or <a href="https://hashcat.net/files/hashcat-5.1.0.7z">click here</a>.
                             <br />
-                            Place the appropriate binary (hashcat64.exe or hashcat32.exe) in the folder where Kraken is located.
+                        Place the appropriate binary (hashcat64.exe or hashcat32.exe) in the folder where Kraken is located.
                             <br />
-                            Click try again
+                        Click try again
                         </div>
-                    break;
-                default:
-                    const terminalCommands = installationSteps.map(step => {
-                        return <SyntaxHighlighter language="bash" style={github} key={step}>
-                            {step}
-                        </SyntaxHighlighter>
-                    })
-                    body =
-                        <div>
-                            <strong>Hashcat</strong> was not found on your system. To install it, open a terminal and execute the following:
-                            {terminalCommands}
-                        </div>
-            }
-        }
-        catch (error) {
-            body = <div><Octicon icon={Alert} /></div>
+                break;
+            case "darwin":
+                body =
+                    <div>
+                        <strong>Hashcat</strong> was not found on your Mac. To install it, open a terminal and execute the following:
+                            <SyntaxHighlighter language="bash" style={github}>ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</SyntaxHighlighter>
+                        <SyntaxHighlighter language="bash" style={github}>brew install hashcat</SyntaxHighlighter>
+                    </div>
+                break;
+            case "linux":
+                body =
+                    <div>
+                        <strong>Hashcat</strong> was not found on your Linux. To install it, open a terminal and execute the following:
+                            <SyntaxHighlighter language="bash" style={github}>sudo apt-get install hashcat</SyntaxHighlighter>
+                    </div>
+                break;
+            default:
+                body =
+                    <div>
+                        <span><Octicon icon={Alert} /> Platform not recognized</span>
+                    </div>
+                break;
         }
 
         // Error Message
@@ -317,7 +335,7 @@ class KrakenWorker extends Component {
                 <Button variant="secondary" onClick={() => this.promisedSetState({ workerDependencyModalVisible: false, workerDependencyModalErrorMessage: null })}>
                     Cancel
                 </Button>
-            tryAgainButton = <Button variant="warning" onClick={this.activateWorker}> Test</Button>
+            tryAgainButton = <Button variant="warning" onClick={async () => { await this.testDependency(); }}>Test</Button>
             //autoInstallButton = <Button variant="outline-primary">Auto Install (Coming Soon)</Button>
             // autoInstallButton =
             //     <Button variant="Primary" onClick={() => {
@@ -347,10 +365,128 @@ class KrakenWorker extends Component {
         );
     }
 
+    buildSettingsModal = () => {
+        let body;
+        if (isElectron()) {
+            const tableHeadings = ['ID', 'Type', 'Name', 'Enabled'].map(tableHeading => {
+                return <th className={classes.tableHeaderColumnText} key={tableHeading}>{tableHeading}</th>
+            });
+            const tableItems = this.state.workerDevices.map(device => {
+                return (
+                    <tr key={device.id}>
+                        <td className={classes.tableItem}><strong>{device.id}</strong></td>
+                        <td className={classes.tableItem}>{device.type}</td>
+                        <td className={classes.tableItem}>{device.name}</td>
+                        <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}>
+                            <input type="checkbox" checked={device.enabled}
+                                onChange={() => {
+                                    let devicesClone = this.state.workerDevices.slice()
+                                    const deviceToChange = devicesClone.find(workerDevice => device.id === workerDevice.id);
+                                    deviceToChange.enabled = !deviceToChange.enabled
+                                    this.promisedSetState({ devices: devicesClone })
+                                }}
+                            />
+                        </td>
+                    </tr>
+                );
+            })
+            body =
+                <div className={classes.tableContainer}>
+                    <SummaryTable
+                        tableHeadings={tableHeadings}
+                        tableItems={tableItems} />
+                </div>
+        }
+        else {
+            body =
+                <div className={classes.activeCoreSliderContainer}>
+                    <p>Active Cores</p>
+                    <Slider min={1} max={window.navigator.hardwareConcurrency} defaultValue={this.state.workerActiveCoreCount}
+                        marks={{ 1: 1, [window.navigator.hardwareConcurrency]: window.navigator.hardwareConcurrency, [this.state.workerActiveCoreCount]: this.state.workerActiveCoreCount }}
+                        onChange={(value) => { this.changeActiveCoreCount(value) }} />
+                </div>
+        }
+        return (
+            <Modal show={this.state.workerSettingsModalVisible}
+                onHide={async () => await this.promisedSetState({ workerSettingsModalVisible: false })}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Worker Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {body}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={async () => await this.promisedSetState({ workerSettingsModalVisible: false })}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+
+    componentDidMount = async () => {
+        if (isElectron()) { // Local Worker
+            await this.testDependency()
+        }
+        else // Browser Worker
+            if (localStorage.getItem('currentActiveCoreCount') !== null)
+                await this.promisedSetState({ workerActiveCoreCount: localStorage.getItem('currentActiveCoreCount') })
+            else
+                await this.promisedSetState({ workerActiveCoreCount: window.navigator.hardwareConcurrency === 1 ? 1 : (window.navigator.hardwareConcurrency - 1) })
+
+    }
+
+    componentWillUnmount() {
+        if (this.state.workerActive === "ACTIVE")
+            this.deactivateWorker()
+    }
+
+    testDependency = async () => {
+        let tempWorker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
+        await this.promisedSetState({
+            workerDependencyModalVisible: false,
+            workerDependencyModalLoadingStatus: true,
+            workerDependencyModalErrorMessage: null,
+            workerPlatform: null,
+            workerDevices: []
+        })
+        let listDevicesResponse = await tempWorker.listDevices()
+        if (listDevicesResponse.includes('hashcat') && listDevicesResponse.includes('starting')){
+            listDevicesResponse = listDevicesResponse.split('\n')
+            let devices = []
+            for (let i = 0; i < listDevicesResponse.length; i++) {
+                if (listDevicesResponse[i].includes('Device ID #')) {
+                    devices.push({
+                        'id': listDevicesResponse[i].trim().replace('Device ID #', ''),
+                        'type': listDevicesResponse[i + 1].trim().replace('Type           : ', ''),
+                        'name': listDevicesResponse[i + 4].trim().replace('Name           : ', ''),
+                        'enabled': listDevicesResponse[i + 1].trim().replace('Type           : ', '') !== 'CPU' ? true : false
+                    })
+                }
+            }
+            if (devices.length === 1) // If just one device, enable it,
+                devices[0].enabled = true
+
+            await this.promisedSetState({
+                workerDependencyModalVisible: false,
+                workerDependencyModalLoadingStatus: false,
+                workerDependencyModalErrorMessage: null,
+                workerPlatform: tempWorker.getPlatform(),
+                workerDevices: devices
+            })
+        }
+        else{
+            await this.promisedSetState({
+                workerDependencyModalVisible: true,
+                workerDependencyModalLoadingStatus: false,
+                workerDependencyModalErrorMessage: listDevicesResponse,
+                workerPlatform: tempWorker.getPlatform()
+            })
+        }
+    }
+
     /*
         Cycle function
         This function runs:
-            - Producer (getting job from server) 
+            - Producer (getting job from server)
             - Consumer (cracking job)
             - Reporter (sending job to server)
     */
@@ -465,6 +601,7 @@ class KrakenWorker extends Component {
                 webWorkerId: this.state.crackerPool[i].webWorkerId,
                 jobId: pendingJob.jobId,
                 candidateValues: chunkCandidateValuesList[i],
+                devices : this.state.workerDevices // Only used by local cracker
             }
             this.state.crackerPool[i].postMessage(chunk);
         }
@@ -527,6 +664,9 @@ class KrakenWorker extends Component {
 
                     // Terminate chunks from all crackers
                     crackerPoolClone.forEach((element) => element.terminate())
+
+                    // Notify Error
+                    NotificationService.showNotification("Cracker Error " + message.data.error, false)
                     break;
                 default:
                     throw Error("Catastrophic Failure. No Tracking Status Reported")
@@ -664,6 +804,15 @@ class KrakenWorker extends Component {
         var l = left[Math.floor(Math.random() * left.length)];
         var r = right[Math.floor(Math.random() * right.length)];
         return l + " " + r;
+    }
+
+    getWorkerType = () => {
+        if (isElectron()) {
+            return 'LOCAL'
+        }
+        else {
+            return 'BROWSER'
+        }
     }
 
 }

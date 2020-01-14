@@ -1,4 +1,5 @@
 import Crack from './utils/WPA/Crack';
+import { isExpressionWrapper } from '@babel/types';
 
 let fs, os, exec, promisify, writeFile, readFile, deleteFile
 if (window.require) {
@@ -16,7 +17,7 @@ const JobCrackerLocal = (webWorkerId, callback) => {
 
     const postMessage = async (message) => {
         console.debug("Cracker received job with id " + message.jobId)
-        let returnObject = { data: { jobId: message.jobId, crackingStatus: null, result: null } }
+        let returnObject = { data: { jobId: message.jobId, crackingStatus: null, result: null, error: null } }
         const candidateValueFileName = '/tmp/kraken-candidate-values'
         const valueToMatchFileName = '/tmp/kraken-value-to-match'
         const outFileName = '/tmp/kraken-out'
@@ -43,20 +44,32 @@ const JobCrackerLocal = (webWorkerId, callback) => {
                 default:
                     throw new Error("Request Type Unknown : " + message.requestType)
             }
+            const devices = message.devices.filter(device => device.enabled).map(device => device.id).join(',')
+            let output;
+            let error;
             const hashcatBinary = getHashcatBinary()
+            console.log(hashcatBinary + ' ' +
+                '--potfile-disable --attack-mode 0 --outfile-format 2 --hash-type ' + hashcatMD5Mode + ' ' + // Options
+                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' ' +                            // Devices
+                '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName)
             hashCatProcess = exec(hashcatBinary + ' ' +
                 '--potfile-disable --attack-mode 0 --outfile-format 2 --hash-type ' + hashcatMD5Mode + ' ' + // Options
+                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' ' +                            // Devices
                 '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName,      // Files
-                (e, stdout, stderr) => { console.log(stdout); });                                 // Print
+                (e, stdout, stderr) => { output = stdout; error = stderr; });
             let promise = new Promise((resolve, reject) => {
                 hashCatProcess.on('close', (code) => {
                     if (code === 0 || code === 1)
-                        resolve()
+                        resolve(output)
                     else
-                        reject()
+                        reject(error)
                 });
             })
             await promise
+            if (output)
+                console.log(output)
+            if (error)
+                console.log(error)
             match = await readFile(outFileName, 'utf8')
             if (match !== null && match !== undefined && match !== "") {
                 returnObject.data.crackingStatus = 'CRACKED';
@@ -65,13 +78,15 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             else {
                 returnObject.data.crackingStatus = 'DONE';
             }
-            callback(returnObject)
         }
         catch (error) {
             console.log(error);
             returnObject.data.crackingStatus = 'ERROR';
+            returnObject.data.error = error;
         }
         finally {
+            // Send Callback
+            callback(returnObject)
             // Delete Candidate Value  File
             await deleteFile(candidateValueFileName)
             // Delete Value to Match File
@@ -88,51 +103,47 @@ const JobCrackerLocal = (webWorkerId, callback) => {
         }
     }
 
-    const test = async () => {
+    const listDevices = async () => {
         try {
             const hashcatBinary = getHashcatBinary()
             let output;
             let error;
-            hashCatProcess = await exec(hashcatBinary + ' ' + 
-                '--version', (e, stdout, stderr) => { output = stdout; error = stderr })
+            hashCatProcess = await exec(hashcatBinary + ' ' +
+                '--opencl-info', (e, stdout, stderr) => { output = stdout; error = stderr; });
             let promise = new Promise((resolve, reject) => {
                 hashCatProcess.on('close', (code) => {
-                    if (code === 0 || code === 1)
+                    if (code === 0 || code === 1) {
                         resolve(output)
-                    else
+                    } else {
                         reject(error)
+                    }
                 });
             })
             await promise
-            return output.includes('v5.') ? "MET" : output
+            if (output)
+                console.log(output)
+            if (error)
+                console.log(error)
+            return output
         }
         catch (error) {
             return error;
         }
     }
 
-    const getInstallationSteps = () => {
-        switch (os.platform()){
-            case 'darwin':
-                return ['ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"', "brew install hashcat"];
-            case 'linux':
-                return ['sudo apt-get install hashcat'];
-            case 'win32':
-                return "windows"
-            default:
-                throw new Error("Platform is not Windows, Mac or Linux")
-        }
+    const getPlatform = () => {
+        return os.platform()
     }
 
     // Private Functions
     const getHashcatBinary = () => {
-        switch (os.platform()){
+        switch (os.platform()) {
             case 'darwin':
                 return '/usr/local/bin/hashcat';
             case 'linux':
                 return 'hashcat';
             case 'win32':
-                switch(process.arch){
+                switch (process.arch) {
                     case 'x64':
                         return './hashcat64'
                     case 'x32':
@@ -150,8 +161,8 @@ const JobCrackerLocal = (webWorkerId, callback) => {
         postMessage: postMessage,
         terminate: terminate,
         callback: callback,
-        test: test,
-        getInstallationSteps : getInstallationSteps
+        listDevices: listDevices,
+        getPlatform: getPlatform
     }
 }
 
