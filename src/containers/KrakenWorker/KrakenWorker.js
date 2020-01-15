@@ -429,7 +429,6 @@ class KrakenWorker extends Component {
             workerDevices: []
         })
         let listDevicesResponse = await tempWorker.listDevices()
-        console.log(listDevicesResponse)
         if (listDevicesResponse.includes('hashcat') && listDevicesResponse.includes('starting')) {
             listDevicesResponse = listDevicesResponse.split('\n')
             let devices = []

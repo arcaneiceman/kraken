@@ -113,7 +113,6 @@ const JobCrackerLocal = (webWorkerId, callback) => {
                 '--opencl-info --force', (e, stdout, stderr) => { output = stdout; error = stderr; });
             let promise = new Promise((resolve, reject) => {
                 hashCatProcess.on('close', (code) => {
-                    console.log("Code was " + code)
                     if (code === 0 || code === 1) {
                         resolve(output)
                     } else {
