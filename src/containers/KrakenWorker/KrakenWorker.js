@@ -42,7 +42,6 @@ class KrakenWorker extends Component {
 
         /* Local Worker Variables */
         workerDependencyModalVisible: false,
-        workerDependencyModalLoadingStatus: false,
         workerDependencyModalErrorMessage: null,
         workerPlatform: null,
         workerDevices: [],
@@ -203,6 +202,7 @@ class KrakenWorker extends Component {
                             <Button className={classes.settingsButton} onClick={async () => { await this.promisedSetState({ workerSettingsModalVisible: true }) }} variant="light">
                                 <Octicon icon={Gear} /> <br /> Worker Settings
                             </Button>
+                            {this.state.workerDevices.length === 0 ? <span><Octicon icon={Alert}/> No CPU/GPU/FPGA(s) detected</span> : null}
                         </div>
                     </div>
                 );
@@ -281,17 +281,18 @@ class KrakenWorker extends Component {
         // Body
         let body;
         switch (this.state.workerPlatform) {
-            case "windows":
+            case "win32":
                 body =
                     <div>
-                        <strong>Hashcat</strong> was not found on your system. To install it on windows go to
-                            <a href="https://hashcat.net/hashcat/" target="_blank" rel="noopener noreferrer">hashcat homepage</a> and download
-                            the binary file or <a href="https://hashcat.net/files/hashcat-5.1.0.7z">click here</a>.
-                            <br />
-                        Place the appropriate binary (hashcat64.exe or hashcat32.exe) in the folder where Kraken is located.
-                            <br />
-                        Click try again
-                        </div>
+                        <strong>Hashcat</strong> was not found on your Windows. To install it on windows:
+                        <ul>
+                            <li>Download the 7zip <a href="https://hashcat.net/files/hashcat-5.1.0.7z">here</a> or 
+                             from Hashcat home page (https://hashcat.net/hashcat/)
+                            </li>
+                            <li>Unzip the contents of hashcat-5.X.X in the same folder as kraken-client.exe</li>
+                            <li>Click the "Test" Button to try again</li>
+                        </ul>
+                    </div>
                 break;
             case "darwin":
                 body =
@@ -322,33 +323,10 @@ class KrakenWorker extends Component {
             errorMessage = <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.workerDependencyModalErrorMessage}</strong></div>
         }
 
-        let cancelButton;
-        let tryAgainButton;
-        //let autoInstallButton;
-        if (this.state.workerDependencyModalLoadingStatus) { // Is Loading
-            cancelButton = <Button variant="outline-secondary">Cancel</Button>
-            tryAgainButton = <Button variant="ouline-warning"> Test </Button>
-            //autoInstallButton = <Button variant="outline-primary"><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /></Button>
-        }
-        else { // Is NOT loading
-            cancelButton =
-                <Button variant="secondary" onClick={() => this.promisedSetState({ workerDependencyModalVisible: false, workerDependencyModalErrorMessage: null })}>
-                    Cancel
-                </Button>
-            tryAgainButton = <Button variant="warning" onClick={async () => { await this.testDependency(); }}>Test</Button>
-            //autoInstallButton = <Button variant="outline-primary">Auto Install (Coming Soon)</Button>
-            // autoInstallButton =
-            //     <Button variant="Primary" onClick={() => {
-            //         this.promisedSetState({ workerDependencyModalLoadingStatus: true, workerDependencyModalErrorMessage: null });
-            //         cracker.install()
-            //         this.activateWorker()
-            //     }}>
-            //         Auto Install
-            //     </Button>
-        }
+        // Try Again Button
+        const tryAgainButton = <Button variant="warning" onClick={async () => { await this.testDependency(); }}>Test</Button>
         return (
-            <Modal size='lg' show={this.state.workerDependencyModalVisible}
-                onHide={() => this.promisedSetState({ workerDependencyModalVisible: false })}>
+            <Modal size='lg' show={this.state.workerDependencyModalVisible} backdrop='static' keyboard={false}>
                 <Modal.Header closeButton>
                     <Modal.Title>Dependecy Error</Modal.Title>
                 </Modal.Header>
@@ -357,9 +335,7 @@ class KrakenWorker extends Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {errorMessage}
-                    {cancelButton}
                     {tryAgainButton}
-                    {/* {autoInstallButton} */}
                 </Modal.Footer>
             </Modal>
         );
@@ -368,34 +344,39 @@ class KrakenWorker extends Component {
     buildSettingsModal = () => {
         let body;
         if (isElectron()) {
-            const tableHeadings = ['ID', 'Type', 'Name', 'Enabled'].map(tableHeading => {
-                return <th className={classes.tableHeaderColumnText} key={tableHeading}>{tableHeading}</th>
-            });
-            const tableItems = this.state.workerDevices.map(device => {
-                return (
-                    <tr key={device.id}>
-                        <td className={classes.tableItem}><strong>{device.id}</strong></td>
-                        <td className={classes.tableItem}>{device.type}</td>
-                        <td className={classes.tableItem}>{device.name}</td>
-                        <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}>
-                            <input type="checkbox" checked={device.enabled}
-                                onChange={() => {
-                                    let devicesClone = this.state.workerDevices.slice()
-                                    const deviceToChange = devicesClone.find(workerDevice => device.id === workerDevice.id);
-                                    deviceToChange.enabled = !deviceToChange.enabled
-                                    this.promisedSetState({ devices: devicesClone })
-                                }}
-                            />
-                        </td>
-                    </tr>
-                );
-            })
-            body =
-                <div className={classes.tableContainer}>
-                    <SummaryTable
-                        tableHeadings={tableHeadings}
-                        tableItems={tableItems} />
-                </div>
+            if (this.state.workerDevices.length !== 0) {
+                const tableHeadings = ['ID', 'Type', 'Name', 'Enabled'].map(tableHeading => {
+                    return <th className={classes.tableHeaderColumnText} key={tableHeading}>{tableHeading}</th>
+                });
+                const tableItems = this.state.workerDevices.map(device => {
+                    return (
+                        <tr key={device.id}>
+                            <td className={classes.tableItem}><strong>{device.id}</strong></td>
+                            <td className={classes.tableItem}>{device.type}</td>
+                            <td className={classes.tableItem}>{device.name}</td>
+                            <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}>
+                                <input type="checkbox" checked={device.enabled}
+                                    onChange={() => {
+                                        let devicesClone = this.state.workerDevices.slice()
+                                        const deviceToChange = devicesClone.find(workerDevice => device.id === workerDevice.id);
+                                        deviceToChange.enabled = !deviceToChange.enabled
+                                        this.promisedSetState({ devices: devicesClone })
+                                    }}
+                                />
+                            </td>
+                        </tr>
+                    );
+                })
+                body =
+                    <div className={classes.tableContainer}>
+                        <SummaryTable
+                            tableHeadings={tableHeadings}
+                            tableItems={tableItems} />
+                    </div>
+            }
+            else {
+                body = <div className={classes.tableContainer}><Octicon icon={Alert} />No Devices Detected!</div>
+            }
         }
         else {
             body =
@@ -409,7 +390,7 @@ class KrakenWorker extends Component {
         return (
             <Modal show={this.state.workerSettingsModalVisible}
                 onHide={async () => await this.promisedSetState({ workerSettingsModalVisible: false })}>
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title>Worker Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -443,13 +424,13 @@ class KrakenWorker extends Component {
         let tempWorker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
         await this.promisedSetState({
             workerDependencyModalVisible: false,
-            workerDependencyModalLoadingStatus: true,
             workerDependencyModalErrorMessage: null,
             workerPlatform: null,
             workerDevices: []
         })
         let listDevicesResponse = await tempWorker.listDevices()
-        if (listDevicesResponse.includes('hashcat') && listDevicesResponse.includes('starting')){
+        console.log(listDevicesResponse)
+        if (listDevicesResponse.includes('hashcat') && listDevicesResponse.includes('starting')) {
             listDevicesResponse = listDevicesResponse.split('\n')
             let devices = []
             for (let i = 0; i < listDevicesResponse.length; i++) {
@@ -464,21 +445,28 @@ class KrakenWorker extends Component {
             }
             if (devices.length === 1) // If just one device, enable it,
                 devices[0].enabled = true
-
             await this.promisedSetState({
                 workerDependencyModalVisible: false,
-                workerDependencyModalLoadingStatus: false,
                 workerDependencyModalErrorMessage: null,
                 workerPlatform: tempWorker.getPlatform(),
                 workerDevices: devices
             })
         }
-        else{
+        else if (listDevicesResponse.includes('No Devices')){
+            NotificationService.showNotification('No CPU/GPU/FGPA found', false)
+            await this.promisedSetState({
+                workerDependencyModalVisible: false,
+                workerDependencyModalErrorMessage: null,
+                workerPlatform: tempWorker.getPlatform(),
+                workerDevices: []
+            })
+        }
+        else {
             await this.promisedSetState({
                 workerDependencyModalVisible: true,
-                workerDependencyModalLoadingStatus: false,
                 workerDependencyModalErrorMessage: listDevicesResponse,
-                workerPlatform: tempWorker.getPlatform()
+                workerPlatform: tempWorker.getPlatform(),
+                workerDevices: []
             })
         }
     }
@@ -522,7 +510,7 @@ class KrakenWorker extends Component {
             path: ActiveRequestService.getJobPath(),
             token: AuthenticationService.getToken(),
             workerId: this.state.workerId,
-            multiplier: Math.max(Math.min(this.state.workerRecommendedMultiplier, 1000), 1),
+            multiplier: Math.max(Math.min(this.state.workerRecommendedMultiplier, 250), 1), // 250 is the max the server can surive right now
             activeCoreCount: this.state.workerActiveCoreCount
         }
         console.debug("Getting Job with multiplier " + params.multiplier)
@@ -601,7 +589,7 @@ class KrakenWorker extends Component {
                 webWorkerId: this.state.crackerPool[i].webWorkerId,
                 jobId: pendingJob.jobId,
                 candidateValues: chunkCandidateValuesList[i],
-                devices : this.state.workerDevices // Only used by local cracker
+                devices: this.state.workerDevices // Only used by local cracker
             }
             this.state.crackerPool[i].postMessage(chunk);
         }

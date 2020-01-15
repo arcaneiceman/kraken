@@ -1,5 +1,4 @@
 import Crack from './utils/WPA/Crack';
-import { isExpressionWrapper } from '@babel/types';
 
 let fs, os, exec, promisify, writeFile, readFile, deleteFile
 if (window.require) {
@@ -18,9 +17,9 @@ const JobCrackerLocal = (webWorkerId, callback) => {
     const postMessage = async (message) => {
         console.debug("Cracker received job with id " + message.jobId)
         let returnObject = { data: { jobId: message.jobId, crackingStatus: null, result: null, error: null } }
-        const candidateValueFileName = '/tmp/kraken-candidate-values'
-        const valueToMatchFileName = '/tmp/kraken-value-to-match'
-        const outFileName = '/tmp/kraken-out'
+        const candidateValueFileName = getTmpFilePath('kraken-candidate-values')
+        const valueToMatchFileName = getTmpFilePath('kraken-value-to-match')
+        const outFileName = getTmpFilePath('kraken-out')
         try {
             await writeFile(candidateValueFileName, message.candidateValues.join("\n"));
             await writeFile(outFileName, '');
@@ -44,17 +43,19 @@ const JobCrackerLocal = (webWorkerId, callback) => {
                 default:
                     throw new Error("Request Type Unknown : " + message.requestType)
             }
+            if (message.devices.length === 0)
+                throw Error("No Enabled Devices")
             const devices = message.devices.filter(device => device.enabled).map(device => device.id).join(',')
             let output;
             let error;
             const hashcatBinary = getHashcatBinary()
             console.log(hashcatBinary + ' ' +
                 '--potfile-disable --attack-mode 0 --outfile-format 2 --hash-type ' + hashcatMD5Mode + ' ' + // Options
-                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' ' +                            // Devices
-                '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName)
+                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' --force ' +                    // Devices
+                '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName)      // Files
             hashCatProcess = exec(hashcatBinary + ' ' +
                 '--potfile-disable --attack-mode 0 --outfile-format 2 --hash-type ' + hashcatMD5Mode + ' ' + // Options
-                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' ' +                            // Devices
+                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' --force ' +                     // Devices
                 '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName,      // Files
                 (e, stdout, stderr) => { output = stdout; error = stderr; });
             let promise = new Promise((resolve, reject) => {
@@ -109,9 +110,10 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             let output;
             let error;
             hashCatProcess = await exec(hashcatBinary + ' ' +
-                '--opencl-info', (e, stdout, stderr) => { output = stdout; error = stderr; });
+                '--opencl-info --force', (e, stdout, stderr) => { output = stdout; error = stderr; });
             let promise = new Promise((resolve, reject) => {
                 hashCatProcess.on('close', (code) => {
+                    console.log("Code was " + code)
                     if (code === 0 || code === 1) {
                         resolve(output)
                     } else {
@@ -124,7 +126,7 @@ const JobCrackerLocal = (webWorkerId, callback) => {
                 console.log(output)
             if (error)
                 console.log(error)
-            return output
+            return (output === null || output === undefined || output === '') ? error : output
         }
         catch (error) {
             return error;
@@ -143,14 +145,26 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             case 'linux':
                 return 'hashcat';
             case 'win32':
-                switch (process.arch) {
+                switch (os.arch()) {
                     case 'x64':
-                        return './hashcat64'
+                        return 'hashcat64.exe'
                     case 'x32':
-                        return './hashcat32'
+                        return 'hashcat32.exe'
                     default:
                         throw new Error("Platform is Windows but could not determine architecture")
                 }
+            default:
+                throw new Error("Platform is not Windows, Mac or Linux")
+        }
+    }
+
+    const getTmpFilePath = (filename) => {
+        switch (os.platform()) {
+            case 'darwin':
+            case 'linux':
+                return '/tmp/' + filename;
+            case 'win32':
+                return filename;
             default:
                 throw new Error("Platform is not Windows, Mac or Linux")
         }
