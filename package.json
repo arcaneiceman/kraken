@@ -1,6 +1,7 @@
 {
 	"name": "kraken-client",
 	"author": "arcaneiceman",
+	"email": "waliusmani@gmail.com",
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
@@ -110,11 +111,11 @@
 			"public/electron.js"
 		],
 		"mac": {
+			"target": [
+				"dmg"
+			],
 			"icon": "src/assets/icons/application/icon.png",
 			"category": "public.app-category.utilities"
-		},
-		"nsis": {
-			"createDesktopShortcut": "always"
 		},
 		"dmg": {
 			"contents": [
@@ -131,10 +132,15 @@
 			]
 		},
 		"linux": {
+			"target": [
+				"AppImage"
+			],
 			"category": "Security"
 		},
 		"win": {
-			"target": "nsis",
+			"target": [
+				"portable"
+			],
 			"icon": "src/assets/icons/application/icon.png"
 		}
 	},
