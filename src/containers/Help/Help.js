@@ -39,7 +39,7 @@ class HowTo extends Component {
                 <div className={classes.panelContainer}>
 
                     <div className={classes.panel}>
-                        <a href="#introduction" className={classes.panelLink}>
+                        <a href="/help#introduction" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Star} />
                             </div>
@@ -50,7 +50,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#installation" className={classes.panelLink}>
+                        <a href="/help#installation" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={DesktopDownload} />
                             </div>
@@ -61,7 +61,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#how-to" className={classes.panelLink}>
+                        <a href="/help#how-to" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Rocket} />
                             </div>
@@ -72,7 +72,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#supported-algo" className={classes.panelLink}>
+                        <a href="/help#supported-algo" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Gear} />
                             </div>
@@ -83,7 +83,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#privacy-policy" className={classes.panelLink}>
+                        <a href="/help#privacy-policy" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Shield} />
                             </div>
@@ -94,7 +94,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#disclaimer" className={classes.panelLink}>
+                        <a href="/help#disclaimer" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Alert} />
                             </div>
@@ -105,7 +105,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#help-out" className={classes.panelLink}>
+                        <a href="/help#help-out" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={GitPullRequest} />
                             </div>
@@ -116,7 +116,7 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="#donate" className={classes.panelLink}>
+                        <a href="/help#donate" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Heart} />
                             </div>
