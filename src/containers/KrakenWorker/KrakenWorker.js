@@ -202,7 +202,7 @@ class KrakenWorker extends Component {
                             <Button className={classes.settingsButton} onClick={async () => { await this.promisedSetState({ workerSettingsModalVisible: true }) }} variant="light">
                                 <Octicon icon={Gear} /> <br /> Worker Settings
                             </Button>
-                            {this.state.workerDevices.length === 0 ? <span><Octicon icon={Alert}/> No CPU/GPU/FPGA(s) detected</span> : null}
+                            {isElectron() && this.state.workerDevices.length === 0 ? <span><Octicon icon={Alert}/> No CPU/GPU/FPGA(s) detected</span> : null}
                         </div>
                     </div>
                 );
