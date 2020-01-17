@@ -177,8 +177,8 @@ class HowTo extends Component {
                         directory as kraken-client. Hashcat files can be dowloaded from their home page (https://hashcat.net/hashcat/) or <a href="https://hashcat.net/files/hashcat-5.1.0.7z">here</a>.
                         <br />
                         <h6>Linux Client</h6>
-                        The kraken-client runs as an AppImage and requires no installation apart from Hashcat. To run it, simply right click to access file properties, go to permissions
-                        and check the executable box. Double click to start. To install Hashcat run the <strong>aptitude</strong> command :
+                        The kraken-client runs as an AppImage and requires no installation apart from Hashcat. To run it, simply right click to access file properties, go to the permissions tab,
+                        and check 'Allow executing file as program'. Double click to start. To install Hashcat run the <strong>aptitude</strong> command :
                         <SyntaxHighlighter language="bash" style={github}>sudo apt-get install hashcat</SyntaxHighlighter>
                     </p>
                     <br />

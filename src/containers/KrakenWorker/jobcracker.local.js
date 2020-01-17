@@ -1,9 +1,8 @@
 import Crack from './utils/WPA/Crack';
 
-let fs, os, exec, promisify, writeFile, readFile, deleteFile
+let fs, exec, promisify, writeFile, readFile, deleteFile
 if (window.require) {
     fs = window.require("fs");
-    os = window.require("os")
     exec = window.require("child_process").exec
     promisify = window.require("util").promisify;
     writeFile = promisify(fs.writeFile)
@@ -133,22 +132,22 @@ const JobCrackerLocal = (webWorkerId, callback) => {
     }
 
     const getPlatform = () => {
-        return os.platform()
+        return window.process.platform
     }
 
     // Private Functions
     const getHashcatBinary = () => {
-        switch (os.platform()) {
+        switch (window.process.platform) {
             case 'darwin':
                 return '/usr/local/bin/hashcat';
             case 'linux':
                 return 'hashcat';
             case 'win32':
-                switch (os.arch()) {
+                switch (window.process.arch) {
                     case 'x64':
-                        return 'hashcat64.exe'
+                        return  'cd ' + window.process.env.PORTABLE_EXECUTABLE_DIR + ' &&  hashcat64.exe'
                     case 'x32':
-                        return 'hashcat32.exe'
+                        return  'cd ' + window.process.env.PORTABLE_EXECUTABLE_DIR + ' &&  hashcat32.exe'
                     default:
                         throw new Error("Platform is Windows but could not determine architecture")
                 }
@@ -158,12 +157,12 @@ const JobCrackerLocal = (webWorkerId, callback) => {
     }
 
     const getTmpFilePath = (filename) => {
-        switch (os.platform()) {
+        switch (window.process.platform) {
             case 'darwin':
             case 'linux':
                 return '/tmp/' + filename;
             case 'win32':
-                return filename;
+                return window.process.env.PORTABLE_EXECUTABLE_DIR + '//' + filename;
             default:
                 throw new Error("Platform is not Windows, Mac or Linux")
         }

@@ -289,7 +289,7 @@ class KrakenWorker extends Component {
                             <li>Download the 7zip <a href="https://hashcat.net/files/hashcat-5.1.0.7z">here</a> or 
                              from Hashcat home page (https://hashcat.net/hashcat/)
                             </li>
-                            <li>Unzip the contents of hashcat-5.X.X in the same folder as kraken-client.exe</li>
+                            <li>Unzip the contents of hashcat-5.X.X in the same folder as kraken-client v1.X.X.exe</li>
                             <li>Click the "Test" Button to try again</li>
                         </ul>
                     </div>
