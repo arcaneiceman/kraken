@@ -150,16 +150,37 @@ class HowTo extends Component {
                     <ScrollableAnchor id={'installation'}>
                         <h3>Installation</h3>
                     </ScrollableAnchor>
-                    <h5>Browser Based Client</h5>
+                    <h5>Browser Client</h5>
                     <p>
-                        The brower based client does not need installation and can be run directly from a Chrome, Firefox and Safari Browser.
-                            <br />
-                        <strong>Note: </strong> The broswer based client can only access the CPU and hence is <strong>significantly</strong> slower than the deskop based client.
+                        The brower client does not need installation and can be run directly from a Chrome, Firefox and Safari Browser.
+                        <br />
+                        <strong>Note: </strong> The broswer client is <strong>significantly</strong> slower than the deskop based client since it does not use the GPU.
                     </p>
                     <br />
 
-                    <h5>Desktop Based Client</h5>
-                    <p> Coming Soon!</p>
+                    <h5>Desktop Client</h5>
+                    <p>
+                        The desktop client is packaged for Windows, Mac and Linux and is coming soon!. The application runs inside an electron shell packaging the contents of the broswer app
+                        with nodejs integration and uses <a href="https://hashcat.net/" target="_blank" rel="noopener noreferrer">Hashcat</a> for cracking.
+                        <strong>Note: </strong> The app has node integration enabled to access local resources but sets itself as the only source of scripts.
+                        All client code is available on Github.
+                        <br />
+                        <h6>Mac</h6>
+                        The kraken-client app runs as a dmg. Double click to mount it and install by dragging it into applications. Hashcat must be available on command line to
+                        use kraken-client. Install Hashcat by running the following <strong>brew</strong> command:
+                        <SyntaxHighlighter language="bash" style={github}>brew install hashcat</SyntaxHighlighter>
+                        If you dont not have brew installed on your machine, install it with :
+                        <SyntaxHighlighter language="bash" style={github}>ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</SyntaxHighlighter>
+                        <br />
+                        <h6>Windows Client</h6>
+                        The kraken-client app runs as a portable exe file and requires no installation apart from placing the Hashcat files (executable and dlls) in the same
+                        directory as kraken-client. Hashcat files can be dowloaded from their home page (https://hashcat.net/hashcat/) or <a href="https://hashcat.net/files/hashcat-5.1.0.7z">here</a>.
+                        <br />
+                        <h6>Linux Client</h6>
+                        The kraken-client runs as an AppImage and requires no installation apart from Hashcat. To run it, simply right click to access file properties, go to permissions
+                        and check the executable box. Double click to start. To install Hashcat run the <strong>aptitude</strong> command :
+                        <SyntaxHighlighter language="bash" style={github}>sudo apt-get install hashcat</SyntaxHighlighter>
+                    </p>
                     <br />
 
                     <ScrollableAnchor id={'how-to'}>
@@ -190,17 +211,11 @@ class HowTo extends Component {
                             <li>
                                 <strong>Linux:</strong> Capturing a handshake on Linux is by far the easiest and fastest in my opinion because of how easy it is to perform an <strong>active</strong> capture.
                                 Start by opening a terminal (Alt + T) or the launcher and select terminal and install <strong>aircrack-ng</strong> suite.
-                                <SyntaxHighlighter language="bash" style={github}>
-                                    { 'sudo apt-get install aircrack-ng' }
-                                </SyntaxHighlighter>
+                                <SyntaxHighlighter language="bash" style={github}>sudo apt-get install aircrack-ng</SyntaxHighlighter>
                                 Use <strong>ifconfig</strong> to identify your WiFi interface. Lets assume its <strong>wlan0</strong>.
-                                <SyntaxHighlighter language="bash" style={github}>
-                                    { 'ifconfig' }
-                                </SyntaxHighlighter>
+                                <SyntaxHighlighter language="bash" style={github}>ifconfig</SyntaxHighlighter>
                                 Run <strong>besside-ng</strong> and watch the magic happen.
-                                <SyntaxHighlighter language="bash" style={github}>
-                                    { 'sudo besside-ng wlan0' }
-                                </SyntaxHighlighter>
+                                <SyntaxHighlighter language="bash" style={github}>sudo besside-ng wlan0</SyntaxHighlighter>
                                 The `besside-ng` program should create a file called <strong>wpa.cap</strong> in your <strong>home</strong> directory which you can upload to Kraken.
                             </li>
                             <li>
@@ -264,7 +279,7 @@ class HowTo extends Component {
                                 <strong>Crunch Parameters : </strong> This field specifies the crunch parameters you want to use to attempt to crack target WPA/WPA2 handshake.
                             Crunch is a program that allows you to generate candidate values based on 3 parameters : <strong>Minimum Length</strong>, <strong>Maximum Length </strong>
                                 and <strong>Character Set</strong>. You can optionally also provide a starting value. In the example above, crunch will generate all combinations of
-                            numbers of length 8. Click here learn more about <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html">crunch</a>.
+                            numbers of length 8. Click here learn more about <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html" target="_blank" rel="noopener noreferrer">crunch</a>.
                             </li>
                         </ol>
 
