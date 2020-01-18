@@ -18,7 +18,6 @@ import NotificationService from '../../utils/NotificiationService';
 import Spinner from 'react-bootstrap/Spinner';
 import isElectron from 'is-electron';
 
-
 import classes from './Dashboard.module.css'
 
 class Dashboard extends Component {

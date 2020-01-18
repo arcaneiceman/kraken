@@ -18,7 +18,6 @@
  *  - EAPOL Frame (Handshake 4 of 4)
  */
 import CryptoJS from '../Crypto/crypto-js'
-import sjcl from '../Crypto/sjcl'
 import KaitaiStream from 'kaitai-struct/KaitaiStream'
 import Hccapx from '../../utils/WPA/HccapxFile'
 
@@ -31,9 +30,9 @@ export default function Crack(handshakeAsHccapx) {
         throw Error("ESSID do not match")
 }
 
-Crack.prototype.tryPSK = function (psk) {
+Crack.prototype.tryPSK = async function (psk) {
     // Extract ESSID and generate PMK
-    let pmk = Crack.pmk(psk, String.fromCharCode.apply(null, this.hccapx.records[0].essid));
+    let pmk = await Crack.pmk(psk, String.fromCharCode.apply(null, this.hccapx.records[0].essid));
 
     // For each Handshake
     for (let i = 0; i < this.hccapx.records.length; i++) {
@@ -43,14 +42,14 @@ Crack.prototype.tryPSK = function (psk) {
         let anonce = Crack.buf2hex(this.hccapx.records[i].nonceAp)
         let snonce = Crack.buf2hex(this.hccapx.records[i].nonceStation)
         let prfPrefix = Crack.getPrfPrefix(srcAddress, dstAddress, anonce, snonce);
-        
+
         // Get Whether this is WPA or WPA2
         let isWPA = (this.hccapx.records[0].keyver === 1)
 
         // Get EAPOL
         let eapolFrameBytes = Crack.buf2hex(this.hccapx.records[i].eapol)
 
-         // Get MIC
+        // Get MIC
         let mic = Crack.buf2hex(this.hccapx.records[i].keymic)
 
         // Generate KCK
@@ -125,13 +124,11 @@ Crack.getPrfPrefix = function (srcAddress, dstAddress, snonce, anonce) {
  * @param ssid (string, optional) SSID (name of Wireless Access Point). Uses SSID from CapFile if not given.
  * @return (CryptoJS-encoded object) The PMK (256bits/32Bytes).
  */
-Crack.pmk = function (key, essid) {
-    var hmacSHA1 = function (key) {
-        var hasher = new sjcl.misc.hmac(key, sjcl.hash.sha1);
-        this.encrypt = function () { return hasher.encrypt.apply(hasher, arguments); };
-    };
-    var pmk = sjcl.misc.pbkdf2(key, essid, 4096, 256, hmacSHA1)
-    return pmk;
+Crack.pmk = async function (key, essid) {
+    const importedKey = await crypto.subtle.importKey("raw", Crack.str2ab(key), { name: "PBKDF2" }, false, ["deriveKey", "deriveBits"]);
+    const params = { name: "PBKDF2", hash: { name: "SHA-1" }, salt: Crack.str2ab(essid), iterations: 4096 };
+    const derivation = await crypto.subtle.deriveBits(params, importedKey, 256);
+    return Crack.buf2hex(derivation)
 };
 
 /**
@@ -145,18 +142,16 @@ Crack.pmk = function (key, essid) {
  *
  */
 Crack.kckFromPmk = function (pmk, prfPrefix) {
-    // Pseudo-Random function based on http://crypto.stackexchange.com/a/33192
+    pmk = CryptoJS.enc.Hex.parse(pmk) // <- Added This Line to convert PMK from Hex to Words
     var i = 0, ptk = "", thisPrefix;
     while (i < (64 * 8 + 159) / 160) {
-        // Append the current iteration counter as a (hex) byte to the prefix.
         thisPrefix = prfPrefix + ("0" + i);
-        thisPrefix = sjcl.codec.hex.toBits(thisPrefix)
 
-        ptk += sjcl.codec.hex.fromBits(new sjcl.misc.hmac(pmk, sjcl.hash.sha1).mac(thisPrefix));
+        thisPrefix = CryptoJS.enc.Hex.parse(thisPrefix);
+        ptk += CryptoJS.HmacSHA1(thisPrefix, pmk).toString();
+
         i++;
     }
-
-    // Extract first 16 bytes (32 hex characters) of PTK to get KCK.
     var kck = ptk.substring(0, 32);
     return kck;
 };
@@ -168,22 +163,37 @@ Crack.kckFromPmk = function (pmk, prfPrefix) {
  * @return (string, hex) The expected MIC.
  */
 Crack.micFromKck = function (kck, isWPA, eapolFrameBytes) {
-    kck = sjcl.codec.hex.toBits(kck)
-
-    // NOTE: We expect the "MIC" portion of the EAPOL frame bytes to be *zeroed* out! From the 802.11 spec:
-    // MIC(KCK, EAPOL) – MIC computed over the body of this EAPOL-Key frame with the Key MIC field first initialized to 0
-    var bytes = sjcl.codec.hex.toBits(eapolFrameBytes)
+    kck = CryptoJS.enc.Hex.parse(kck);
+    var bytes = CryptoJS.enc.Hex.parse(eapolFrameBytes);
 
     var computedMic;
     if (isWPA) {
-        var b = CryptoJS.enc.Hex.parse(sjcl.codec.hex.fromBits(bytes));
-        var c = CryptoJS.enc.Hex.parse(sjcl.codec.hex.fromBits(kck));
-        computedMic = CryptoJS.HmacMD5(b, c).toString(); // Still using Crypto JS
+        computedMic = CryptoJS.HmacMD5(bytes, kck).toString();
     }
     else {
-        computedMic = sjcl.codec.hex.fromBits(new sjcl.misc.hmac(kck, sjcl.hash.sha1).mac(bytes));
-        computedMic = computedMic.substring(0, 32); // Extract 0-128 MSB per the 802.11 spec.
+        computedMic = CryptoJS.HmacSHA1(bytes, kck).toString();
+        computedMic = computedMic.substring(0, 32);
     }
     return computedMic;
 }
 
+var test = async () => {
+    var pmk = await Crack.pmk("10zZz10ZZzZ", "Netgear 2/158")
+    console.log(pmk)
+    var prfPrefix = Crack.getPrfPrefix("001e2ae0bdd0", "cc08e0620bc8", "60eff10088077f8b03a0e2fc2fc37e1fe1f30f9f7cfbcfb2826f26f3379c4318", "61c9a3f5cdcdf5fae5fd760836b8008c863aa2317022c7a202434554fb38452b" )
+    console.log(prfPrefix)
+    var kck = Crack.kckFromPmk(pmk, prfPrefix)
+    console.log(kck)
+    var mic = Crack.micFromKck(kck, true, "0103005ffe01090020000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+    console.log(mic)
+}
+//test()
+
+// var wali = async () => {
+//     console.log(CryptoJS.HmacSHA1("message", "secret").toString())
+
+//     const importedKey = await crypto.subtle.importKey("raw", Crack.str2ab("secret"), {  name: "HMAC", hash: {name: "SHA-1"} }, false, ["sign", "verify"]);
+//     const value = await crypto.subtle.sign({ name: "HMAC"}, importedKey, Crack.str2ab("message"))
+//     console.log(Crack.buf2hex(value));
+// }
+//wali()

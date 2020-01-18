@@ -3,7 +3,7 @@ import Crack from './utils/WPA/Crack';
 import CryptoJS from './utils/Crypto/crypto-js';
 import md4 from './utils/Crypto/md4';
 
-self.onmessage = (message) => {
+self.onmessage = async (message) => {
     console.debug("Cracker received job with id " + message.data.jobId)
     let returnObject = { jobId: message.data.jobId, crackingStatus: null, result: null, error: null }
     try {
@@ -12,12 +12,17 @@ self.onmessage = (message) => {
         switch (message.data.requestType) {
             case 'WPA':
                 const crack = new Crack(valueToMatch)
-                match = message.data.candidateValues.find((element) => { return crack.tryPSK(element) })
+                for (let i = 0; i < message.data.candidateValues.length; i++){
+                    let answer = await crack.tryPSK(message.data.candidateValues[i])
+                    if (answer)
+                        match = message.data.candidateValues[i]
+                }
                 break;
             case 'NTLM':
                 valueToMatch = valueToMatch.toLowerCase();
-                match = message.data.candidateValues.find((element) => { 
-                    return md4(element.split("").join("\0") + "\0") === valueToMatch });
+                match = message.data.candidateValues.find((element) => {
+                    return md4(element.split("").join("\0") + "\0") === valueToMatch
+                });
                 break;
             case 'MD5':
                 valueToMatch = valueToMatch.toLowerCase();
