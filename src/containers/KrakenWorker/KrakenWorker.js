@@ -653,7 +653,7 @@ class KrakenWorker extends Component {
                     crackerPoolClone.forEach((element) => element.terminate())
 
                     // Notify Error
-                    NotificationService.showNotification("Cracker Error " + message.data.error, false)
+                    NotificationService.showNotification("Cracker Error: " + message.data.error, false)
                     break;
                 default:
                     throw Error("Catastrophic Failure. No Tracking Status Reported")
