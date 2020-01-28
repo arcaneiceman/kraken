@@ -93,6 +93,8 @@ class Activation extends Component {
             if (param[0] === 'activationKey')
                 activationKey = param[1];
         }
+        query.delete('email')
+        query.delete('activationKey')
 
         return (
             <div>
