@@ -110,7 +110,7 @@ class ChangePassword extends Component {
                                         <InputGroup.Text ><Octicon icon={Key} /></InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="old_password" type={this.state.oldPasswordHidden ? 'password' : 'text'}
-                                        placeholder="Old Password" defaultValue="test" required />
+                                        placeholder="Old Password" required />
                                     <InputGroup.Append>
                                         <InputGroup.Text onClick={this.toggleOldPasswordHidden}>
                                             {this.state.oldPasswordHidden ?
@@ -128,7 +128,7 @@ class ChangePassword extends Component {
                                         <InputGroup.Text><Octicon icon={Key} /></InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="new_password" type={this.state.newPasswordHidden ? 'password' : 'text'}
-                                        placeholder="Confirm Password" defaultValue="test" required />
+                                        placeholder="Confirm Password" required />
                                     <InputGroup.Append>
                                         <InputGroup.Text onClick={this.toggleNewPasswordHidden}>
                                             {this.state.newPasswordHidden ?
@@ -146,7 +146,7 @@ class ChangePassword extends Component {
                                         <InputGroup.Text><Octicon icon={Key} /></InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="new_confirm_password" type={this.state.newConfirmPasswordHidden ? 'password' : 'text'}
-                                        placeholder="Confirm Password" defaultValue="test" required />
+                                        placeholder="Confirm Password" required />
                                     <InputGroup.Append>
                                         <InputGroup.Text onClick={this.toggleNewConfirmPasswordHidden}>
                                             {this.state.newConfirmPasswordHidden ?

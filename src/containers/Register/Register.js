@@ -100,7 +100,7 @@ class Register extends Component {
                                     <InputGroup.Prepend>
                                         <InputGroup.Text><Octicon icon={Star} /></InputGroup.Text>
                                     </InputGroup.Prepend>
-                                    <Form.Control name="name" type="text" placeholder="Name" defaultValue="Wali" required />
+                                    <Form.Control name="name" type="text" placeholder="Name" required />
                                 </InputGroup>
                             </Form.Group>
 
@@ -109,7 +109,7 @@ class Register extends Component {
                                     <InputGroup.Prepend>
                                         <InputGroup.Text><Octicon icon={Person} /></InputGroup.Text>
                                     </InputGroup.Prepend>
-                                    <Form.Control name="email" type="email" placeholder="Email Address" defaultValue="wali@test.com" required />
+                                    <Form.Control name="email" type="email" placeholder="Email Address" required />
                                 </InputGroup>
                             </Form.Group>
 
@@ -119,7 +119,7 @@ class Register extends Component {
                                         <InputGroup.Text ><Octicon icon={Key} /></InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="password" type={this.state.passwordHidden ? 'password' : 'text'}
-                                        placeholder="Password" defaultValue="test" required />
+                                        placeholder="Password" required />
                                     <InputGroup.Append>
                                         <InputGroup.Text onClick={this.togglePasswordHidden}>
                                             {this.state.passwordHidden ?
@@ -136,7 +136,7 @@ class Register extends Component {
                                         <InputGroup.Text><Octicon icon={Key} /></InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="confirmPassword" type={this.state.confirmPasswordHidden ? 'password' : 'text'}
-                                        placeholder="Confirm Password" defaultValue="test" required />
+                                        placeholder="Confirm Password" required />
                                     <InputGroup.Append>
                                         <InputGroup.Text onClick={this.toggleConfirmPasswordHidden}>
                                             {this.state.confirmPasswordHidden ?
