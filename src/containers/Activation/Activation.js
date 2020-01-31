@@ -101,7 +101,7 @@ class Activation extends Component {
                 <div>
                     <div className={classes.header}><h1 className={classes.title}>Activation</h1></div>
                     <div className={classes.container}>
-                        <div>
+                        <div style={{display: 'flex', justifyContent: 'center'}}>
                             <p>An activation email was sent to {email} to verfiy that we can reach you through an out-of-band channel</p>
                             {
                                 (email !== null && email.includes('@ahem.email')) ?

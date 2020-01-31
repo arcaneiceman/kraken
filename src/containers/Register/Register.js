@@ -21,8 +21,7 @@ class Register extends Component {
         recaptchaSiteKey: '6LdJLcQUAAAAAOvVTGrtXqlqkEm2NzmhT9ucXlU8',
 
         loadingStatus: null,
-        errorMessage: null,
-        successMessage: null,
+        message: null,
 
         passwordHidden: true,
         confirmPasswordHidden: true,
@@ -40,19 +39,19 @@ class Register extends Component {
         let recaptchaResponse = "";
         if (!isElectron())
             recaptchaResponse = this.state.recaptchaReference.current.getValue();
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
         try {
             const name = form.elements["name"].value;
             const email = form.elements["email"].value;
             const password = form.elements["password"].value;
             const confirmPassword = form.elements["confirmPassword"].value;
             await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', errorMessage: 'Success! Taking you to Activation...' })
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
             await new Promise(resolve => setTimeout(resolve, 500));
             this.props.history.push('/activation?email=' + email)
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
         }
     }
 
@@ -84,10 +83,10 @@ class Register extends Component {
                 status = <Spinner animation="border" />
                 break;
             case 'ERROR':
-                status = <Alert variant='danger'> {this.state.errorMessage} </Alert>
+                status = <Alert variant='danger'> {this.state.message} </Alert>
                 break;
             case 'SUCCESS':
-                status = <Alert variant='success'> {this.state.successMessage} </Alert>
+                status = <Alert variant='success'> {this.state.message} </Alert>
                 break
             default:
                 status = <div></div>;
