@@ -64,6 +64,8 @@
 }
 
 .submit_container{
+    display: flex;
+    justify-content: center;
     margin: 20px;
     text-align: center
 }

@@ -41,7 +41,7 @@ class Activation extends Component {
         if (!form.checkValidity())
             return
 
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess : false })
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
         try {
             const email = form.elements["email"].value;
             const activationKey = form.elements["activationKey"].value;
@@ -84,17 +84,16 @@ class Activation extends Component {
         }
 
         // URL Params
-        const query = new URLSearchParams(this.props.location.search)
         let email = null;
         let activationKey = null;
-        for (let param of query.entries()) {
+        Array.from(new URLSearchParams(this.props.location.search)).forEach(param => {
             if (param[0] === 'email')
                 email = param[1];
             if (param[0] === 'activationKey')
                 activationKey = param[1];
-        }
-        query.delete('email')
-        query.delete('activationKey')
+        });
+        if (!isElectron())
+            window.history.replaceState('name', "", "/activation");
 
         return (
             <div>
@@ -103,8 +102,13 @@ class Activation extends Component {
                     <div className={classes.header}><h1 className={classes.title}>Activation</h1></div>
                     <div className={classes.container}>
                         <div>
-                            <p>An activation email was sent to {email}.</p>
-                            <p>Copy activation code or click the link in the email</p>
+                            <p>An activation email was sent to {email} to verfiy that we can reach you through an out-of-band channel</p>
+                            {
+                                (email !== null && email.includes('@ahem.email')) ?
+                                    <p>You can access the email at <a href={'https://ahem.email/mailbox/' + email.replace("@ahem.email", "")} target="_blank" rel="noopener noreferrer">ahem.email</a></p>
+                                    :
+                                    <p>Copy activation code or click the link in the email</p>
+                            }
                         </div>
                         <Form className={classes.form} onSubmit={this.submitActivationCode}>
                             <div className={classes.form_status_container}>{status}</div>

@@ -1,8 +1,8 @@
 import jwt_decode from 'jwt-decode'
 import axios from './AxiosInstance'
 
-const register = (name, email, password, confirmPassword) => {
-    const data = { name, email, password, confirmPassword }
+const register = (name, email, password, confirmPassword, recaptchaResponse) => {
+    const data = { name, email, password, confirmPassword, recaptchaResponse}
     return axios.post('/account/register', data)
 }
 

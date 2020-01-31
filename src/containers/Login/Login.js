@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Toolbar from '../../components/Toolbar/Toolbar'
 import SocialLoginWrapper from '../../components/SocialLoginWrapper/SocialLoginWrapper'
-import { FacebookLoginButton, GoogleLoginButton, GithubLoginButton } from "react-social-login-buttons";
+import { FacebookLoginButton, GoogleLoginButton, GithubLoginButton, createSvgIcon, createButton } from "react-social-login-buttons";
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Spinner from 'react-bootstrap/Spinner'
@@ -22,8 +22,7 @@ class Login extends Component {
         recaptchaSiteKey: '6LdJLcQUAAAAAOvVTGrtXqlqkEm2NzmhT9ucXlU8',
 
         loadingStatus: null,
-        errorMessage: null,
-        successMessage: null,
+        message: null,
 
         passwordHidden: true,
 
@@ -37,39 +36,59 @@ class Login extends Component {
         if (!form.checkValidity())
             return
 
-        let recaptchaResponse = ""
-        if (this.state.recaptchaReference !== null && this.state.recaptchaReference.current !== null)
+        let recaptchaResponse = "";
+        if (!isElectron())
             recaptchaResponse = this.state.recaptchaReference.current.getValue();
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
         try {
             const email = form.elements["email"].value;
             const password = form.elements["password"].value;
             await AuthenticationService.authenticate(email, password, recaptchaResponse)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Success! Taking you to Dashboard', errorMessage: null })
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Dashboard' })
             await new Promise(resolve => setTimeout(resolve, 500));
             this.props.history.push('/dashboard')
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message, successMessage: null })
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message})
         }
     }
 
     socialAuthenticate = async (provider, authObject) => {
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
         try {
             await AuthenticationService.socialAuthenticate(provider, authObject._token.accessToken)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Success! Taking you to Dashboard', errorMessage: null })
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Dashboard' })
             await new Promise(resolve => setTimeout(resolve, 500));
             this.props.history.push('/dashboard')
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message, successMessage: null })
-            console.log(error)
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message})
+        }
+    }
+
+    loginAsGuest = async () => {
+        let recaptchaResponse = "";
+        if (!isElectron())
+            recaptchaResponse = this.state.recaptchaReference.current.getValue();
+
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
+        try{
+            const name = "kraken-anonymous-user-" + Math.floor((Math.random() * 100000) + 1)
+            const email = name + "@ahem.email"
+            const password = Math.random().toString(36).slice(2)
+            const confirmPassword = password
+            await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/activation?email=' + email)
+        }
+        catch (error) {
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
         }
     }
 
     socialAuthenticateError = async (error) => {
-        await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: "Social Authentication Failed", successMessage: null })
+        await this.promisedSetState({ loadingStatus: 'ERROR', message: "Social Authentication Failed" })
         console.log(error)
     }
 
@@ -97,10 +116,10 @@ class Login extends Component {
                 status = <Spinner animation="border" />
                 break;
             case 'ERROR':
-                status = <Alert variant='danger'> {this.state.errorMessage} </Alert>
+                status = <Alert variant='danger'> {this.state.message} </Alert>
                 break;
             case 'SUCCESS':
-                status = <Alert variant='success'> {this.state.successMessage} </Alert>
+                status = <Alert variant='success'> {this.state.message} </Alert>
                 break
             default:
                 status = <div></div>;
@@ -180,7 +199,9 @@ class Login extends Component {
                 </div>}
 
             <div className={classes.submit_container}>
-                <Button variant="success" className={classes.submit} type="submit">Login</Button>
+                <Button variant="success" type="submit">Login</Button>
+                <span style={{ marginRight: '5px' }}></span>
+                <Button variant="secondary" onClick={this.loginAsGuest}>Login As Guest</Button>
             </div>
 
             {/* Footer */}

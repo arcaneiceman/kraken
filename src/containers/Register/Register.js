@@ -10,12 +10,16 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Octicon, { Person, Key, Star, EyeClosed, Eye } from '@githubprimer/octicons-react';
 import isElectron from 'is-electron';
 import { Redirect } from 'react-router-dom'
+import ReCAPTCHA from 'react-google-recaptcha'
 
 import classes from './Register.module.css'
 
 class Register extends Component {
 
     state = {
+        recaptchaReference: React.createRef(),
+        recaptchaSiteKey: '6LdJLcQUAAAAAOvVTGrtXqlqkEm2NzmhT9ucXlU8',
+
         loadingStatus: null,
         errorMessage: null,
         successMessage: null,
@@ -30,23 +34,25 @@ class Register extends Component {
         event.preventDefault();
         const form = event.currentTarget;
 
-        // Check Form Validiy
         if (!form.checkValidity())
             return
 
+        let recaptchaResponse = "";
+        if (!isElectron())
+            recaptchaResponse = this.state.recaptchaReference.current.getValue();
         await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
         try {
             const name = form.elements["name"].value;
             const email = form.elements["email"].value;
             const password = form.elements["password"].value;
             const confirmPassword = form.elements["confirmPassword"].value;
-            await AuthenticationService.register(name, email, password, confirmPassword)
+            await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', errorMessage: 'Success! Taking you to Activation...' })
             await new Promise(resolve => setTimeout(resolve, 500));
             this.props.history.push('/activation?email=' + email)
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.message })
+            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.data.response.message })
         }
     }
 
@@ -146,6 +152,11 @@ class Register extends Component {
                                     </InputGroup.Append>
                                 </InputGroup>
                             </Form.Group>
+
+                            {isElectron() ? null :
+                                <div className={classes.submit_container}>
+                                    <ReCAPTCHA ref={this.state.recaptchaReference} sitekey={this.state.recaptchaSiteKey} />
+                                </div>}
 
                             <div className={classes.submit_container}>
                                 <Button className={classes.submit} variant="success" type="submit">Create</Button>
