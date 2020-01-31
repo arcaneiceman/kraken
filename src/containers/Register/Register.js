@@ -52,7 +52,7 @@ class Register extends Component {
             this.props.history.push('/activation?email=' + email)
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.data.response.message })
+            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
         }
     }
 
