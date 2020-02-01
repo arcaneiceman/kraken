@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Toolbar from '../../components/Toolbar/Toolbar'
 import SocialLoginWrapper from '../../components/SocialLoginWrapper/SocialLoginWrapper'
-import { FacebookLoginButton, GoogleLoginButton, GithubLoginButton, createSvgIcon, createButton } from "react-social-login-buttons";
+import { FacebookLoginButton, GoogleLoginButton, GithubLoginButton } from "react-social-login-buttons";
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Spinner from 'react-bootstrap/Spinner'

@@ -15,25 +15,27 @@ import classes from './Activation.module.css'
 class Activation extends Component {
 
     state = {
-        loadingStatus: null,
-        errorMessage: null,
-        successMessage: null,
+        formReference: React.createRef(),
 
-        directAccess: true
+        loadingStatus: null,
+        message: null,
+
+        directAccess: true,
     }
 
     resendActivationEmail = async (email) => {
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null })
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null })
         try {
             await AuthenticationService.resendActivationEmail(email);
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Activation Email Resent' })
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Activation Email Resent' })
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
         }
     }
 
     submitActivationCode = async (event) => {
+        debugger;
         event.preventDefault();
         const form = event.currentTarget;
 
@@ -41,17 +43,17 @@ class Activation extends Component {
         if (!form.checkValidity())
             return
 
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
         try {
             const email = form.elements["email"].value;
             const activationKey = form.elements["activationKey"].value;
             await AuthenticationService.activate(email, activationKey)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'Activation Sucessful. Taking you to Dashboard...' })
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Activation Sucessful. Taking you to Dashboard...' })
             await new Promise(resolve => setTimeout(resolve, 500));
             this.props.history.push('/dashboard')
         }
         catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
         }
     }
 
@@ -74,10 +76,10 @@ class Activation extends Component {
                 status = <Spinner animation="border" />
                 break;
             case 'ERROR':
-                status = <Alert variant='danger'> {this.state.errorMessage} </Alert>
+                status = <Alert variant='danger'> {this.state.message} </Alert>
                 break;
             case 'SUCCESS':
-                status = <Alert variant='success'> {this.state.successMessage} </Alert>
+                status = <Alert variant='success'> {this.state.message} </Alert>
                 break
             default:
                 status = <div></div>;
@@ -101,7 +103,7 @@ class Activation extends Component {
                 <div>
                     <div className={classes.header}><h1 className={classes.title}>Activation</h1></div>
                     <div className={classes.container}>
-                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <p>An activation email was sent to {email} to verfiy that we can reach you through an out-of-band channel</p>
                             {
                                 (email !== null && email.includes('@ahem.email')) ?
@@ -110,7 +112,7 @@ class Activation extends Component {
                                     <p>Copy activation code or click the link in the email</p>
                             }
                         </div>
-                        <Form className={classes.form} onSubmit={this.submitActivationCode}>
+                        <Form ref={this.state.formReference} className={classes.form} onSubmit={this.submitActivationCode}>
                             <div className={classes.form_status_container}>{status}</div>
                             <Form.Group>
                                 <InputGroup>
@@ -136,6 +138,22 @@ class Activation extends Component {
                     </div>
                 </div>
             </div>);
+    }
+
+    componentDidMount() {
+        const form = this.state.formReference.current;
+        if (form.elements["email"].value !== "" && form.elements["activationKey"].value !== "") {
+            this.submitActivationCode({
+                preventDefault : () => {},
+                currentTarget: {
+                    checkValidity : () => { return true;},
+                    elements : {
+                        "email" : { value : form.elements["email"].value },
+                        "activationKey" : { value : form.elements["activationKey"].value }
+                    }
+                }
+            })
+        }
     }
 
     promisedSetState = (newState) => {
