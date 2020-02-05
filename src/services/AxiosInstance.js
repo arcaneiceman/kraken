@@ -31,5 +31,7 @@ instance.interceptors.response.use(
 
 instance.defaults.headers.post['Content-Type'] = 'application/json'
 instance.defaults.headers.common['Version'] = process.env.REACT_APP_API_VERSION
+console.info("Using URL : " + process.env.REACT_APP_API_URL)
+console.info("Using API Verison : " + process.env.REACT_APP_API_VERSION)
 
 export default instance;

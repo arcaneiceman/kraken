@@ -87,20 +87,21 @@
 		"worker-loader": "^2.0.0"
 	},
 	"devDependencies": {
+		"concurrently": "4.1.2",
 		"electron": "6.0.11",
 		"electron-builder": "^21.2.0",
-		"wait-on": "3.3.0",
-		"concurrently": "4.1.2"
+		"genversion": "^2.2.0",
+		"wait-on": "3.3.0"
 	},
 	"main": "public/electron.js",
 	"homepage": "./",
 	"scripts": {
 		"postinstall": "electron-builder install-app-deps",
-		"web-start": "node web-scripts/start.js",
-		"web-build": "node web-scripts/build.js",
-		"web-test": "node scripts/test.js",
+		"web-start": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node web-scripts/start.js",
+		"web-build": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node web-scripts/build.js",
+		"web-test": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node scripts/test.js",
 		"electron-start": "concurrently \"cross-env BROWSER=none npm run web-start\" \"wait-on http://localhost:3000 && electron .\" ",
-		"electron-build": "node web-scripts/build.js && electron-builder --mac --windows --linux",
+		"electron-build": "npm run web-build && electron-builder --mac --windows --linux",
 		"electron-test": ""
 	},
 	"build": {
