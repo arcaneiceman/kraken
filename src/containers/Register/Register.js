@@ -55,6 +55,27 @@ class Register extends Component {
         }
     }
 
+    registerAsGuest = async () => {
+        let recaptchaResponse = "";
+        if (!isElectron())
+            recaptchaResponse = this.state.recaptchaReference.current.getValue();
+
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
+        try {
+            const name = "kraken-anonymous-user-" + Math.floor((Math.random() * 100000) + 1)
+            const email = name + "@ahem.email"
+            const password = Math.random().toString(36).slice(2)
+            const confirmPassword = password
+            await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/activation?email=' + email)
+        }
+        catch (error) {
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
+        }
+    }
+
     togglePasswordHidden = () => {
         const currentState = this.state.passwordHidden;
         this.setState({ passwordHidden: !currentState })
@@ -158,7 +179,9 @@ class Register extends Component {
                                 </div>}
 
                             <div className={classes.submit_container}>
-                                <Button className={classes.submit} variant="success" type="submit">Create</Button>
+                                <Button className={classes.submit} variant="success" type="submit">Register</Button>
+                                <span style={{ marginRight: '5px' }}></span>
+                                <Button variant="secondary" onClick={this.registerAsGuest}>Register As Guest</Button>
                             </div>
 
                         </Form>
