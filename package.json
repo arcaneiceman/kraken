@@ -96,7 +96,6 @@
 	"main": "public/electron.js",
 	"homepage": "./",
 	"scripts": {
-		"postinstall": "electron-builder install-app-deps",
 		"web-start": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node web-scripts/start.js",
 		"web-build": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node web-scripts/build.js",
 		"web-test": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node scripts/test.js",
