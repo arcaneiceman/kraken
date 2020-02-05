@@ -107,7 +107,7 @@ class Activation extends Component {
                             <p>An activation email was sent to {email} to verfiy that we can reach you through an out-of-band channel</p>
                             {
                                 (email !== null && email.includes('@ahem.email')) ?
-                                    <p>You can access the email at <a href={'https://ahem.email/mailbox/' + email.replace("@ahem.email", "")} target="_blank" rel="noopener noreferrer">ahem.email</a></p>
+                                    <p>You can access the email at <a href={'https://ahem.email/mailbox/' + email.replace("@ahem.email", "")} target="_blank" rel="noopener noreferrer">ahem.email</a>. You may have to refresh the page until the email arrives</p>
                                     :
                                     <p>Copy activation code or click the link in the email</p>
                             }
