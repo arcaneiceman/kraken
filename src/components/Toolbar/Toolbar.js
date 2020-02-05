@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav'
+import Octicon, { LogoGithub, MarkGithub } from '@githubprimer/octicons-react';
 import krakenLogo from './../../assets/kraken-logo.png';
+
 import { useHistory } from "react-router-dom";
 
 import classes from './Toolbar.module.css'
@@ -23,7 +25,9 @@ const Toolbar = (props) => {
             <Navbar.Brand>
                 <span onClick={() => { history.push("/dashboard") }}>Kraken <sub>beta</sub></span>
             </Navbar.Brand>
-            <Nav.Link className={classes.link} onClick={() => { window.location.href = "mailto:waliusmani@gmail.com" }}>Contact Creator</Nav.Link>
+            <Nav.Link className={classes.link} href="https://github.com/arcaneiceman/kraken-client" target="_blank" rel="noopener noreferrer">
+            <Octicon icon={MarkGithub}/> <Octicon icon={LogoGithub}/>
+            </Nav.Link>
             <Navbar.Collapse className={classes.collapse}>
                 <Nav>
                     {navLinks}

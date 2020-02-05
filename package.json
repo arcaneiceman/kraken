@@ -65,7 +65,7 @@
 		"react-google-recaptcha": "^2.0.1",
 		"react-markdown": "^4.3.1",
 		"react-router-dom": "^5.1.0",
-		"react-scrollable-anchor": "^0.6.1",
+		"react-router-hash-link": "^1.2.2",
 		"react-social-login": "^3.4.6",
 		"react-social-login-buttons": "^3.0.0",
 		"react-syntax-highlighter": "^12.2.1",

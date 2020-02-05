@@ -5,19 +5,16 @@ import AuthenticationService from '../../services/AuthenticationService'
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, LogoGithub, Heart, Alert, Shield } from '@githubprimer/octicons-react';
-import ScrollableAnchor from 'react-scrollable-anchor'
-import { configureAnchors } from 'react-scrollable-anchor'
+import { HashLink as ScrollableLink } from 'react-router-hash-link';
 import krakenLogo from './../../assets/kraken-logo.png';
-import createRequestButton from './../../assets/screenshots/create-new-request-button.png'
-import createRequestModal from './../../assets/screenshots/create-new-request-modal.png'
-import startWorkerButton from './../../assets/screenshots/start-worker-button.png'
-import worker from './../../assets/screenshots/worker.png'
+import CreateRequestButton from './../../assets/screenshots/create-new-request-button.png'
+import CreateRequestModal from './../../assets/screenshots/create-new-request-modal.png'
+import StartWorkerButton from './../../assets/screenshots/start-worker-button.png'
+import Worker from './../../assets/screenshots/worker.png'
 
 import classes from './Help.module.css'
 
-configureAnchors({ offset: -100 });
-
-class HowTo extends Component {
+class Help extends Component {
 
     render() {
         // NavLinks for Toolbar
@@ -39,58 +36,58 @@ class HowTo extends Component {
                 <div className={classes.panelContainer}>
 
                     <div className={classes.panel}>
-                        <a href="/help#introduction" className={classes.panelLink}>
+                        <ScrollableLink smooth to="/help#introduction" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Star} />
                             </div>
                             <h3 className={classes.panelTitle}>What is Kraken</h3>
                             <p className={classes.panelText}>Introduction</p>
                             <div className={classes.panelFooter} />
-                        </a>
+                        </ScrollableLink>
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="/help#installation" className={classes.panelLink}>
+                        <ScrollableLink smooth to="/help#installation" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={DesktopDownload} />
                             </div>
                             <h3 className={classes.panelTitle}>Installation</h3>
                             <p className={classes.panelText}>Mac, Unix and Windows installation</p>
                             <div className={classes.panelFooter} />
-                        </a>
+                        </ScrollableLink>
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="/help#how-to" className={classes.panelLink}>
+                        <ScrollableLink smooth to="/help#how-to" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Rocket} />
                             </div>
                             <h3 className={classes.panelTitle}>How to Use Kraken</h3>
                             <p className={classes.panelText}>Step by step usage guide</p>
                             <div className={classes.panelFooter} />
-                        </a>
+                        </ScrollableLink>
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="/help#supported-algo" className={classes.panelLink}>
+                        <ScrollableLink smooth to="/help#supported-algo" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Gear} />
                             </div>
                             <h3 className={classes.panelTitle}>Supported Algorithms</h3>
                             <p className={classes.panelText}>WPA/WPA2 etc</p>
                             <div className={classes.panelFooter} />
-                        </a>
+                        </ScrollableLink>
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="/help#privacy-policy" className={classes.panelLink}>
+                        <ScrollableLink smooth to="/help#privacy-policy" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Shield} />
                             </div>
                             <h3 className={classes.panelTitle}>Privacy Policy</h3>
                             <p className={classes.panelText}>Check how we (don't) use your data</p>
                             <div className={classes.panelFooter} />
-                        </a>
+                        </ScrollableLink>
                     </div>
 
                     <div className={classes.panel}>
@@ -105,25 +102,25 @@ class HowTo extends Component {
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="/help#help-out" className={classes.panelLink}>
+                        <ScrollableLink smooth to="/help#help-out" className={classes.panelLink}>
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={GitPullRequest} />
                             </div>
                             <h3 className={classes.panelTitle}>Help Out</h3>
                             <p className={classes.panelText}>Contribute to Kraken and Acknowledgements</p>
                             <div className={classes.panelFooter} />
-                        </a>
+                        </ScrollableLink>
                     </div>
 
                     <div className={classes.panel}>
-                        <a href="/help#donate" className={classes.panelLink}>
+                        <ScrollableLink smooth to="/help#donate" >
                             <div className={classes.panelImageContainer}>
                                 <Octicon icon={Heart} />
                             </div>
                             <h3 className={classes.panelTitle}>Donate</h3>
                             <p className={classes.panelText}>Help with costs of maintaining Kraken</p>
                             <div className={classes.panelFooter} />
-                        </a>
+                        </ScrollableLink>
                     </div>
                 </div>
 
@@ -132,9 +129,9 @@ class HowTo extends Component {
                         <img alt="" src={krakenLogo} width="225" height="225" />
                     </div>
 
-                    <ScrollableAnchor id={'introduction'}>
+                    <div id={'introduction'}>
                         <h3>What is Kraken</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <p>
                         Kraken is an online distributed brute-force password cracking tool.
                         It allows you to parallelize password-list and `crunch` based cracking across multiple machines to create a cluster of crackers
@@ -147,9 +144,9 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'installation'}>
+                    <div id={'installation'}>
                         <h3>Installation</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <h5>Browser Client</h5>
                     <p>
                         The brower client does not need installation and can be run directly from a Chrome, Firefox and Safari Browser.
@@ -183,9 +180,9 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'how-to'}>
+                    <div id={'how-to'}>
                         <h3>How do I use Kraken</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <p>
 
                         <ul>
@@ -194,7 +191,7 @@ class HowTo extends Component {
                         </ul>
                         <br />
 
-                        <ScrollableAnchor id={'how-to_wpa-guide'}><h4>Guide for WPA/WPA2</h4></ScrollableAnchor>
+                        <div id={'how-to_wpa-guide'}><h4>Guide for WPA/WPA2</h4></div>
                         <br />
 
                         <h5>Step 1</h5>
@@ -259,12 +256,12 @@ class HowTo extends Component {
                         <h5>Step 2</h5>
                         Start by clicking the "Create New Request" button on the toolbar which should open a modal.
                         <br />
-                        <img src={createRequestButton} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
+                        <img src={CreateRequestButton} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
 
                         <h5>Step 3</h5>
                         Fill the fields of the modal and press submit. The following example shows a WPA/WPA2 request being created.
                         <br />
-                        <img src={createRequestModal} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
+                        <img src={CreateRequestModal} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
                         <ol>
                             <li><strong>Request Name :</strong> This is the friendly name that Kraken will use to refer to this request. It does not have to be unique</li>
                             <li><strong>Request Type :</strong> This indicates what type of request it will be. Currently we support only WPA/WPA2</li>
@@ -286,8 +283,8 @@ class HowTo extends Component {
                         <h5>Step 4</h5>
                         A new request should have been created in the active request column. Now click the start worker button to create a worker. The worker will be assinged a random name
                         and should be visible in "Your Workers" column. If you have an active request, the worker will automatically fetch jobs from the server and start processing them.
-                        <img src={startWorkerButton} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
-                        <img src={worker} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
+                        <img src={StartWorkerButton} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
+                        <img src={Worker} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
                         In the browser client, workers run within the browser with cracking being performed in Javascript and hence is much slower than the desktop client.
                         If you close the tab in which the worker is running, the worker will go offline. In the desktop client, cracking is performed by Hashcat which can utilize
                         the machine's CPU and other hardware like GPU and is <strong>much faster</strong>.
@@ -295,17 +292,17 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'supported-algo'}>
+                    <div id={'supported-algo'}>
                         <h3>Supported Algorithms</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <p>
                         Currently Kraken supports only WPA/WPA2 only. We intend on adding more algorithms to it including NTLM.
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'privacy-policy'}>
+                    <div id={'privacy-policy'}>
                         <h3>Privacy Policy</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <p>
                         Your privacy is important to us. It is Kraken's policy to respect your privacy regarding any information we may collect from you across our website, https://kraken.work, and other sites we own and operate.
                         We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.
@@ -318,9 +315,9 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'disclaimer'}>
+                    <div id={'disclaimer'}>
                         <h3>Disclaimer</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <p>
                         <strong>Disclaimer : </strong> THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE CAUSED BY THE (MIS)USE OF THIS SOFTWARE!
                         <br />
@@ -329,16 +326,16 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'help-out'}>
+                    <div id={'help-out'}>
                         <h3>Help Out</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <p>
                         <h5>Contribute Code to Kraken</h5>
                         If you would like to contribute to Kraken server, email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
                         and possibly join me in my journey to make usable security tools by becoming part of the Kraken team. If you would like to contribute
-                        to Kraken Client, feel free to do so by creating a pull request or an issue at &nbsp;
+                        to Kraken Client, feel free to do so by creating a pull request or an issue at
                         <a href="https://github.com/arcaneiceman/kraken-client">
-                            <button style={{ textAlign: 'center' }}><Octicon icon={LogoGithub} /></button>
+                            <button style={{ textAlign: 'center' }}> <Octicon icon={LogoGithub} /> </button>
                         </a>
                         I would gladly accept help if you want to join me as a part of the Kraken team as well.
                         <br />
@@ -353,9 +350,9 @@ class HowTo extends Component {
                     </p>
                     <br />
 
-                    <ScrollableAnchor id={'donate'}>
+                    <div id={'donate'}>
                         <h3>Donate</h3>
-                    </ScrollableAnchor>
+                    </div>
                     <p>
                         Hi there! If you would like to contribute $1 or more for the smooth running of Kraken, it would be greatly appreciated.
                         If only a 100 people dontate, I could keep kraken running for 6 months! Any amount raised above the running costs will
@@ -378,4 +375,4 @@ class HowTo extends Component {
     }
 }
 
-export default HowTo;
+export default Help;
