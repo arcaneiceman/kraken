@@ -17,6 +17,7 @@ import PasswordListService from '../../services/PasswordListService';
 import NotificationService from '../../utils/NotificiationService';
 import Spinner from 'react-bootstrap/Spinner';
 import isElectron from 'is-electron';
+import ElectronLinkService from '../../utils/ElectronLinkService';
 
 import classes from './Dashboard.module.css'
 
@@ -435,7 +436,8 @@ class Dashboard extends Component {
                         <Form.Group className={classes.formGroup}>
                             <Form.Label className={classes.modal_form_label}>
                                 Crunch Parameters&nbsp;
-                                <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html" target="_blank" rel="noopener noreferrer">
+                                <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html"
+                                    target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>
                                     <Octicon icon={Question} />
                                 </a>
                             </Form.Label>

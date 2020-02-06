@@ -14,6 +14,7 @@ import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import JobCrackerLocal from './jobcracker.local';
 import Modal from 'react-bootstrap/Modal'
 import Slider from 'rc-slider';
+import ElectronLinkService from '../../utils/ElectronLinkService';
 import SummaryTable from './../../components/SummaryTable/SummaryTable';
 import 'rc-slider/assets/index.css';
 
@@ -286,7 +287,7 @@ class KrakenWorker extends Component {
                     <div>
                         <strong>Hashcat</strong> was not found on your Windows. To install it on windows:
                         <ul>
-                            <li>Download the 7zip <a href="https://hashcat.net/files/hashcat-5.1.0.7z">here</a> or 
+                            <li>Download the 7zip <a href="https://hashcat.net/files/hashcat-5.1.0.7z" onClick={ElectronLinkService.handleLink}>here</a> or 
                              from Hashcat home page (https://hashcat.net/hashcat/)
                             </li>
                             <li>Unzip the contents of hashcat-5.X.X in the same folder as kraken-client v1.X.X.exe</li>
