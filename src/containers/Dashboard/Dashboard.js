@@ -362,7 +362,11 @@ class Dashboard extends Component {
                 show={this.state.newActiveRequestModalVisible} onHide={this.closeNewActiveRequestModal} centered >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        Create New Request
+                        Create New Request&nbsp;
+                        <a href="https://kraken.work/help#how-to"
+                            target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>
+                            <Octicon icon={Question} />
+                        </a>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -375,7 +379,7 @@ class Dashboard extends Component {
                                     <Form.Label className={classes.modal_form_label}>Name</Form.Label>
                                     <Form.Text className="text-muted">
                                         Give your request a friendly name (max 12 characters)
-                                        </Form.Text>
+                                    </Form.Text>
                                     <Form.Control name="name" onChange={this.setRequestName} type="text" minLength="1" maxLength="12" required />
                                     <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
                                 </Form.Group>
