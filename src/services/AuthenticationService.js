@@ -33,10 +33,14 @@ const isLoggedIn = () => {
     const token = localStorage.getItem('currentToken');
     const user = localStorage.getItem('currentUser');
     const exp = localStorage.getItem('currentExp');
-    if (token !== null && user !== null && exp !== null && new Date() < new Date(Number.parseInt(exp) * 1000))
+    if (token !== null && user !== null && exp !== null && new Date() < new Date(Number.parseInt(exp) * 1000)){
+        activeAuthRefresh()
         return true;
-    else
+    }   
+    else{
+        deactivateAuthRefresh()
         return false;
+    }
 }
 
 const logout = () => {
@@ -60,17 +64,6 @@ const changePassword = (oldPassword, newPassword, newConfirmPassword) => {
     return axios.post('/account/change-password', data)
 }
 
-const activeAuthRefresh = () => {
-    if (refreshTimer != null)
-        return; // Refresh Timer Already Set
-    refreshTimer = setInterval(refresh, 90000)
-}
-
-const deactivateAuthRefresh = () => {
-    clearInterval(refreshTimer);
-    refreshTimer = null;
-}
-
 const setToken = (token) => {
     localStorage.setItem('currentToken', token)
     let decodedToken = jwt_decode(token);
@@ -90,6 +83,19 @@ const refresh = () => {
         })
 }
 
+const activeAuthRefresh = () => {
+    if (refreshTimer != null)
+        return; // Refresh Timer Already Set
+    refreshTimer = setInterval(refresh, 90000)
+}
+
+const deactivateAuthRefresh = () => {
+    if (refreshTimer == null)
+        return; // Refresh Timer Already Null
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+}
+
 let refreshTimer = null
 
 const AuthenticationService = {
@@ -103,8 +109,6 @@ const AuthenticationService = {
     logout,
     requestNewPassword,
     changePassword,
-    activeAuthRefresh,
-    deactivateAuthRefresh,
     setToken,
     getToken,
 

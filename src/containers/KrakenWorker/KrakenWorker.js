@@ -410,7 +410,7 @@ class KrakenWorker extends Component {
         }
         else // Browser Worker
             if (localStorage.getItem('currentActiveCoreCount') !== null)
-                await this.promisedSetState({ workerActiveCoreCount: localStorage.getItem('currentActiveCoreCount') })
+                await this.promisedSetState({ workerActiveCoreCount: Number(localStorage.getItem('currentActiveCoreCount')) })
             else
                 await this.promisedSetState({ workerActiveCoreCount: window.navigator.hardwareConcurrency === 1 ? 1 : (window.navigator.hardwareConcurrency - 1) })
 

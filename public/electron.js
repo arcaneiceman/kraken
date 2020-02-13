@@ -9,7 +9,7 @@ function createWindow() {
 		webPreferences: { nodeIntegration: true }
 	});
 	if (isDev) {
-		mainWindow.loadURL("http://localhost:3000/login")
+		mainWindow.loadURL("http://localhost:3000")
 
 		mainWindow.webContents.openDevTools()
 

@@ -9,7 +9,6 @@ import ChangePassword from './containers/ChangePassword/ChangePassword'
 import ForgotPassword from './containers/ForgotPassword/ForgotPassword'
 import Upgrade from './containers/Upgrade/Upgrade';
 import Help from './containers/Help/Help'
-import AuthenticationService from './services/AuthenticationService'
 import { version } from './utils/AppVersion'
 
 import krakenLogo from './assets/kraken-logo.png';
@@ -18,9 +17,6 @@ class App extends Component {
 
 	componentDidMount(){
 		document.title = "Kraken Client v" + version
-		// If Logged In, restart the refresh timer
-		if (AuthenticationService.isLoggedIn())
-			AuthenticationService.activeAuthRefresh();
 	}
 
 	render() {
