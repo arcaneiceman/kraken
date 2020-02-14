@@ -10,6 +10,7 @@ import NotificationService from '../../utils/NotificiationService';
 import Spinner from 'react-bootstrap/Spinner'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
+import lsbridge from 'lsbridge'
 
 import classes from './Workers.module.css'
 
@@ -136,13 +137,19 @@ class Workers extends Component {
     componentDidMount = async () => {
         try {
             await this.promisedSetState({ loadingStatus: "PROGRESS" })
-            this.getSummary();
-            this.getWorkers();
-            const timer = setInterval(() => {
+
+            // Subscribe to eventbus
+            lsbridge.subscribe('workers', () => {
                 this.getSummary();
                 this.getWorkers();
-            }, 15000);
+            });
+
+            // Set Timer
+            const timer = setInterval(() => { lsbridge.send('workers'); }, 15000);
             this.setState({ getWorkerTimer: timer })
+
+            // Pull Fresh Data
+            lsbridge.send('workers');
         }
         finally {
             await this.promisedSetState({ loadingStatus: null })
@@ -151,6 +158,7 @@ class Workers extends Component {
 
     componentWillUnmount() {
         clearInterval(this.state.getWorkerTimer);
+        lsbridge.unsubscribe('workers');
     }
 
     nextPage = async () => {
@@ -210,8 +218,7 @@ class Workers extends Component {
             try {
                 await this.promisedSetState({ loadingStatus: "PROGRESS" })
                 await WorkerService.deleteWorker(this.state.deleteConfirmationId)
-                this.getSummary();
-                this.getWorkers();
+                lsbridge.send('workers');
             }
             catch (error) {
                 NotificationService.showNotification(error.response.data.message, false)

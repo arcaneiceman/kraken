@@ -10,32 +10,24 @@ function createWindow() {
 	});
 	if (isDev) {
 		mainWindow.loadURL("http://localhost:3000")
-
 		mainWindow.webContents.openDevTools()
-
-		mainWindow.resizable = true
-		mainWindow.fullScreenable = true
-
-		mainWindow.setResizable(true)
-		mainWindow.setFullScreenable(true)
-
-		mainWindow.setMenuBarVisibility(false)
 	}
 	else {
 		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html")}`)
-
-		//mainWindow.webContents.openDevTools()
-
-		mainWindow.resizable = false
-		mainWindow.fullScreenable = false
-
-		mainWindow.setResizable(false)
-		mainWindow.setFullScreenable(false)
-
-		mainWindow.setMenuBarVisibility(false)
 	}
+	// Hide Menu Bar
+	mainWindow.setMenuBarVisibility(false)
+
+	// Handle External Links
+	mainWindow.webContents.on('new-window', function (e, url) {
+		e.preventDefault();
+		electron.shell.openExternal(url);
+	});
+
+	// Handle Close
 	mainWindow.on("closed", () => (mainWindow = null));
 
+	// Set Content Security Policy
 	electron.session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
 		callback({
 			responseHeaders: {

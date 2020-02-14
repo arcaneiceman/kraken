@@ -5,7 +5,6 @@ import Nav from 'react-bootstrap/Nav'
 import Octicon, { LogoGithub, MarkGithub } from '@githubprimer/octicons-react';
 import krakenLogo from './../../assets/kraken-logo.png';
 import { useHistory } from "react-router-dom";
-import ElectronLinkService from '../../utils/ElectronLinkService';
 
 import classes from './Toolbar.module.css'
 
@@ -26,8 +25,7 @@ const Toolbar = (props) => {
                 <span onClick={() => { history.push("/dashboard") }}>Kraken <sub>beta</sub></span>
             </Navbar.Brand>
             <Nav.Link className={classes.link}
-                href="https://github.com/arcaneiceman/kraken-client" target="_blank" rel="noopener noreferrer"
-                onClick={ElectronLinkService.handleLink}>
+                href="https://github.com/arcaneiceman/kraken-client" target="_blank" rel="noopener noreferrer">
                 <Octicon icon={MarkGithub} /> <Octicon icon={LogoGithub} />
             </Nav.Link>
             <Navbar.Collapse className={classes.collapse}>

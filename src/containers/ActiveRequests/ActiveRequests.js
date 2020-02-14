@@ -10,6 +10,7 @@ import Octicon, { Trashcan } from '@githubprimer/octicons-react';
 import Spinner from 'react-bootstrap/Spinner'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
+import lsbridge from 'lsbridge'
 
 import classes from './ActiveRequests.module.css'
 
@@ -145,13 +146,19 @@ class ActiveRequests extends Component {
     componentDidMount = async () => {
         try {
             await this.promisedSetState({ loadingStatus: "PROGRESS" })
-            this.getActiveRequests()
-            this.getSummary()
-            const timer = setInterval(() => {
-                this.getActiveRequests()
+            
+            // Subscribe to eventbus
+            lsbridge.subscribe('active-requests', () => {
                 this.getSummary()
-            }, 15000);
+                this.getActiveRequests()
+            });
+
+            // Set Timer
+            const timer = setInterval(() => { lsbridge.send('active-requests'); }, 15000);
             this.setState({ getActiveRequestTimer: timer })
+
+            // Pull Fresh Data
+            lsbridge.send('active-requests');
         }
         finally {
             await this.promisedSetState({ loadingStatus: null })
@@ -160,14 +167,7 @@ class ActiveRequests extends Component {
 
     componentWillUnmount() {
         clearInterval(this.state.getActiveRequestTimer);
-    }
-
-    UNSAFE_componentWillReceiveProps(props) {
-        if (props.needsToRefresh) {
-            this.getActiveRequests()
-            this.getSummary()
-            props.refreshCompleteCallback();
-        }
+        lsbridge.unsubscribe('active-requests');
     }
 
     nextPage = async () => {
@@ -227,8 +227,8 @@ class ActiveRequests extends Component {
             try {
                 await this.promisedSetState({ loadingStatus: "PROGRESS" })
                 await ActiveRequestService.deleteActiveRequest(this.state.deleteConfirmationId);
-                this.getSummary()
-                this.getActiveRequests()
+                lsbridge.send('active-requests');
+                lsbridge.send('complete-requests');
             }
             catch (error) {
                 NotificationService.showNotification(error.response.data.message, false)

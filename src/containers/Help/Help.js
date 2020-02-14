@@ -6,7 +6,6 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import Octicon, { Star, DesktopDownload, Rocket, Gear, GitPullRequest, LogoGithub, Heart, Alert, Shield } from '@githubprimer/octicons-react';
 import { HashLink as ScrollableLink } from 'react-router-hash-link';
-import ElectronLinkService from '../../utils/ElectronLinkService';
 import krakenLogo from './../../assets/kraken-logo.png';
 import CreateRequestButton from './../../assets/screenshots/create-new-request-button.png'
 import CreateRequestModal from './../../assets/screenshots/create-new-request-modal.png'
@@ -159,7 +158,7 @@ class Help extends Component {
                     <h5>Desktop Client</h5>
                     <p>
                         The desktop client is packaged for Windows, Mac and Linux and is coming soon!. The application runs inside an electron shell packaging the contents of the broswer app
-                        with nodejs integration and uses <a href="https://hashcat.net/" target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>Hashcat</a> for cracking.
+                        with nodejs integration and uses <a href="https://hashcat.net/" target="_blank" rel="noopener noreferrer">Hashcat</a> for cracking.
                         <strong>Note: </strong> The app has node integration enabled to access local resources but sets itself as the only source of scripts.
                         All client code is available on Github.
                         <br />
@@ -278,7 +277,7 @@ class Help extends Component {
                             Crunch is a program that allows you to generate candidate values based on 3 parameters : <strong>Minimum Length</strong>, <strong>Maximum Length </strong>
                                 and <strong>Character Set</strong>. You can optionally also provide a starting value. In the example above, crunch will generate all combinations of
                             numbers of length 8. Click here learn more about <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html" 
-                            target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink} >crunch</a>.
+                            target="_blank" rel="noopener noreferrer">crunch</a>.
                             </li>
                         </ol>
 
@@ -336,7 +335,7 @@ class Help extends Component {
                         If you would like to contribute to Kraken server, email me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>
                         and possibly join me in my journey to make usable security tools by becoming part of the Kraken team. If you would like to contribute
                         to Kraken Client, feel free to do so by creating a pull request or an issue at
-                        <a href="https://github.com/arcaneiceman/kraken-client" target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>
+                        <a href="https://github.com/arcaneiceman/kraken-client" target="_blank" rel="noopener noreferrer">
                             <button style={{ textAlign: 'center' }}> <Octicon icon={LogoGithub} /> </button>
                         </a>
                         I would gladly accept help if you want to join me as a part of the Kraken team as well.
@@ -345,8 +344,8 @@ class Help extends Component {
                         <h5>Shout Out</h5>
                         I would like to give a shout out to the following teams/people that helped me make this possible in no particular order.
                         <ul>
-                            <li><strong><a href="https://github.com/derv82" target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>Derv82</a></strong></li>
-                            <li><strong><a href="http://ttt.studio/" target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>TTT</a></strong></li>
+                            <li><strong><a href="https://github.com/derv82" target="_blank" rel="noopener noreferrer">Derv82</a></strong></li>
+                            <li><strong><a href="http://ttt.studio/" target="_blank" rel="noopener noreferrer" >TTT</a></strong></li>
                             <li>All others who write amazing code to make all this possible</li>
                         </ul>
                     </p>

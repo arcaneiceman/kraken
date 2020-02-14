@@ -2,7 +2,7 @@
 	"name": "kraken-client",
 	"author": "arcaneiceman",
 	"email": "waliusmani@gmail.com",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"private": true,
 	"dependencies": {
 		"@babel/core": "7.5.5",
@@ -46,6 +46,7 @@
 		"jest-watch-typeahead": "0.3.1",
 		"jwt-decode": "^2.2.0",
 		"kaitai-struct": "^0.8.0-SNAPSHOT.11",
+		"lsbridge": "^0.2.0",
 		"markdown-to-jsx": "^6.11.0",
 		"mini-css-extract-plugin": "0.5.0",
 		"optimize-css-assets-webpack-plugin": "5.0.3",

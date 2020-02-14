@@ -9,6 +9,7 @@ import CompleteRequestService from '../../services/CompleteRequestService';
 import NotificationService from '../../utils/NotificiationService';
 import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner'
+import lsbridge from 'lsbridge'
 
 import classes from './CompletedRequests.module.css'
 
@@ -137,13 +138,19 @@ class CompletedRequests extends Component {
     componentDidMount = async () => {
         try {
             await this.promisedSetState({ loadingStatus: "PROGRESS" })
-            this.getSummary()
-            this.getCompleteRequests()
-            const timer = setInterval(() => {
+
+            // Subscribe to eventbus
+            lsbridge.subscribe('complete-requests', () => {
                 this.getSummary()
                 this.getCompleteRequests()
-            }, 15000);
+            });
+
+            // Set Timer
+            const timer = setInterval(() => { lsbridge.send('complete-requests'); }, 15000);
             this.setState({ getCompletedRequestsTimer: timer })
+
+            // Pull Fresh Data
+            lsbridge.send('complete-requests');
         }
         finally {
             await this.promisedSetState({ loadingStatus: null })
@@ -152,6 +159,7 @@ class CompletedRequests extends Component {
 
     componentWillUnmount() {
         clearInterval(this.state.getCompletedRequestsTimer);
+        lsbridge.unsubscribe('complete-requests');
     }
 
     nextPage = async () => {
@@ -209,8 +217,7 @@ class CompletedRequests extends Component {
             try {
                 await this.promisedSetState({ loadingStatus: "PROGRESS" })
                 await CompleteRequestService.deleteCompleteRequest(this.state.deleteConfirmationId)
-                this.getSummary()
-                this.getCompleteRequests()
+                lsbridge.send('complete-requests');
             }
             catch (error) {
                 NotificationService.showNotification(error.response.data.message, false)

@@ -17,7 +17,7 @@ import PasswordListService from '../../services/PasswordListService';
 import NotificationService from '../../utils/NotificiationService';
 import Spinner from 'react-bootstrap/Spinner';
 import isElectron from 'is-electron';
-import ElectronLinkService from '../../utils/ElectronLinkService';
+import lsbridge from 'lsbridge'
 
 import classes from './Dashboard.module.css'
 
@@ -41,9 +41,6 @@ class Dashboard extends Component {
         newActiveRequestCrunchParameters: [],
         newActiveRequestPasswordLists: [],
         newActiveRequestErrors: [],
-
-        /* Control State */
-        activeRequestsComponentNeedsToRefresh: false
     }
 
     launchNewActiveRequestModal = async () => {
@@ -77,8 +74,7 @@ class Dashboard extends Component {
                 this.state.newActiveRequestPasswordLists == null ? [] : this.state.newActiveRequestPasswordLists,
                 this.state.newActiveRequestCrunchParameters == null ? [] : this.state.newActiveRequestCrunchParameters)
             this.closeNewActiveRequestModal();
-            this.activeRequestRef.getSummary();
-            this.activeRequestRef.getActiveRequests();
+            lsbridge.send('active-requests');
         }
         catch (error) {
             console.log("LOGGED ERROR")
@@ -364,7 +360,7 @@ class Dashboard extends Component {
                     <Modal.Title>
                         Create New Request&nbsp;
                         <a href="https://kraken.work/help#how-to"
-                            target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>
+                            target="_blank" rel="noopener noreferrer">
                             <Octicon icon={Question} />
                         </a>
                     </Modal.Title>
@@ -441,7 +437,7 @@ class Dashboard extends Component {
                             <Form.Label className={classes.modal_form_label}>
                                 Crunch Parameters&nbsp;
                                 <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html"
-                                    target="_blank" rel="noopener noreferrer" onClick={ElectronLinkService.handleLink}>
+                                    target="_blank" rel="noopener noreferrer">
                                     <Octicon icon={Question} />
                                 </a>
                             </Form.Label>
