@@ -48,7 +48,7 @@ class Register extends Component {
             await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
             await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
             await new Promise(resolve => setTimeout(resolve, 500));
-            this.props.history.push('/activation?email=' + email)
+            this.props.history.push('/activation?email=' + encodeURIComponent(email))
         }
         catch (error) {
             await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })

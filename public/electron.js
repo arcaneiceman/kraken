@@ -5,7 +5,7 @@ let mainWindow;
 
 function createWindow() {
 	mainWindow = new electron.BrowserWindow({
-		width: 1200, height: 750,
+		width: 1200, height: 750, minWidth: 1200, minHeight: 750,
 		webPreferences: { nodeIntegration: true }
 	});
 	if (isDev) {
