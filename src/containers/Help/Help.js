@@ -276,8 +276,8 @@ class Help extends Component {
                                 <strong>Crunch Parameters : </strong> This field specifies the crunch parameters you want to use to attempt to crack target WPA/WPA2 handshake.
                             Crunch is a program that allows you to generate candidate values based on 3 parameters : <strong>Minimum Length</strong>, <strong>Maximum Length </strong>
                                 and <strong>Character Set</strong>. You can optionally also provide a starting value. In the example above, crunch will generate all combinations of
-                            numbers of length 8. Click here learn more about <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html" 
-                            target="_blank" rel="noopener noreferrer">crunch</a>.
+                            numbers of length 8. Click here learn more about <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html"
+                                    target="_blank" rel="noopener noreferrer">crunch</a>.
                             </li>
                         </ol>
 
@@ -359,7 +359,7 @@ class Help extends Component {
                         If only a 100 people dontate, I could keep kraken running for 6 months! Any amount raised above the running costs will
                         be used to buy better infrastructure! If anyone has good/cheeper infrastructure suggestions, please feel free to email
                         me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>. Thank you!
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div className={classes.donationContainer}>
                             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
                                 <input type="hidden" name="cmd" value="_donations" />
                                 <input type="hidden" name="business" value="ZAKGHMTXN8D5E" />
@@ -367,6 +367,8 @@ class Help extends Component {
                                 <input type="hidden" name="currency_code" value="CAD" />
                                 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
                             </form>
+                            <p>Bitcoin Address</p>
+                            <p className={classes.bitcoinAddress}>1ErQ7BSEB19cUbuqDwQRLb199sRVabA5w</p>
                         </div>
                     </p>
                     <br />

@@ -96,3 +96,14 @@
     padding-left: 15%;
     padding-right: 15%;
 }
+
+.donationContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bitcoinAddress{
+    margin-top: -10px;
+    font-weight: bold;
+}

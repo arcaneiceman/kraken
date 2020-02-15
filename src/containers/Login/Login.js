@@ -241,15 +241,17 @@ class Login extends Component {
                         {loginSubContainer}
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', margin: "10px" }}>
-                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-                            <input type="hidden" name="cmd" value="_donations" />
-                            <input type="hidden" name="business" value="ZAKGHMTXN8D5E" />
-                            <input type="hidden" name="item_name" value="Supporting Kraken" />
-                            <input type="hidden" name="currency_code" value="CAD" />
-                            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-                        </form>
-                    </div>
+                    <div className={classes.donationContainer}>
+                            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                                <input type="hidden" name="cmd" value="_donations" />
+                                <input type="hidden" name="business" value="ZAKGHMTXN8D5E" />
+                                <input type="hidden" name="item_name" value="Supporting website" />
+                                <input type="hidden" name="currency_code" value="CAD" />
+                                <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+                            </form>
+                            <p>Bitcoin Address</p>
+                            <p className={classes.bitcoinAddress}>1ErQ7BSEB19cUbuqDwQRLb199sRVabA5w</p>
+                        </div>
 
                 </div>
             </div>
