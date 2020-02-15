@@ -139,6 +139,10 @@ class CompletedRequests extends Component {
         try {
             await this.promisedSetState({ loadingStatus: "PROGRESS" })
 
+            // Clear Event Bus Variables
+            localStorage.removeItem('complete-requests')
+            localStorage.removeItem('complete-requests-removeit')
+
             // Subscribe to eventbus
             lsbridge.subscribe('complete-requests', () => {
                 this.getSummary()

@@ -7,6 +7,11 @@ Click <a href="https://kraken.work/help">here</a> for a guide to Kraken
 
 ### Change Log:
 
+#### 1.0.4
+
+Fixed Bug:
+- Bad event bus library needed cleanup code
+
 #### 1.0.3
 Updates:
 - Electron app is now resizable

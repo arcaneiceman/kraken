@@ -147,6 +147,10 @@ class ActiveRequests extends Component {
         try {
             await this.promisedSetState({ loadingStatus: "PROGRESS" })
             
+            // Clear Event Bus Variables
+            localStorage.removeItem('active-requests')
+            localStorage.removeItem('active-requests-removeit')
+
             // Subscribe to eventbus
             lsbridge.subscribe('active-requests', () => {
                 this.getSummary()

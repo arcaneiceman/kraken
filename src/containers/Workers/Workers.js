@@ -138,6 +138,10 @@ class Workers extends Component {
         try {
             await this.promisedSetState({ loadingStatus: "PROGRESS" })
 
+            // Clear Event Bus Variables
+            localStorage.removeItem('workers')
+            localStorage.removeItem('workers-removeit')
+
             // Subscribe to eventbus
             lsbridge.subscribe('workers', () => {
                 this.getSummary();
