@@ -7,10 +7,11 @@ if (window.require) {
 const handleExit = async (event) => {
     event.returnValue = false
     if (isElectron()) {
-        let result = await electron.remote.dialog.showMessageBox({
-            message: 'The worker is still running. Do you still want to quit?',
-            buttons: ['Yes', 'No']
-        })
+        let result = await electron.remote.dialog.showMessageBox(
+            electron.remote.getCurrentWindow(), {
+                message: 'The worker is still running. Do you still want to quit?',
+                buttons: ['Yes', 'No']
+            })
         if (result.response === 0) { // Yes 
             window.removeEventListener("beforeunload", handleExit)
             electron.remote.getCurrentWindow().close()
