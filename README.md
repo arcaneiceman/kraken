@@ -6,6 +6,17 @@
 
 ### Change Log:
 
+#### 1.0.3
+Updates:
+- Electron app is now resizable
+
+Fixed Bugs:
+- Emails with symbols are now URL encoded
+- Electron App dead links fixed
+- Updates between various windows are now fast
+- Closing Electron App while worker is running will give a prompt
+- Transtion away from dashboard while worker is running will give a prompt
+
 #### 1.0.2
 Fixed Bugs:
 - Auto logout after token expired
