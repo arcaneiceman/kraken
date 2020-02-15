@@ -15,10 +15,12 @@ import JobCrackerLocal from './jobcracker.local';
 import Modal from 'react-bootstrap/Modal'
 import Slider from 'rc-slider';
 import SummaryTable from './../../components/SummaryTable/SummaryTable';
-import 'rc-slider/assets/index.css';
+import ExitHandlerService from '../../utils/ExitHandlerService';
 import lsbridge from 'lsbridge'
+import { Prompt } from "react-router-dom";
 
 import classes from './KrakenWorker.module.css'
+import 'rc-slider/assets/index.css';
 
 // Web Workers 
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -123,7 +125,7 @@ class KrakenWorker extends Component {
         lsbridge.send('workers');
 
         // Set Window Unload Listner
-        window.addEventListener("beforeunload", this.onUnload)
+        window.addEventListener("beforeunload", ExitHandlerService.handleExit)
 
         // Create Intervals
         const heartbeatTimer = setInterval(() => { this.sendHeartbeat() }, 15000);
@@ -159,7 +161,7 @@ class KrakenWorker extends Component {
         this.state.jobReporter.terminate()
 
         // Clear Window Listner 
-        window.removeEventListener("beforeunload", this.onUnload)
+        window.removeEventListener("beforeunload", ExitHandlerService.handleExit)
 
         // Clear Internvals
         clearInterval(this.state.workerHeartbeatTimer);
@@ -191,12 +193,14 @@ class KrakenWorker extends Component {
         let unmetDependencyModal = this.buildUnmetDependencyModal();
         // Settings Modal
         let settingsModal = this.buildSettingsModal();
+        // Transtion Blocking Prompt
+        let transitionBlockingPrompt = this.buildTransitionBlockingPrompt();
 
         switch (this.state.workerActive) {
             case "INACTIVE":
-
                 return (
                     <div>
+                        {transitionBlockingPrompt}
                         {unmetDependencyModal}
                         {settingsModal}
                         <SectionHeading heading={'Add a Worker'} />
@@ -213,6 +217,7 @@ class KrakenWorker extends Component {
             case "INITIALIZING":
                 return (
                     <div>
+                        {transitionBlockingPrompt}
                         {unmetDependencyModal}
                         {settingsModal}
                         <SectionHeading heading={'Add a Worker'} />
@@ -230,6 +235,7 @@ class KrakenWorker extends Component {
             case "ERROR":
                 return (
                     <div>
+                        {transitionBlockingPrompt}
                         {unmetDependencyModal}
                         {settingsModal}
                         <SectionHeading heading={'Add a Worker'} />
@@ -246,6 +252,7 @@ class KrakenWorker extends Component {
                 const inProgressJobCount = this.state.workerJobQueue.reduce((sum, job) => { return sum + job.multiplier }, 0)
                 return (
                     <div>
+                        {transitionBlockingPrompt}
                         {unmetDependencyModal}
                         {settingsModal}
                         <SectionHeading heading={'Worker'} />
@@ -405,6 +412,13 @@ class KrakenWorker extends Component {
                 </Modal.Footer>
             </Modal>
         );
+    }
+
+    buildTransitionBlockingPrompt = () => {
+        return (
+            <Prompt when={this.state.workerActive === "ACTIVE"}
+                message={'The worker is still running. Do you still want to navigate away?'}/>
+        )
     }
 
     componentDidMount = async () => {
@@ -756,10 +770,6 @@ class KrakenWorker extends Component {
                 this.activateWorker(); // Reactivate Worker
             }
         }
-    }
-
-    onUnload = (event) => {
-        event.returnValue = "Worker is still active! Please Stop Worker before Closing tab"
     }
 
     toHHMMSS = (secs) => {
