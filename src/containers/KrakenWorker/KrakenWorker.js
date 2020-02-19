@@ -94,9 +94,9 @@ class KrakenWorker extends Component {
                                 <Octicon icon={Gear} /> <br /> Worker Settings
                             </Button>
                             {isElectron() ?
-                                <span><strong>Note: </strong> You can adjust the number of cores through worker settings.
+                            <span><strong>Note: </strong> You can adjust devices hashcat uses through worker settings. 
                             Learn more in the <a href="https://kraken.work/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section. </span> :
-                                <span><strong>Note: </strong> You can adjust devices hashcat uses through worker settings. 
+                                <span><strong>Note: </strong> You can adjust the number of cores through worker settings.
                             Learn more in the <a href="https://kraken.work/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section. </span>}
 
                             {isElectron() && this.state.workerDevices.length === 0 ? <span><Octicon icon={Alert} /> No CPU/GPU/FPGA(s) detected</span> : null}
