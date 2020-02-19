@@ -71,123 +71,6 @@ class KrakenWorker extends Component {
         errorJobs: 0
     }
 
-    changeActiveCoreCount = async (value) => {
-        await this.promisedSetState({ workerActiveCoreCount: value })
-        localStorage.setItem('currentActiveCoreCount', value)
-        if (this.state.workerActive === "ACTIVE") {
-            await this.deactivateWorker()
-            await this.activateWorker()
-        }
-    }
-
-    activateWorker = async () => {
-        console.debug("Activating Worker")
-
-        // Create Worker(s) Pool
-        let crackerPoolClone = [];
-        if (isElectron()) // Electron (Desktop Client)
-            crackerPoolClone.push(JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers))
-        else // Browser
-            for (let i = 0; i < this.state.workerActiveCoreCount; i++) {
-                let cracker = new JobCrackerBrowser()
-                cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
-                crackerPoolClone.push(cracker)
-            }
-
-        // Create Worker
-        await this.promisedSetState({ workerActive: "INITIALIZING" })
-        let data = {}
-        try {
-            // Use Previously Created Worker
-            let response = await WorkerService.getWorker(this.state.workerId)
-            data = response.data
-        }
-        catch (error) {
-            // Create New Worker
-            try {
-                await this.promisedSetState({
-                    workerRecommendedMultiplier: 1, // Default Mutliplier is 1
-                    secondsSinceActivation: 0,
-                    completeJobs: 0,
-                    errorJobs: 0
-                })
-                let response = await WorkerService.createWorker(this.getRandomName(), this.getWorkerType())
-                data = response.data
-            }
-            catch (error) {
-                await this.promisedSetState({ workerActive: "ERROR" })
-                console.error("Create Worker error " + error.response.data.message)
-                return
-            }
-        }
-        
-        // Refresh Worker List
-        lsbridge.send('workers');
-
-        // Set Window Unload Listner
-        window.addEventListener("beforeunload", ExitHandlerService.handleExit)
-
-        // Create Intervals
-        const heartbeatTimer = setInterval(() => { this.sendHeartbeat() }, 15000);
-        const sparkPlugTimer = setInterval(() => { this.cycle("Interval", true); }, 30000);
-        const activationTimer = setInterval(() => { this.setState({ secondsSinceActivation: this.state.secondsSinceActivation + 1 }) }, 1000);
-
-        // Save
-        await this.promisedSetState({
-            workerActive: "ACTIVE",
-            workerId: data.id,
-            workerName: data.name,
-            workerHeartbeatTimer: heartbeatTimer,
-            workerSparkplugTimer: sparkPlugTimer,
-            workerActivationTimer: activationTimer,
-            crackerPool: crackerPoolClone,
-            jobFetcher: new JobFetcher(),
-            jobReporter: new JobReporter(),
-        });
-
-        // Set Job Fetcher and Reporter Call backs
-        this.state.jobFetcher.addEventListener("message", this.retrieveFromJobFetcher, true);
-        this.state.jobReporter.addEventListener("message", this.retrieveFromJobReporter, true);
-
-        this.cycle("Activate Worker", true)
-    }
-
-    deactivateWorker = async () => {
-        console.debug("Deactivating Worker")
-
-        // Stop All Workers
-        this.state.crackerPool.forEach((element) => element.terminate())
-        this.state.jobFetcher.terminate()
-        this.state.jobReporter.terminate()
-
-        // Clear Window Listner 
-        window.removeEventListener("beforeunload", ExitHandlerService.handleExit)
-
-        // Clear Internvals
-        clearInterval(this.state.workerHeartbeatTimer);
-        clearInterval(this.state.workerSparkplugTimer);
-        clearInterval(this.state.workerActivationTimer);
-
-        // Set State to deactivate worker
-        await this.promisedSetState({
-            workerActive: "INACTIVE",
-            workerGettingJob: false,
-            workerCracking: false,
-            workerReportingJob: false,
-
-            workerLastHeartbeat: null,
-            workerHeartbeatTimer: null,
-            workerSparkplugTimer: null,
-            workerActivationTimer: null,
-            executionStartTime: null,
-            workerJobQueue: [],
-
-            crackerPool: [],
-            jobFetcher: null,
-            jobReporter: null,
-        })
-    }
-
     render() {
         // Unmet dependecy modal
         let unmetDependencyModal = this.buildUnmetDependencyModal();
@@ -210,7 +93,12 @@ class KrakenWorker extends Component {
                             <Button className={classes.settingsButton} onClick={async () => { await this.promisedSetState({ workerSettingsModalVisible: true }) }} variant="light">
                                 <Octicon icon={Gear} /> <br /> Worker Settings
                             </Button>
-                            {isElectron() && this.state.workerDevices.length === 0 ? <span><Octicon icon={Alert}/> No CPU/GPU/FPGA(s) detected</span> : null}
+                            {isElectron ?
+                                <span><strong>Note: </strong> You can adjust the number of cores through worker settings.
+                            Learn more in the <a href="/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section. </span> :
+                                <span><strong>Note: </strong> You can adjust devices hashcat uses through worker settings. 
+                            Learn more in the <a href="/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section. </span>}
+                            {isElectron() && this.state.workerDevices.length === 0 ? <span><Octicon icon={Alert} /> No CPU/GPU/FPGA(s) detected</span> : null}
                         </div>
                     </div>
                 );
@@ -297,7 +185,7 @@ class KrakenWorker extends Component {
                     <div>
                         <strong>Hashcat</strong> was not found on your Windows. To install it on windows:
                         <ul>
-                            <li>Download the 7zip <a href="https://hashcat.net/files/hashcat-5.1.0.7z" target="_blank" rel="noopener noreferrer">here</a> or 
+                            <li>Download the 7zip <a href="https://hashcat.net/files/hashcat-5.1.0.7z" target="_blank" rel="noopener noreferrer">here</a> or
                              from Hashcat home page (https://hashcat.net/hashcat/)
                             </li>
                             <li>Unzip the contents of hashcat-5.X.X in the same folder as kraken-client v1.X.X.exe</li>
@@ -417,7 +305,7 @@ class KrakenWorker extends Component {
     buildTransitionBlockingPrompt = () => {
         return (
             <Prompt when={this.state.workerActive === "ACTIVE"}
-                message={'The worker is still running. Do you still want to navigate away?'}/>
+                message={'The worker is still running. Do you still want to navigate away?'} />
         )
     }
 
@@ -437,6 +325,125 @@ class KrakenWorker extends Component {
         if (this.state.workerActive === "ACTIVE")
             this.deactivateWorker()
     }
+
+    changeActiveCoreCount = async (value) => {
+        await this.promisedSetState({ workerActiveCoreCount: value })
+        localStorage.setItem('currentActiveCoreCount', value)
+        if (this.state.workerActive === "ACTIVE") {
+            await this.deactivateWorker()
+            await this.activateWorker()
+        }
+    }
+
+    activateWorker = async () => {
+        console.debug("Activating Worker")
+
+        // Create Worker(s) Pool
+        let crackerPoolClone = [];
+        if (isElectron()) // Electron (Desktop Client)
+            crackerPoolClone.push(JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers))
+        else // Browser
+            for (let i = 0; i < this.state.workerActiveCoreCount; i++) {
+                let cracker = new JobCrackerBrowser()
+                cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
+                crackerPoolClone.push(cracker)
+            }
+
+        // Create Worker
+        await this.promisedSetState({ workerActive: "INITIALIZING" })
+        let data = {}
+        try {
+            // Use Previously Created Worker
+            let response = await WorkerService.getWorker(this.state.workerId)
+            data = response.data
+        }
+        catch (error) {
+            // Create New Worker
+            try {
+                await this.promisedSetState({
+                    workerRecommendedMultiplier: 1, // Default Mutliplier is 1
+                    secondsSinceActivation: 0,
+                    completeJobs: 0,
+                    errorJobs: 0
+                })
+                let response = await WorkerService.createWorker(this.getRandomName(), this.getWorkerType())
+                data = response.data
+            }
+            catch (error) {
+                await this.promisedSetState({ workerActive: "ERROR" })
+                console.error("Create Worker error " + error.response.data.message)
+                return
+            }
+        }
+
+        // Refresh Worker List
+        lsbridge.send('workers');
+
+        // Set Window Unload Listner
+        window.addEventListener("beforeunload", ExitHandlerService.handleExit)
+
+        // Create Intervals
+        const heartbeatTimer = setInterval(() => { this.sendHeartbeat() }, 15000);
+        const sparkPlugTimer = setInterval(() => { this.cycle("Interval", true); }, 30000);
+        const activationTimer = setInterval(() => { this.setState({ secondsSinceActivation: this.state.secondsSinceActivation + 1 }) }, 1000);
+
+        // Save
+        await this.promisedSetState({
+            workerActive: "ACTIVE",
+            workerId: data.id,
+            workerName: data.name,
+            workerHeartbeatTimer: heartbeatTimer,
+            workerSparkplugTimer: sparkPlugTimer,
+            workerActivationTimer: activationTimer,
+            crackerPool: crackerPoolClone,
+            jobFetcher: new JobFetcher(),
+            jobReporter: new JobReporter(),
+        });
+
+        // Set Job Fetcher and Reporter Call backs
+        this.state.jobFetcher.addEventListener("message", this.retrieveFromJobFetcher, true);
+        this.state.jobReporter.addEventListener("message", this.retrieveFromJobReporter, true);
+
+        this.cycle("Activate Worker", true)
+    }
+
+    deactivateWorker = async () => {
+        console.debug("Deactivating Worker")
+
+        // Stop All Workers
+        this.state.crackerPool.forEach((element) => element.terminate())
+        this.state.jobFetcher.terminate()
+        this.state.jobReporter.terminate()
+
+        // Clear Window Listner 
+        window.removeEventListener("beforeunload", ExitHandlerService.handleExit)
+
+        // Clear Internvals
+        clearInterval(this.state.workerHeartbeatTimer);
+        clearInterval(this.state.workerSparkplugTimer);
+        clearInterval(this.state.workerActivationTimer);
+
+        // Set State to deactivate worker
+        await this.promisedSetState({
+            workerActive: "INACTIVE",
+            workerGettingJob: false,
+            workerCracking: false,
+            workerReportingJob: false,
+
+            workerLastHeartbeat: null,
+            workerHeartbeatTimer: null,
+            workerSparkplugTimer: null,
+            workerActivationTimer: null,
+            executionStartTime: null,
+            workerJobQueue: [],
+
+            crackerPool: [],
+            jobFetcher: null,
+            jobReporter: null,
+        })
+    }
+
+
 
     testDependency = async () => {
         let tempWorker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
@@ -469,7 +476,7 @@ class KrakenWorker extends Component {
                 workerDevices: devices
             })
         }
-        else if (listDevicesResponse.includes('No Devices')){
+        else if (listDevicesResponse.includes('No Devices')) {
             NotificationService.showNotification('No CPU/GPU/FGPA found', false)
             await this.promisedSetState({
                 workerDependencyModalVisible: false,
@@ -767,7 +774,6 @@ class KrakenWorker extends Component {
             console.error("Heartbeat Error " + error.response.data.message)
             if (error.response.data.code === 231) { // Worker Not Found
                 this.deactivateWorker(); // Deactivate Worker
-                this.activateWorker(); // Reactivate Worker
             }
         }
     }

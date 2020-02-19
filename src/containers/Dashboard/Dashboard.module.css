@@ -1,7 +1,17 @@
-.padding {
+.container {
+    display: flex;
+    flex-direction: column;
     padding-left: 5%;
     padding-right: 5%;
     padding-bottom: 2%;
+}
+
+.dashboardAlertContainer {
+    display: flex;
+    justify-content: center;
+    min-width: 50%;
+    max-width: 50%;
+    align-self: center;
 }
 
 .responsiveLayout {

@@ -6,15 +6,16 @@ let mainWindow;
 function createWindow() {
 	mainWindow = new electron.BrowserWindow({
 		width: 1200, height: 750, minWidth: 1200, minHeight: 750,
-		webPreferences: { nodeIntegration: true }
+		webPreferences: { nodeIntegration: true, devTools: true }
 	});
 	if (isDev) {
 		mainWindow.loadURL("http://localhost:3000")
-		mainWindow.webContents.openDevTools()
+		mainWindow.webContents.openDevTools({ mode: 'undocked' })
 	}
 	else {
 		mainWindow.loadURL(`file://${path.join(__dirname, "../build/index.html")}`)
 	}
+
 	// Hide Menu Bar
 	mainWindow.setMenuBarVisibility(false)
 
@@ -51,4 +52,3 @@ electron.app.on("activate", () => {
 		createWindow();
 	}
 });
-

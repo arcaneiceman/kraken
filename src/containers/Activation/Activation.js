@@ -23,40 +23,6 @@ class Activation extends Component {
         directAccess: true,
     }
 
-    resendActivationEmail = async (email) => {
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null })
-        try {
-            await AuthenticationService.resendActivationEmail(email);
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Activation Email Resent' })
-        }
-        catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
-        }
-    }
-
-    submitActivationCode = async (event) => {
-        debugger;
-        event.preventDefault();
-        const form = event.currentTarget;
-
-        // Check Form Validiy
-        if (!form.checkValidity())
-            return
-
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
-        try {
-            const email = form.elements["email"].value;
-            const activationKey = form.elements["activationKey"].value;
-            await AuthenticationService.activate(email, activationKey)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Activation Sucessful. Taking you to Dashboard...' })
-            await new Promise(resolve => setTimeout(resolve, 500));
-            this.props.history.push('/dashboard')
-        }
-        catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
-        }
-    }
-
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn() && this.state.directAccess)
@@ -155,6 +121,40 @@ class Activation extends Component {
                     }
                 }
             })
+        }
+    }
+
+    resendActivationEmail = async (email) => {
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null })
+        try {
+            await AuthenticationService.resendActivationEmail(email);
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Activation Email Resent' })
+        }
+        catch (error) {
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
+        }
+    }
+
+    submitActivationCode = async (event) => {
+        debugger;
+        event.preventDefault();
+        const form = event.currentTarget;
+
+        // Check Form Validiy
+        if (!form.checkValidity())
+            return
+
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
+        try {
+            const email = form.elements["email"].value;
+            const activationKey = form.elements["activationKey"].value;
+            await AuthenticationService.activate(email, activationKey)
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Activation Sucessful. Taking you to Dashboard...' })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/dashboard')
+        }
+        catch (error) {
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
         }
     }
 

@@ -23,51 +23,6 @@ class ChangePassword extends Component {
         newConfirmPasswordHidden: true
     }
 
-    changePassword = async(event) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-
-        if (!form.checkValidity())
-            return
-
-        await this.promisedSetState({loadingStatus: 'PROGRESS', errorMessage : null, successMessage : null})
-
-        try{
-            const oldPassword = form.elements["old_password"].value;
-            const newPassword = form.elements["new_password"].value;
-            const newConfirmPassword = form.elements["new_confirm_password"].value;
-            await AuthenticationService.changePassword(oldPassword, newPassword, newConfirmPassword)
-            await this.promisedSetState({loadingStatus : 'SUCCESS', successMessage : "Successfully Changed Password", errorMessage : null})
-        }
-        catch(error){
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
-        }
-    }
-
-    toggleOldPasswordHidden = () => {
-        const currentState = this.state.oldPasswordHidden;
-        this.setState({ oldPasswordHidden: !currentState })
-    }
-
-    toggleNewPasswordHidden = () => {
-        const currentState = this.state.newPasswordHidden;
-        this.setState({ newPasswordHidden: !currentState })
-    }
-
-    toggleNewConfirmPasswordHidden = () => {
-        const currentState = this.state.newConfirmPasswordHidden;
-        this.setState({ newConfirmPasswordHidden: !currentState })
-    }
-
-    logout = async () => {
-        try {
-            await AuthenticationService.logout();
-        }
-        finally {
-            this.props.history.push('/login');
-        }
-    }
-
     render() {
         // Authentication Protection for Component
         if (!AuthenticationService.isLoggedIn())
@@ -128,7 +83,7 @@ class ChangePassword extends Component {
                                         <InputGroup.Text><Octicon icon={Key} /></InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="new_password" type={this.state.newPasswordHidden ? 'password' : 'text'}
-                                        placeholder="Confirm Password" required />
+                                        placeholder="New Password" required />
                                     <InputGroup.Append>
                                         <InputGroup.Text onClick={this.toggleNewPasswordHidden}>
                                             {this.state.newPasswordHidden ?
@@ -166,6 +121,51 @@ class ChangePassword extends Component {
                     </div>
                 </div>
             </div>);
+    }
+
+    changePassword = async(event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+
+        if (!form.checkValidity())
+            return
+
+        await this.promisedSetState({loadingStatus: 'PROGRESS', errorMessage : null, successMessage : null})
+
+        try{
+            const oldPassword = form.elements["old_password"].value;
+            const newPassword = form.elements["new_password"].value;
+            const newConfirmPassword = form.elements["new_confirm_password"].value;
+            await AuthenticationService.changePassword(oldPassword, newPassword, newConfirmPassword)
+            await this.promisedSetState({loadingStatus : 'SUCCESS', successMessage : "Successfully Changed Password", errorMessage : null})
+        }
+        catch(error){
+            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
+        }
+    }
+
+    toggleOldPasswordHidden = () => {
+        const currentState = this.state.oldPasswordHidden;
+        this.setState({ oldPasswordHidden: !currentState })
+    }
+
+    toggleNewPasswordHidden = () => {
+        const currentState = this.state.newPasswordHidden;
+        this.setState({ newPasswordHidden: !currentState })
+    }
+
+    toggleNewConfirmPasswordHidden = () => {
+        const currentState = this.state.newConfirmPasswordHidden;
+        this.setState({ newConfirmPasswordHidden: !currentState })
+    }
+
+    logout = async () => {
+        try {
+            await AuthenticationService.logout();
+        }
+        finally {
+            this.props.history.push('/login');
+        }
     }
 
     promisedSetState = (newState) => {

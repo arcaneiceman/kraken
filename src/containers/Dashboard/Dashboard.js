@@ -9,8 +9,10 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
+import Collapse from 'react-bootstrap/Collapse'
+import Alert from 'react-bootstrap/Alert'
 import { Redirect } from 'react-router-dom'
-import Octicon, { Alert, Question } from '@githubprimer/octicons-react';
+import Octicon, { Question, KebabHorizontal } from '@githubprimer/octicons-react';
 import ActiveRequestService from '../../services/ActiveRequestService';
 import AuthenticationService from '../../services/AuthenticationService';
 import PasswordListService from '../../services/PasswordListService';
@@ -18,6 +20,9 @@ import NotificationService from '../../utils/NotificiationService';
 import Spinner from 'react-bootstrap/Spinner';
 import isElectron from 'is-electron';
 import lsbridge from 'lsbridge'
+import ReactMarkdown from 'react-markdown'
+import axios from 'axios'
+import { version } from '../../utils/AppVersion'
 
 import classes from './Dashboard.module.css'
 
@@ -27,6 +32,10 @@ class Dashboard extends Component {
         availablePasswordLists: [],
 
         /* Page State */
+        dashboardAlertConstant: "dashboard-alert-",
+        dashboardAlertExpanded: false,
+        dashboardAlertTitle: "",
+        dashboardAlertContent: "",
         newActiveRequestModalVisible: false,
         newActiveRequestFormValidated: false,
         newActiveRequestFormLoadingStatus: false,
@@ -41,6 +50,309 @@ class Dashboard extends Component {
         newActiveRequestCrunchParameters: [],
         newActiveRequestPasswordLists: [],
         newActiveRequestErrors: [],
+    }
+
+    render() {
+        // Authentication Protection for Component
+        if (!AuthenticationService.isLoggedIn())
+            return <Redirect to="/login" />
+
+        // NavLinks for Toolbar
+        const navLinks = [];
+        navLinks.push({ text: 'Create New Request', onClick: this.launchNewActiveRequestModal, isPrimary: true });
+        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help') } })
+        navLinks.push({ text: 'Change Password', onClick: () => { this.props.history.push('/change-password'); } })
+        navLinks.push({ text: 'Logout', onClick: this.logout });
+        const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
+
+        // Build Dashboard Alert
+        const dashboardAlert =
+            <Alert variant="info" style={{ marginBottom: '-1%', marginTop: '2%', flexGrow: '1' }}
+                show={this.state.dashboardAlertContent !== "" && this.state.dashboardAlertTitle !== ""} onClose={this.dimissDashboardAlert} dismissible>
+                <div >
+                    {this.state.dashboardAlertTitle}&nbsp;
+                    <Button style={{border: 'none'}} size="sm" variant="outline-primary" onClick={this.toggleDashboardAlert}><Octicon icon={KebabHorizontal}/></Button>
+                </div>
+                <Collapse in={this.state.dashboardAlertExpanded}>
+                    <ReactMarkdown source={this.state.dashboardAlertContent.trim()} />
+                </Collapse>
+            </Alert>
+
+        // Build Modal
+        const newActiveRequestModal = this.buildModal();
+
+        return (
+            <div>
+                {toolbar} {/* Toolbar */}
+                {newActiveRequestModal} {/* Modal */}
+                <div className={classes.container}> {/* Container */}
+                    <div className={classes.dashboardAlertContainer}>
+                        {dashboardAlert}
+                    </div>
+                    <div className={classes.responsiveLayout}> {/* */}
+                        <div className={classes.main}> {/* Main Panel */}
+                            <ActiveRequests ref={activeRequestRef => { this.activeRequestRef = activeRequestRef }} />
+                            <Workers />
+                        </div>
+                        <div className={classes.side}> {/* Side Panel */}
+                            <CompletedRequests />
+                            <KrakenWorker />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    buildModal = () => {
+        // Metadata and ValueToMatchInBase64 Fields
+        let metadataFields = null
+        let valueToMatchInBase64Field = null
+        switch (this.state.newActiveRequestType) {
+            case 'WPA':
+                // Metadata
+                metadataFields =
+                    <Col>
+                        <Form.Group className={classes.formGroup} key="SSID">
+                            <Form.Label className={classes.modal_form_label}>SSID</Form.Label>
+                            <Form.Text className="text-muted">Name of the Target Network</Form.Text>
+                            <Form.Control onChange={this.setRequestMetadata} name="SSID" type="text" min="19" max="19" pattern=".*" required />
+                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
+                        </Form.Group>
+                    </Col>
+                valueToMatchInBase64Field =
+                    <Col>
+                        <Form.Group className={classes.formGroup}>
+                            <Form.Label className={classes.modal_form_label}>Packet Capture File</Form.Label>
+                            <Form.Text className="text-muted"> Must be in pcap or cap format. Max 50mb</Form.Text>
+                            <Form.Control onChange={this.setValueToMatchInBase64} name="file" type="file" required></Form.Control>
+                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
+                        </Form.Group>
+                    </Col>
+                break;
+            case 'NTLM':
+                valueToMatchInBase64Field =
+                    <Col>
+                        <Form.Group className={classes.formGroup}>
+                            <Form.Label className={classes.modal_form_label}>NTLM (NT Hash)</Form.Label>
+                            <Form.Text className="text-muted"> Case Agnostic </Form.Text>
+                            <Form.Control onChange={this.setValueToMatchInBase64} name="text" type="text" required></Form.Control>
+                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
+                        </Form.Group>
+                    </Col>
+                break;
+            default:
+                metadataFields = null
+                valueToMatchInBase64Field = null
+        }
+
+        // Password Lists
+        const passwordLists = this.state.newActiveRequestPasswordLists.map(passwordList => {
+            return (<Button key={passwordList} className={classes.newRequestParameterPill}
+                onClick={() => this.removePasswordList(passwordList)}>{passwordList}</Button>);
+        })
+
+        // Crunch Parameters
+        const crunchParameters = this.state.newActiveRequestCrunchParameters.map(crunchParameter => {
+            let key = crunchParameter.min + " " + crunchParameter.max + " " + crunchParameter.characters;
+            if (crunchParameter.pattern !== null && crunchParameter.pattern !== "") {
+                key = key + " -t " + crunchParameter.pattern
+            }
+            if (crunchParameter.start !== null && crunchParameter.start !== "") {
+                key = key + " -s " + crunchParameter.start
+            }
+            return (<Button key={key} className={classes.newRequestParameterPill}
+                onClick={() => this.removeCrunchParameter(crunchParameter.min, crunchParameter.max, crunchParameter.characters,
+                    crunchParameter.pattern, crunchParameter.startString)}>{key}</Button>)
+        });
+
+        // Error Message
+        let errorMessage = null;
+        if (this.state.newActiveRequestErrorMessage !== null) {
+            errorMessage = <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.newActiveRequestErrorMessage}</strong></div>
+        }
+
+        // Submit Button
+        let submitButton = null
+        if (this.state.newActiveRequestFormLoadingStatus) {
+            submitButton =
+                <Button variant="primary">
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                </Button>
+        }
+        else {
+            submitButton = <Button type="submit" variant="primary" form="main-form">Submit</Button>
+        }
+
+        // Return Modal
+        return (
+            <Modal size="lg" aria-labelledby="contained-modal-title-vcenter"
+                show={this.state.newActiveRequestModalVisible} onHide={this.closeNewActiveRequestModal} centered >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        Create New Request&nbsp;
+                        <a href="https://kraken.work/help#how-to"
+                            target="_blank" rel="noopener noreferrer">
+                            <Octicon icon={Question} />
+                        </a>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+
+                    {/* Main Form */}
+                    <Form id="main-form" onSubmit={this.submitNewActiveRequestModal} validated={this.state.newActiveRequestFormValidated}>
+                        <Row>
+                            <Col>
+                                <Form.Group className={classes.formGroup}>
+                                    <Form.Label className={classes.modal_form_label}>Name</Form.Label>
+                                    <Form.Text className="text-muted">
+                                        Give your request a friendly name (max 40 characters)
+                                    </Form.Text>
+                                    <Form.Control name="name" onChange={this.setRequestName} type="text" minLength="1" maxLength="40" required />
+                                    <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group className={classes.formGroup}>
+                                    <Form.Label className={classes.modal_form_label}>Type</Form.Label>
+                                    <Form.Text className="text-muted">
+                                        What <strong>&nbsp;type&nbsp;</strong>of request would you like to create?
+                                    </Form.Text>
+                                    <Form.Control name="requestType" onChange={this.setRequestType} as="select" required>
+                                        <option disabled selected>Choose...</option>
+                                        <option value="WPA">WPA/WPA2</option>
+                                        {/* <option value="NTLM">NTLM</option> */}
+                                    </Form.Control>
+                                    <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            {metadataFields}
+                            {valueToMatchInBase64Field}
+                        </Row>
+                    </Form>
+
+                    {/* Password List Form */}
+                    <Form onSubmit={this.addPasswordList}>
+                        <Form.Group className={classes.formGroup}>
+                            <Form.Label className={classes.modal_form_label}>
+                                Password Lists
+                            </Form.Label>
+                            <Form.Text className="text-muted">
+                                Add password list using the input below. Remove them by clicking on the pill
+                            </Form.Text>
+                            <Row>
+                                <Col sm="12">
+                                    <div className={classes.newRequestParameterBox}>
+                                        {passwordLists}
+                                    </div>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col sm="9">
+                                    <Form.Control name="passwordLists" as="select">
+                                        <option disabled>Choose...</option>
+                                        {this.state.availablePasswordLists.map(availablePasswordList =>
+                                            <option key={availablePasswordList.name}>{availablePasswordList.name} ({availablePasswordList.jobDelimiterSetSize} jobs)</option>)}
+                                    </Form.Control>
+                                </Col>
+                                <Col sm="1"><Button type="submit">Add</Button></Col>
+                                <Col ><Button onClick={this.addAllPasswordLists}>Add All</Button></Col>
+                            </Row>
+                        </Form.Group>
+                    </Form>
+
+                    {/* Crunch Form */}
+                    <Form onSubmit={this.addCrunchParameter}>
+                        <Form.Group className={classes.formGroup}>
+                            <Form.Label className={classes.modal_form_label}>
+                                Crunch Parameters&nbsp;
+                                <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html"
+                                    target="_blank" rel="noopener noreferrer">
+                                    <Octicon icon={Question} />
+                                </a>
+                            </Form.Label>
+                            <Form.Text className="text-muted">
+                                Add crunch parameters using the inputs below. Remove them by clicking on the pill
+                            </Form.Text>
+                            <Row>
+                                <Col sm="12">
+                                    <div className={classes.newRequestParameterBox}>
+                                        {crunchParameters}
+                                    </div>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col sm="3">
+                                    <Form.Control name="min" type="number" placeholder="min" min="1" max="12" required />
+                                    <Form.Control.Feedback type="invalid">Min must be between 1 and 12</Form.Control.Feedback>
+                                </Col>
+                                <Col sm="3">
+                                    <Form.Control name="max" type="number" placeholder="max" min="1" max="12" required />
+                                    <Form.Control.Feedback type="invalid">Max must be between 1 and 12</Form.Control.Feedback>
+                                </Col>
+                                <Col sm="6">
+                                    <Form.Control name="characters" type="text" list="character-options" placeholder="charset" required />
+                                    <datalist id="character-options">
+                                        <option>Custom...</option>
+                                        <option>0123456789</option>
+                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZ</option>
+                                        <option>abcdefghijklmnopqrstuvwxyz</option>
+                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</option>
+                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</option>
+                                        <option>abcdefghijklmnopqrstuvwxyz0123456789</option>
+                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</option>
+                                    </datalist>
+                                </Col>
+                                <Col sm="2">
+                                </Col>
+                            </Row>
+                            <Row style={{ marginTop: "5px" }}>
+                                <Col sm="6">
+                                    <Form.Control name="pattern" type="text" maxLength="12" placeholder="[-t] pattern (optional)" />
+                                    <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+                                </Col>
+                                <Col sm="3">
+                                    <Form.Control name="start" type="text" maxLength="12" placeholder="[-s] start (optional)" />
+                                    <Form.Control.Feedback type="invalid">Start String should be equal to  min character</Form.Control.Feedback>
+                                </Col>
+                                <Col sm="1"><Button type="submit">Add</Button></Col>
+                                <Col ><Button onClick={this.addAllCrunchParameter}>Add All</Button></Col>
+                            </Row>
+                        </Form.Group>
+                    </Form>
+
+                </Modal.Body>
+                <Modal.Footer>
+                    {errorMessage}
+                    <Button variant="secondary" onClick={this.closeNewActiveRequestModal}>Close</Button>
+                    {submitButton}
+                </Modal.Footer>
+            </Modal >);
+    }
+
+    componentDidMount = () => {
+        this.getChangeLog();
+    }
+
+    getChangeLog = async () => {
+        const readme = await axios.get('https://raw.githubusercontent.com/arcaneiceman/kraken-client/master/README.md')
+        const segments = readme.data.split("####");
+        segments.shift(); // Remove First Item
+        const changeLog = segments.find(segment => segment.startsWith(" " + version))
+        if (changeLog !== null && changeLog !== undefined && localStorage.getItem(this.state.dashboardAlertConstant + version) == null)
+            this.promisedSetState({ dashboardAlertTitle: "Explore whats new in v" + version, dashboardAlertContent: changeLog.substring(changeLog.indexOf("\n") + 1) })
+    }
+
+    toggleDashboardAlert = async () => {
+        this.promisedSetState({ dashboardAlertExpanded: !this.state.dashboardAlertExpanded })
+    }
+
+    dimissDashboardAlert = async () => {
+        Object.entries(localStorage).filter(entry => entry[0].includes(this.state.dashboardAlertConstant)).forEach(entry => localStorage.removeItem(entry[0]))
+        localStorage.setItem(this.state.dashboardAlertConstant + version, true)
+        this.promisedSetState({ dashboardAlertContent: "" })
     }
 
     launchNewActiveRequestModal = async () => {
@@ -235,269 +547,6 @@ class Dashboard extends Component {
             default:
                 console.log("error");
         }
-    }
-
-    render() {
-        // Authentication Protection for Component
-        if (!AuthenticationService.isLoggedIn())
-            return <Redirect to="/login" />
-
-        // NavLinks for Toolbar
-        const navLinks = [];
-        navLinks.push({ text: 'Create New Request', onClick: this.launchNewActiveRequestModal, isPrimary: true });
-        navLinks.push({ text: 'Help', onClick: () => { this.props.history.push('/help') } })
-        navLinks.push({ text: 'Change Password', onClick: () => { this.props.history.push('/change-password'); } })
-        navLinks.push({ text: 'Logout', onClick: this.logout });
-        const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
-
-        // Build Modal
-        const newActiveRequestModal = this.buildModal();
-        return (
-            <div>
-                {newActiveRequestModal} {/* Modal */}
-                {toolbar} {/* Toolbar */}
-                <div className={classes.padding}> {/* Padding */}
-                    <div className={classes.responsiveLayout}> {/* */}
-                        <div className={classes.main}> {/* Main Panel */}
-                            <ActiveRequests ref={activeRequestRef => { this.activeRequestRef = activeRequestRef }} />
-                            <Workers />
-                        </div>
-                        <div className={classes.side}> {/* Side Panel */}
-                            <CompletedRequests />
-                            <KrakenWorker />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    buildModal = () => {
-        // Metadata and ValueToMatchInBase64 Fields
-        let metadataFields = null
-        let valueToMatchInBase64Field = null
-        switch (this.state.newActiveRequestType) {
-            case 'WPA':
-                // Metadata
-                metadataFields =
-                    <Col>
-                        <Form.Group className={classes.formGroup} key="SSID">
-                            <Form.Label className={classes.modal_form_label}>SSID</Form.Label>
-                            <Form.Text className="text-muted">Name of the Target Network</Form.Text>
-                            <Form.Control onChange={this.setRequestMetadata} name="SSID" type="text" min="19" max="19" pattern=".*" required />
-                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
-                        </Form.Group>
-                    </Col>
-                valueToMatchInBase64Field =
-                    <Col>
-                        <Form.Group className={classes.formGroup}>
-                            <Form.Label className={classes.modal_form_label}>Packet Capture File</Form.Label>
-                            <Form.Text className="text-muted"> Must be in pcap or cap format. Max 50mb</Form.Text>
-                            <Form.Control onChange={this.setValueToMatchInBase64} name="file" type="file" required></Form.Control>
-                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
-                        </Form.Group>
-                    </Col>
-                break;
-            case 'NTLM':
-                valueToMatchInBase64Field =
-                    <Col>
-                        <Form.Group className={classes.formGroup}>
-                            <Form.Label className={classes.modal_form_label}>NTLM (NT Hash)</Form.Label>
-                            <Form.Text className="text-muted"> Case Agnostic </Form.Text>
-                            <Form.Control onChange={this.setValueToMatchInBase64} name="text" type="text" required></Form.Control>
-                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
-                        </Form.Group>
-                    </Col>
-                break;
-            default:
-                metadataFields = null
-                valueToMatchInBase64Field = null
-        }
-
-        // Password Lists
-        const passwordLists = this.state.newActiveRequestPasswordLists.map(passwordList => {
-            return (<Button key={passwordList} className={classes.newRequestParameterPill}
-                onClick={() => this.removePasswordList(passwordList)}>{passwordList}</Button>);
-        })
-
-        // Crunch Parameters
-        const crunchParameters = this.state.newActiveRequestCrunchParameters.map(crunchParameter => {
-            let key = crunchParameter.min + " " + crunchParameter.max + " " + crunchParameter.characters;
-            if (crunchParameter.pattern !== null && crunchParameter.pattern !== "") {
-                key = key + " -t " + crunchParameter.pattern
-            }
-            if (crunchParameter.start !== null && crunchParameter.start !== "") {
-                key = key + " -s " + crunchParameter.start
-            }
-            return (<Button key={key} className={classes.newRequestParameterPill}
-                onClick={() => this.removeCrunchParameter(crunchParameter.min, crunchParameter.max, crunchParameter.characters,
-                    crunchParameter.pattern, crunchParameter.startString)}>{key}</Button>)
-        });
-
-        // Error Message
-        let errorMessage = null;
-        if (this.state.newActiveRequestErrorMessage !== null) {
-            errorMessage = <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.newActiveRequestErrorMessage}</strong></div>
-        }
-
-        // Submit Button
-        let submitButton = null
-        if (this.state.newActiveRequestFormLoadingStatus) {
-            submitButton =
-                <Button variant="primary">
-                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                </Button>
-        }
-        else {
-            submitButton = <Button type="submit" variant="primary" form="main-form">Submit</Button>
-        }
-
-        // Return Modal
-        return (
-            <Modal size="lg" aria-labelledby="contained-modal-title-vcenter"
-                show={this.state.newActiveRequestModalVisible} onHide={this.closeNewActiveRequestModal} centered >
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        Create New Request&nbsp;
-                        <a href="https://kraken.work/help#how-to"
-                            target="_blank" rel="noopener noreferrer">
-                            <Octicon icon={Question} />
-                        </a>
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-
-                    {/* Main Form */}
-                    <Form id="main-form" onSubmit={this.submitNewActiveRequestModal} validated={this.state.newActiveRequestFormValidated}>
-                        <Row>
-                            <Col>
-                                <Form.Group className={classes.formGroup}>
-                                    <Form.Label className={classes.modal_form_label}>Name</Form.Label>
-                                    <Form.Text className="text-muted">
-                                        Give your request a friendly name (max 12 characters)
-                                    </Form.Text>
-                                    <Form.Control name="name" onChange={this.setRequestName} type="text" minLength="1" maxLength="12" required />
-                                    <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group className={classes.formGroup}>
-                                    <Form.Label className={classes.modal_form_label}>Type</Form.Label>
-                                    <Form.Text className="text-muted">
-                                        What <strong>&nbsp;type&nbsp;</strong>of request would you like to create?
-                                    </Form.Text>
-                                    <Form.Control name="requestType" onChange={this.setRequestType} as="select" required>
-                                        <option disabled selected>Choose...</option>
-                                        <option value="WPA">WPA/WPA2</option>
-                                        {/* <option value="NTLM">NTLM</option> */}
-                                    </Form.Control>
-                                    <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row>
-                            {metadataFields}
-                            {valueToMatchInBase64Field}
-                        </Row>
-                    </Form>
-
-                    {/* Password List Form */}
-                    <Form onSubmit={this.addPasswordList}>
-                        <Form.Group className={classes.formGroup}>
-                            <Form.Label className={classes.modal_form_label}>
-                                Password Lists
-                            </Form.Label>
-                            <Form.Text className="text-muted">
-                                Add password list using the input below. Remove them by clicking on the pill
-                            </Form.Text>
-                            <Row>
-                                <Col sm="12">
-                                    <div className={classes.newRequestParameterBox}>
-                                        {passwordLists}
-                                    </div>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col sm="9">
-                                    <Form.Control name="passwordLists" as="select">
-                                        <option disabled>Choose...</option>
-                                        {this.state.availablePasswordLists.map(availablePasswordList =>
-                                            <option key={availablePasswordList.name}>{availablePasswordList.name} ({availablePasswordList.jobDelimiterSetSize} jobs)</option>)}
-                                    </Form.Control>
-                                </Col>
-                                <Col sm="1"><Button type="submit">Add</Button></Col>
-                                <Col ><Button onClick={this.addAllPasswordLists}>Add All</Button></Col>
-                            </Row>
-                        </Form.Group>
-                    </Form>
-
-                    {/* Crunch Form */}
-                    <Form onSubmit={this.addCrunchParameter}>
-                        <Form.Group className={classes.formGroup}>
-                            <Form.Label className={classes.modal_form_label}>
-                                Crunch Parameters&nbsp;
-                                <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html"
-                                    target="_blank" rel="noopener noreferrer">
-                                    <Octicon icon={Question} />
-                                </a>
-                            </Form.Label>
-                            <Form.Text className="text-muted">
-                                Add crunch parameters using the inputs below. Remove them by clicking on the pill
-                            </Form.Text>
-                            <Row>
-                                <Col sm="12">
-                                    <div className={classes.newRequestParameterBox}>
-                                        {crunchParameters}
-                                    </div>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col sm="3">
-                                    <Form.Control name="min" type="number" placeholder="min" min="1" max="12" required />
-                                    <Form.Control.Feedback type="invalid">Min must be between 1 and 12</Form.Control.Feedback>
-                                </Col>
-                                <Col sm="3">
-                                    <Form.Control name="max" type="number" placeholder="max" min="1" max="12" required />
-                                    <Form.Control.Feedback type="invalid">Max must be between 1 and 12</Form.Control.Feedback>
-                                </Col>
-                                <Col sm="6">
-                                    <Form.Control name="characters" type="text" list="character-options" placeholder="charset" required />
-                                    <datalist id="character-options">
-                                        <option>Custom...</option>
-                                        <option>0123456789</option>
-                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZ</option>
-                                        <option>abcdefghijklmnopqrstuvwxyz</option>
-                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</option>
-                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</option>
-                                        <option>abcdefghijklmnopqrstuvwxyz0123456789</option>
-                                        <option>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</option>
-                                    </datalist>
-                                </Col>
-                                <Col sm="2">
-                                </Col>
-                            </Row>
-                            <Row style={{ marginTop: "5px" }}>
-                                <Col sm="6">
-                                    <Form.Control name="pattern" type="text" maxLength="12" placeholder="[-t] pattern (optional)" />
-                                    <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
-                                </Col>
-                                <Col sm="3">
-                                    <Form.Control name="start" type="text" maxLength="12" placeholder="[-s] start (optional)" />
-                                    <Form.Control.Feedback type="invalid">Start String should be equal to  min character</Form.Control.Feedback>
-                                </Col>
-                                <Col sm="1"><Button type="submit">Add</Button></Col>
-                                <Col ><Button onClick={this.addAllCrunchParameter}>Add All</Button></Col>
-                            </Row>
-                        </Form.Group>
-                    </Form>
-
-                </Modal.Body>
-                <Modal.Footer>
-                    {errorMessage}
-                    <Button variant="secondary" onClick={this.closeNewActiveRequestModal}>Close</Button>
-                    {submitButton}
-                </Modal.Footer>
-            </Modal >);
     }
 
     promisedSetState = (newState) => {

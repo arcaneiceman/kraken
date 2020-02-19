@@ -29,63 +29,6 @@ class Register extends Component {
         directAccess: true
     }
 
-    attemptRegister = async (event) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-
-        if (!form.checkValidity())
-            return
-
-        let recaptchaResponse = "";
-        if (!isElectron())
-            recaptchaResponse = this.state.recaptchaReference.current.getValue();
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
-        try {
-            const name = form.elements["name"].value;
-            const email = form.elements["email"].value;
-            const password = form.elements["password"].value;
-            const confirmPassword = form.elements["confirmPassword"].value;
-            await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
-            await new Promise(resolve => setTimeout(resolve, 500));
-            this.props.history.push('/activation?email=' + encodeURIComponent(email))
-        }
-        catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
-        }
-    }
-
-    registerAsGuest = async () => {
-        let recaptchaResponse = "";
-        if (!isElectron())
-            recaptchaResponse = this.state.recaptchaReference.current.getValue();
-
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
-        try {
-            const name = "kraken-anonymous-user-" + Math.floor((Math.random() * 100000) + 1)
-            const email = name + "@ahem.email"
-            const password = Math.random().toString(36).slice(2)
-            const confirmPassword = password
-            await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
-            await new Promise(resolve => setTimeout(resolve, 500));
-            this.props.history.push('/activation?email=' + email)
-        }
-        catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
-        }
-    }
-
-    togglePasswordHidden = () => {
-        const currentState = this.state.passwordHidden;
-        this.setState({ passwordHidden: !currentState })
-    }
-
-    toggleConfirmPasswordHidden = () => {
-        const currentState = this.state.confirmPasswordHidden;
-        this.setState({ confirmPasswordHidden: !currentState })
-    }
-
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn() && this.state.directAccess)
@@ -192,6 +135,63 @@ class Register extends Component {
                 </div>
             </div>
         );
+    }
+
+    attemptRegister = async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+
+        if (!form.checkValidity())
+            return
+
+        let recaptchaResponse = "";
+        if (!isElectron())
+            recaptchaResponse = this.state.recaptchaReference.current.getValue();
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
+        try {
+            const name = form.elements["name"].value;
+            const email = form.elements["email"].value;
+            const password = form.elements["password"].value;
+            const confirmPassword = form.elements["confirmPassword"].value;
+            await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/activation?email=' + encodeURIComponent(email))
+        }
+        catch (error) {
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
+        }
+    }
+
+    registerAsGuest = async () => {
+        let recaptchaResponse = "";
+        if (!isElectron())
+            recaptchaResponse = this.state.recaptchaReference.current.getValue();
+
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', message: null, directAccess: false })
+        try {
+            const name = "kraken-anonymous-user-" + Math.floor((Math.random() * 100000) + 1)
+            const email = name + "@ahem.email"
+            const password = Math.random().toString(36).slice(2)
+            const confirmPassword = password
+            await AuthenticationService.register(name, email, password, confirmPassword, recaptchaResponse)
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', message: 'Success! Taking you to Activation...' })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.props.history.push('/activation?email=' + email)
+        }
+        catch (error) {
+            await this.promisedSetState({ loadingStatus: 'ERROR', message: error.response.data.message })
+        }
+    }
+
+    togglePasswordHidden = () => {
+        const currentState = this.state.passwordHidden;
+        this.setState({ passwordHidden: !currentState })
+    }
+
+    toggleConfirmPasswordHidden = () => {
+        const currentState = this.state.confirmPasswordHidden;
+        this.setState({ confirmPasswordHidden: !currentState })
     }
 
     promisedSetState = (newState) => {

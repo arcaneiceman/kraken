@@ -22,26 +22,6 @@ class ForgotPassword extends Component {
         directAccess: true
     }
 
-    requestNewPassword = async (event) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-
-        if (!form.checkValidity())
-            return
-
-        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
-        try {
-            const email = form.elements["email"].value;
-            await AuthenticationService.requestNewPassword(email)
-            await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'An email has been sent with password information', errorMessage: null })
-            await new Promise(resolve => setTimeout(resolve, 500));
-            this.props.history.push('/dashboard')
-        }
-        catch (error) {
-            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
-        }
-    }
-
     render() {
         // Go to Dashboard if Logged In
         if (AuthenticationService.isLoggedIn() && this.state.directAccess)
@@ -96,6 +76,24 @@ class ForgotPassword extends Component {
                     </div>
                 </div>
             </div>)
+    }
+
+    requestNewPassword = async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+
+        if (!form.checkValidity())
+            return
+
+        await this.promisedSetState({ loadingStatus: 'PROGRESS', errorMessage: null, successMessage: null, directAccess: false })
+        try {
+            const email = form.elements["email"].value;
+            await AuthenticationService.requestNewPassword(email)
+            await this.promisedSetState({ loadingStatus: 'SUCCESS', successMessage: 'An email has been sent with password information', errorMessage: null })
+        }
+        catch (error) {
+            await this.promisedSetState({ loadingStatus: 'ERROR', errorMessage: error.response.data.message })
+        }
     }
 
     promisedSetState = (newState) => {

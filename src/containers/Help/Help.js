@@ -157,7 +157,7 @@ class Help extends Component {
 
                     <h5>Desktop Client</h5>
                     <p>
-                        The desktop client is packaged for Windows, Mac and Linux and is coming soon!. The application runs inside an electron shell packaging the contents of the broswer app
+                        The desktop client is packaged for Windows, Mac and Linux. The application runs inside an electron shell packaging the contents of the broswer app
                         with nodejs integration and uses <a href="https://hashcat.net/" target="_blank" rel="noopener noreferrer">Hashcat</a> for cracking.
                         <strong>Note: </strong> The app has node integration enabled to access local resources but sets itself as the only source of scripts.
                         All client code is available on Github.
@@ -186,8 +186,8 @@ class Help extends Component {
                     <p>
 
                         <ul>
-                            <li><a href="#how-to_wpa-guide">Guide for WPA/WPA2</a></li>
-                            <li><a href="#how-to_ntlm-guide">Guide for NTLM (Windows Machine) [Coming Soon]</a> </li>
+                            <li><a href="/help#how-to_wpa-guide">Guide for WPA/WPA2</a></li>
+                            <li><a href="/help#how-to_faq">FAQs</a></li>
                         </ul>
                         <br />
 
@@ -289,7 +289,36 @@ class Help extends Component {
                         In the browser client, workers run within the browser with cracking being performed in Javascript and hence is much slower than the desktop client.
                         If you close the tab in which the worker is running, the worker will go offline. In the desktop client, cracking is performed by Hashcat which can utilize
                         the machine's CPU and other hardware like GPU and is <strong>much faster</strong>.
+                        <br />  
 
+                        <br /> 
+                        <div id={'how-to_faq'}><h4>FAQs</h4></div>
+
+                        <h5>What does Kraken do exactly?</h5>     
+                        Kraken attempts to solve two key issues with brute-force password cracking. First, it lowers the barrier to entry by allowing users to crack passwords 
+                        without having to install anything directly through their broswer (You can choose to install the faster local client) or download massive password lists 
+                        on their machine. Second, it distributes workloads over multiple user provided machines and provides fault-tolerance so users are not forced to crack on a single machine and can scale their cracking 
+                        operation based on how they see fit.  
+                        <br /> 
+
+                        <br /> 
+                        <h5>Do I need multiple workers (broswer windows) to use my multi-core machine more efficiently?</h5>
+                        Kraken provides the ability to adjust the number of cores it uses on a single browser window so you do not need to open multiple tabs and run workers on them.
+                        By default, Kraken will use [total core count of your machine] -1 cores. Hence, if your computer has an 8 core machine, by default Kraken will use 7 cores to 
+                        crack so that the last core is free process UI changes and other tasks on your machine.
+                        <br /> 
+
+                        <br /> 
+                        <h5>Why does my local worker not work when I enable both my CPU and GPU?</h5>
+                        If hashcat detects a GPU on your machine, it does not like enabling both CPU and GPU. While Kraken does allow you to force this,
+                        hashcat will most likely throw many errors.
+                        <br /> 
+
+                        <br /> 
+                        <h5>Why do you have node integration on in the local client?</h5>
+                        The local app needs access to your machine's terminal which needs node integration to run hashcat. This is why the local app's script
+                        policy is 'self' only packaged code and nothing else can be executed. Also, all of Kraken client code is available on Github for you to vet.
+                        <br /> 
                     </p>
                     <br />
 

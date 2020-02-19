@@ -7,6 +7,19 @@ Click <a href="https://kraken.work/help">here</a> for a guide to Kraken
 
 ### Change Log:
 
+#### 1.0.5
+Updates:
+- These alerts that you are seeing now
+- Added a note about multi-core (browser) / choosing devices (local)
+- FAQ section in help
+- Local Client enables dev console
+
+Fixed Bug:
+- Change Password UI Fix
+- Forget Password does not immediatly bump you to login
+- If you delete remote worker, it shuts off now
+- Request Name can be 40 characters now
+
 #### 1.0.4
 Fixed Bug:
 - Bad event bus library needed cleanup code
