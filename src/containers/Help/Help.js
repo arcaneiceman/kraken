@@ -319,6 +319,13 @@ class Help extends Component {
                         The local app needs access to your machine's terminal which needs node integration to run hashcat. This is why the local app's script
                         policy is 'self' only packaged code and nothing else can be executed. Also, all of Kraken client code is available on Github for you to vet.
                         <br /> 
+
+                        <br /> 
+                        <h5>Why does Kraken say that it could not validate the packet capture?</h5>
+                        Kraken uses cap2hccapx from hashcat-utils to validate your packet capture. Use 
+                        the <a href="https://www.onlinehashcrack.com/tools-cap-to-hccapx-converter.php" target="_blank" rel="noopener noreferrer">online tool</a> to verify it
+                        if it is giving you trouble. I'll soon be adding direct hashes as part of the request so you can extract the PMK and other values yourself.
+                        <br /> 
                     </p>
                     <br />
 

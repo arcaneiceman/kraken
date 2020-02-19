@@ -10,9 +10,9 @@ import Form from 'react-bootstrap/Form'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
 import Collapse from 'react-bootstrap/Collapse'
-import Alert from 'react-bootstrap/Alert'
+import DashboardAlert from 'react-bootstrap/Alert'
 import { Redirect } from 'react-router-dom'
-import Octicon, { Question, KebabHorizontal } from '@githubprimer/octicons-react';
+import Octicon, { Question, KebabHorizontal, Alert } from '@githubprimer/octicons-react';
 import ActiveRequestService from '../../services/ActiveRequestService';
 import AuthenticationService from '../../services/AuthenticationService';
 import PasswordListService from '../../services/PasswordListService';
@@ -67,16 +67,16 @@ class Dashboard extends Component {
 
         // Build Dashboard Alert
         const dashboardAlert =
-            <Alert variant="info" style={{ marginBottom: '-1%', marginTop: '2%', flexGrow: '1' }}
+            <DashboardAlert variant="info" style={{ marginBottom: '-1%', marginTop: '2%', flexGrow: '1' }}
                 show={this.state.dashboardAlertContent !== "" && this.state.dashboardAlertTitle !== ""} onClose={this.dimissDashboardAlert} dismissible>
                 <div >
                     {this.state.dashboardAlertTitle}&nbsp;
-                    <Button style={{border: 'none'}} size="sm" variant="outline-primary" onClick={this.toggleDashboardAlert}><Octicon icon={KebabHorizontal}/></Button>
+                    <Button style={{ border: 'none' }} size="sm" variant="outline-primary" onClick={this.toggleDashboardAlert}><Octicon icon={KebabHorizontal} /></Button>
                 </div>
                 <Collapse in={this.state.dashboardAlertExpanded}>
                     <ReactMarkdown source={this.state.dashboardAlertContent.trim()} />
                 </Collapse>
-            </Alert>
+            </DashboardAlert>
 
         // Build Modal
         const newActiveRequestModal = this.buildModal();
@@ -169,7 +169,12 @@ class Dashboard extends Component {
         // Error Message
         let errorMessage = null;
         if (this.state.newActiveRequestErrorMessage !== null) {
-            errorMessage = <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.newActiveRequestErrorMessage}</strong></div>
+            errorMessage =
+                <div className={classes.errorMessage}>
+                    <Octicon icon={Alert} />
+                    <strong>{this.state.newActiveRequestErrorMessage}
+                    Learn more in the <a href="https://kraken.work/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section.</strong>
+                </div>
         }
 
         // Submit Button
@@ -389,8 +394,7 @@ class Dashboard extends Component {
             lsbridge.send('active-requests');
         }
         catch (error) {
-            console.log("LOGGED ERROR")
-            await this.promisedSetState({ newActiveRequestFormValidated: false, newActiveRequestErrorMessage: error.response.data.message })
+            await this.promisedSetState({ newActiveRequestFormValidated: false, newActiveRequestErrorMessage: error.response.data.message})
         }
         finally {
             await this.promisedSetState({ newActiveRequestFormLoadingStatus: false })
