@@ -4,7 +4,7 @@ const getSummary = () => {
    return axios.get('/complete-request/summary')
 }
 
-const getCompleteRequests = (pageNumber, pageSize) => {
+const listCompleteRequests = (pageNumber, pageSize) => {
     return axios.get('/complete-request?pageNumber=' + pageNumber + '&pageSize=' + pageSize)
 }
 
@@ -14,7 +14,7 @@ const deleteCompleteRequest = (completeRequestId) => {
 
 const CompleteRequestService = {
     getSummary,
-    getCompleteRequests,
+    listCompleteRequests,
     deleteCompleteRequest,
 }
 

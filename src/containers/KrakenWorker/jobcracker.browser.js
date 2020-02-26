@@ -44,6 +44,14 @@ self.onmessage = async (message) => {
         returnObject.error = error;
     }
     finally {
+        // Cleanup
+        delete message.candidateValues
+        delete message.valueToMatchInBase64
+        delete message.webWorkerId
+        delete message.jobId
+        delete message.requestType
+
+        // Return
         self.postMessage(returnObject)
     }
 };

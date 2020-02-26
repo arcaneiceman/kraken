@@ -34,7 +34,7 @@
     margin-left: 2.5%
 }
 
-.newRequestParameterBox {
+.newRequestTrackedListBox {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -44,7 +44,7 @@
     border: 0.5px solid grey;
 }
 
-.newRequestParameterPill {
+.newRequestTrackedListPill {
   background-color: #ddd;
   border: none;
   color: black;

@@ -10,6 +10,7 @@ import NotificationService from '../../utils/NotificiationService';
 import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner'
 import lsbridge from 'lsbridge'
+import Table from 'react-bootstrap/Table';
 
 import classes from './CompletedRequests.module.css'
 
@@ -17,7 +18,8 @@ class CompletedRequests extends Component {
 
     state = {
         loadingStatus: null,
-        deleteConfirmationId: null,
+        detailModalCompletedRequest: null,
+        deleteConfirmationModalCompletedRequest: null,
 
         // Page Size
         pageSize: 4,
@@ -38,12 +40,12 @@ class CompletedRequests extends Component {
         const completedRequests = this.state.totalItems;
         const foundRequests = this.state.requestsFound;
 
-        // Create Detail Section
-        const detailSection = (
-            <div className={classes.detailContainer}>
+        // Create Summary Section
+        const summarySection = (
+            <div className={classes.summarySectionContainer}>
                 <DetailBox boxValue={completedRequests.toString()} boxText={'Completed Requests'} />
-                <div className={classes.detailLastItem}>
-                    <DetailBox boxValue={foundRequests.toString()} boxText={'Found Requests'} />
+                <div className={classes.summaryLastItem}>
+                    <DetailBox boxValue={foundRequests.toString()} boxText={'Found'} />
                 </div>
             </div>
         );
@@ -54,13 +56,13 @@ class CompletedRequests extends Component {
         });
         const tableItems = this.state.completedRequests.map(completedRequest => {
             return (
-                <tr key={completedRequest.id}>
+                <tr key={completedRequest.id} onClick={() => this.openDetailModal(completedRequest)}>
                     <td className={classes.tableItem}><strong>{completedRequest.requestName}</strong></td>
                     <td className={classes.tableItem}>{completedRequest.status}</td>
                     <td className={classes.tableItem}>{completedRequest.totalJobCount} / {completedRequest.completedJobCount} / {completedRequest.errorJobCount}</td>
                     <td className={classes.tableItem}>{completedRequest.value === null ? 'Not Found' : <strong>{completedRequest.value}</strong>}</td>
                     <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}
-                        onClick={() => this.promisedSetState({ deleteConfirmationId: completedRequest.id })} >
+                        onClick={(event) => { event.stopPropagation(); this.openDeleteConfirmationModal(completedRequest) }}>
                         <Octicon icon={Trashcan} />
                     </td>
                 </tr>
@@ -89,18 +91,22 @@ class CompletedRequests extends Component {
                 loadingSpinner = null;
         }
 
+        // Detail Modal 
+        let detailModal = this.buildDetailModal();
+
         // Delete Confirmation Modal
         let deleteConfirmationModal = this.buildDeletionConfirmationModal();
 
         // Render
         return (
             <div>
+                {detailModal}
                 {deleteConfirmationModal}
                 <SectionHeading heading={'Completed Requests'} />
-                <div className={classes.content}>
+                <div className={classes.mainContainer}>
                     {loadingBackground}
                     {loadingSpinner}
-                    {detailSection}
+                    {summarySection}
                     <SummaryTable
                         tableHeadings={tableHeadings}
                         tableItems={tableItems} />
@@ -114,25 +120,95 @@ class CompletedRequests extends Component {
         );
     }
 
+    buildDetailModal = () => {
+        if (this.state.detailModalCompletedRequest === null)
+            return
+        else
+            return (
+                <Modal size="lg" show={this.state.detailModalCompletedRequest !== null} onHide={() => this.closeDetailModal()}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Complete Request Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className={classes.detailModalContainer}>
+                            <div className={classes.detailModalDetailContainer}>
+                                <div>
+                                    <h3 className={classes.detailModalHeading}>Name</h3>
+                                    <div><strong className={classes.detailModalValue}>{this.state.detailModalCompletedRequest.requestName}</strong></div>
+                                </div>
+                                <div >
+                                    <h3 className={classes.detailModalHeading}>Type</h3>
+                                    <div><strong className={classes.detailModalValue}>{this.state.detailModalCompletedRequest.requestType}</strong></div>
+                                </div>
+                                <div >
+                                    <h3 className={classes.detailModalHeading}>Total Jobs</h3>
+                                    <div><strong className={classes.detailModalValue}>{this.state.detailModalCompletedRequest.totalJobCount}</strong></div>
+                                </div>
+                                <div >
+                                    <h3 className={classes.detailModalHeading}>Completed Jobs</h3>
+                                    <div><strong className={classes.detailModalValue}>{this.state.detailModalCompletedRequest.completedJobCount}</strong></div>
+                                </div>
+                                <div >
+                                    <h3 className={classes.detailModalHeading}>Errors</h3>
+                                    <div><strong className={classes.detailModalValue}>{this.state.detailModalCompletedRequest.errorJobCount}</strong></div>
+                                </div>
+                            </div>
+                            <div className={classes.detailModalRequestMetadataContainer} >
+                                <h3 className={classes.detailModalHeading}>Metadata</h3>
+                                <Table className={classes.detailModalRequestMetadataTable} style={{ marginBottom: '0rem' }} borderless size="sm">
+                                    <tbody>
+                                        {Object.keys(this.state.detailModalCompletedRequest.requestMetadata).map(key => {
+                                            return (
+                                                <tr key={key}>
+                                                    <td style={{ width: '25%' }} className={classes.tableItem}><strong>{key}</strong></td>
+                                                    <td className={classes.tableItem}>{this.state.detailModalCompletedRequest.requestMetadata[key]}</td>
+                                                </tr>);
+                                        })}
+                                    </tbody>
+                                </Table>
+                            </div>
+                            <div className={classes.detailModalListContainer}>
+                                <div className={classes.detailModalHeading}>
+                                    Tracked Lists
+                                </div>
+                                <div className={classes.detailModalListPillContainer}>
+                                    {this.state.detailModalCompletedRequest.trackedLists.map(trackedList => {
+                                        let variant = this.getVariantFromTrackedList(trackedList)
+                                        let tce = this.getTCEfromTrackedList(trackedList)
+                                        return (
+                                            <Button variant={variant} className={classes.detailModalTrackedListPill}
+                                                key={trackedList.listName}>{trackedList.listName} <br /> (T / C / E): {tce}</Button>
+                                        );
+                                    })}</div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+            );
+    }
+
     buildDeletionConfirmationModal = () => {
-        return (
-            <Modal show={this.state.deleteConfirmationId !== null}
-                onHide={() => this.promisedSetState({ deleteConfirmationId: null })}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>This action will permanently delete this <strong>Completed Request</strong>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => this.promisedSetState({ deleteConfirmationId: null })}>
-                        Close
-                    </Button>
-                    <Button variant="danger" onClick={() => this.deleteCompletedRequest()}>
-                        Yes, Delete it
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        if (this.state.deleteConfirmationModalCompletedRequest === null)
+            return
+        else
+            return (
+                <Modal show={this.state.deleteConfirmationModalCompletedRequest !== null} onHide={() => this.closeDeleteConfirmationModal()}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Deletion</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Do you want to delete this Completed Request: <strong>{this.state.deleteConfirmationModalCompletedRequest.requestName}</strong>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => this.closeDeleteConfirmationModal()}>
+                            Close
+                        </Button>
+                        <Button variant="danger" onClick={() => this.deleteCompletedRequest()}>
+                            Yes, Delete it
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            );
     }
 
     componentDidMount = async () => {
@@ -146,7 +222,7 @@ class CompletedRequests extends Component {
             // Subscribe to eventbus
             lsbridge.subscribe('complete-requests', () => {
                 this.getSummary()
-                this.getCompleteRequests()
+                this.listCompleteRequests()
             });
 
             // Set Timer
@@ -166,11 +242,27 @@ class CompletedRequests extends Component {
         lsbridge.unsubscribe('complete-requests');
     }
 
+    openDetailModal = async (completedRequest) => {
+        this.promisedSetState({ detailModalCompletedRequest: completedRequest })
+    }
+
+    closeDetailModal = async () => {
+        this.promisedSetState({ detailModalCompletedRequest: null })
+    }
+
+    openDeleteConfirmationModal = async (completedRequest) => {
+        this.promisedSetState({ deleteConfirmationModalCompletedRequest: completedRequest })
+    }
+
+    closeDeleteConfirmationModal = async () => {
+        this.promisedSetState({ deleteConfirmationModalCompletedRequest: null })
+    }
+
     nextPage = async () => {
         if (this.state.currentPage + 1 <= this.state.totalPages) {
             try {
                 await this.promisedSetState({ currentPage: this.state.currentPage + 1, loadingStatus: "PROGRESS" })
-                this.getCompleteRequests();
+                this.listCompleteRequests();
             }
             finally {
                 await this.promisedSetState({ loadingStatus: null })
@@ -182,7 +274,7 @@ class CompletedRequests extends Component {
         if (this.state.currentPage - 1 >= 1) {
             try {
                 await this.promisedSetState({ currentPage: this.state.currentPage - 1, loadingStatus: "PROGRESS" })
-                this.getCompleteRequests();
+                this.listCompleteRequests();
             }
             finally {
                 await this.promisedSetState({ loadingStatus: null })
@@ -203,9 +295,14 @@ class CompletedRequests extends Component {
         }
     }
 
-    getCompleteRequests = async () => {
+    listCompleteRequests = async () => {
         try {
-            const response = await CompleteRequestService.getCompleteRequests(this.state.currentPage, this.state.pageSize)
+            const response = await CompleteRequestService.listCompleteRequests(this.state.currentPage, this.state.pageSize)
+            response.data.content.forEach(completeRequest => {
+                completeRequest.totalJobCount = completeRequest.trackedLists.map(trackedList => trackedList.totalJobCount).reduce((acc, value) => acc + value, 0);
+                completeRequest.completedJobCount = completeRequest.trackedLists.map(trackedList => trackedList.completedJobCount).reduce((acc, value) => acc + value, 0);
+                completeRequest.errorJobCount = completeRequest.trackedLists.map(trackedList => trackedList.errorJobCount).reduce((acc, value) => acc + value, 0);
+            })
             await this.promisedSetState({
                 completedRequests: response.data.content,
                 totalPages: response.data.totalPages === 0 ? 1 : response.data.totalPages,
@@ -238,6 +335,25 @@ class CompletedRequests extends Component {
                 resolve()
             });
         });
+    }
+
+    getVariantFromTrackedList = (trackedList) => {
+        switch (trackedList.trackingStatus) {
+            case "PENDING":
+                return "secondary";
+            case "RUNNING":
+                return "primary";
+            case "COMPLETE":
+                return "success";
+            case "ERROR":
+                return "danger";
+            default:
+                throw Error("TrackedList.trackingStatus was not PENDING, RUNNING, COMPLETE or ERROR");
+        }
+    }
+
+    getTCEfromTrackedList = (trackedList) => {
+        return trackedList.totalJobCount + " / " + trackedList.completedJobCount + " / " + trackedList.errorJobCount
     }
 
 }

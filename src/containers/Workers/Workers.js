@@ -29,21 +29,21 @@ class Workers extends Component {
         totalPages: 1,
 
         // Special Fields
-        activeWorkers: 0,
-        onlineWorkers: 0,
-        offlineWorkers: 0,
-        jobsInQueue: 0
+        totalWorkerCount: 0,
+        onlineWorkerCount: 0,
+        offlineWorkerCount: 0,
+        jobsInQueueCount: 0
     }
 
     render() {
         // Create Detail Section
         const detailSection = (
             <div className={classes.detailContainer}>
-                <DetailBox boxValue={this.state.activeWorkers.toString()} boxText={'Active Workers'} />
-                <DetailBox boxValue={this.state.onlineWorkers.toString()} boxText={'Online Workers'} />
-                <DetailBox boxValue={this.state.offlineWorkers.toString()} boxText={'Offline Workers'} />
+                <DetailBox boxValue={this.state.totalWorkerCount.toString()} boxText={'Total Workers'} />
+                <DetailBox boxValue={this.state.onlineWorkerCount.toString()} boxText={'Online Workers'} />
+                <DetailBox boxValue={this.state.offlineWorkerCount.toString()} boxText={'Offline Workers'} />
                 <div className={classes.lastDetailItem}>
-                    <DetailBox boxValue={this.state.jobsInQueue.toString()} boxText={'Jobs In Queue'} />
+                    <DetailBox boxValue={this.state.jobsInQueueCount.toString()} boxText={'Jobs In Queue'} />
                 </div>
             </div>
         );

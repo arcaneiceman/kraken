@@ -85,14 +85,13 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             returnObject.data.error = error;
         }
         finally {
-            // Send Callback
-            callback(returnObject)
-            // Delete Candidate Value  File
+            // Cleanup Files
             await deleteFile(candidateValueFileName)
-            // Delete Value to Match File
             await deleteFile(valueToMatchFileName)
-            // Delete Out
             await deleteFile(outFileName)
+
+            // Return
+            callback(returnObject)
         }
     }
 

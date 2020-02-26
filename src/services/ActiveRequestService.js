@@ -1,7 +1,7 @@
 import axios from './AxiosInstance'
 
-const createActiveRequest = (requestType, requestName, requestMetadata, valueToMatchInBase64, passwordLists, crunchParams) => {
-    const data = { requestType, requestName, requestMetadata, valueToMatchInBase64, passwordLists, crunchParams }
+const createActiveRequest = (requestType, requestName, requestMetadata, valueToMatchInBase64, trackedLists) => {
+    const data = { requestType, requestName, requestMetadata, valueToMatchInBase64, trackedLists}
     return axios.post('/active-request', data)
 }
 
@@ -9,7 +9,7 @@ const getSummary = () => {
     return axios.get('/active-request/summary')
 }
 
-const getActiveRequests = (pageNumber, pageSize) => {
+const listActiveRequests = (pageNumber, pageSize) => {
     return axios.get('/active-request?pageNumber=' + pageNumber + '&pageSize=' + pageSize)
 }
 
@@ -28,7 +28,7 @@ const reportJobPath = () => {
 const ActiveRequestService = {
     createActiveRequest,
     getSummary,
-    getActiveRequests,
+    listActiveRequests,
     deleteActiveRequest,
     getJobPath,
     reportJobPath,

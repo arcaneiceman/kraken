@@ -12,43 +12,47 @@ import Row from 'react-bootstrap/Row'
 import Collapse from 'react-bootstrap/Collapse'
 import DashboardAlert from 'react-bootstrap/Alert'
 import { Redirect } from 'react-router-dom'
-import Octicon, { Question, KebabHorizontal, Alert } from '@githubprimer/octicons-react';
+import Octicon, { Question, KebabHorizontal, Alert, DesktopDownload } from '@githubprimer/octicons-react';
 import ActiveRequestService from '../../services/ActiveRequestService';
 import AuthenticationService from '../../services/AuthenticationService';
 import PasswordListService from '../../services/PasswordListService';
+import ChangeLogService from '../../services/ChangeLogService';
 import NotificationService from '../../utils/NotificiationService';
 import Spinner from 'react-bootstrap/Spinner';
 import isElectron from 'is-electron';
 import lsbridge from 'lsbridge'
 import ReactMarkdown from 'react-markdown'
-import axios from 'axios'
 import { version } from '../../utils/AppVersion'
 
 import classes from './Dashboard.module.css'
+
+// Web Workers 
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import Base64Encoder from 'worker-loader!./base64encoder.js';
 
 class Dashboard extends Component {
 
     state = {
         availablePasswordLists: [],
+        base64encoder: null,
 
-        /* Page State */
+        /* Dashboard Alert */
         dashboardAlertConstant: "dashboard-alert-",
+        dashboardAlertContent: null,
         dashboardAlertExpanded: false,
-        dashboardAlertTitle: "",
-        dashboardAlertContent: "",
+
+        /* New Active Request Modal */
         newActiveRequestModalVisible: false,
         newActiveRequestFormValidated: false,
         newActiveRequestFormLoadingStatus: false,
         newActiveRequestErrorMessage: null,
 
-        /* New Active Request State */
+        /* New Active Request */
         newActiveRequestType: "",
         newActiveRequestName: "",
         newActiveRequestMetadata: {},
         newActiveRequestValueToMatchInBase64: "",
-        newActiveRequestNeedsFullClient: null,
-        newActiveRequestCrunchParameters: [],
-        newActiveRequestPasswordLists: [],
+        newActiveRequestTrackedLists: [],
         newActiveRequestErrors: [],
     }
 
@@ -66,17 +70,20 @@ class Dashboard extends Component {
         const toolbar = isElectron() ? <Toolbar navLinks={navLinks} type='electron' /> : <Toolbar navLinks={navLinks} type='web' />
 
         // Build Dashboard Alert
-        const dashboardAlert =
+        const dashboardAlert = this.state.dashboardAlertContent !== null ?
             <DashboardAlert variant="info" style={{ marginBottom: '-1%', marginTop: '2%', flexGrow: '1' }}
-                show={this.state.dashboardAlertContent !== "" && this.state.dashboardAlertTitle !== ""} onClose={this.dimissDashboardAlert} dismissible>
-                <div >
-                    {this.state.dashboardAlertTitle}&nbsp;
-                    <Button style={{ border: 'none' }} size="sm" variant="outline-primary" onClick={this.toggleDashboardAlert}><Octicon icon={KebabHorizontal} /></Button>
-                </div>
-                <Collapse in={this.state.dashboardAlertExpanded}>
-                    <ReactMarkdown source={this.state.dashboardAlertContent.trim()} />
-                </Collapse>
-            </DashboardAlert>
+                show={this.state.dashboardAlertContent !== null} onClose={this.state.dashboardAlertContent.dismiss} dismissible>
+                {this.state.dashboardAlertContent.title !== null ? this.state.dashboardAlertContent.title : null}
+                &nbsp;
+                {this.state.dashboardAlertContent.buttonIcon !== null && this.state.dashboardAlertContent.buttonFunc !== null ?
+                    <Button style={{ border: 'none' }} size="sm" variant="outline-primary" onClick={this.state.dashboardAlertContent.buttonFunc}>
+                        <Octicon icon={this.state.dashboardAlertContent.buttonIcon} />
+                    </Button> : null}
+                {this.state.dashboardAlertContent.detail !== null ?
+                    <Collapse in={this.state.dashboardAlertExpanded}>
+                        <ReactMarkdown source={this.state.dashboardAlertContent.detail.trim()} />
+                    </Collapse> : null}
+            </DashboardAlert> : null
 
         // Build Modal
         const newActiveRequestModal = this.buildModal();
@@ -109,14 +116,14 @@ class Dashboard extends Component {
         let metadataFields = null
         let valueToMatchInBase64Field = null
         switch (this.state.newActiveRequestType) {
-            case 'WPA':
+            case '2500':
                 // Metadata
                 metadataFields =
                     <Col>
-                        <Form.Group className={classes.formGroup} key="SSID">
-                            <Form.Label className={classes.modal_form_label}>SSID</Form.Label>
-                            <Form.Text className="text-muted">Name of the Target Network</Form.Text>
-                            <Form.Control onChange={this.setRequestMetadata} name="SSID" type="text" min="19" max="19" pattern=".*" required />
+                        <Form.Group className={classes.formGroup}>
+                            <Form.Label className={classes.modal_form_label}>Filter On</Form.Label>
+                            <Form.Text className="text-muted">Specify which SSIDs to target</Form.Text>
+                            <Form.Control onChange={this.setRequestMetadata} name="Filter On" type="text" placeholder="SSID-1,SSID-2 (optional)" pattern=".*" />
                             <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
                         </Form.Group>
                     </Col>
@@ -124,47 +131,23 @@ class Dashboard extends Component {
                     <Col>
                         <Form.Group className={classes.formGroup}>
                             <Form.Label className={classes.modal_form_label}>Packet Capture File</Form.Label>
-                            <Form.Text className="text-muted"> Must be in pcap or cap format. Max 50mb</Form.Text>
-                            <Form.Control onChange={this.setValueToMatchInBase64} name="file" type="file" required></Form.Control>
+                            <Form.Text className="text-muted">Cap/Pcap or Hccapx (Max 50mb)</Form.Text>
+                            <Form.Control onChange={this.postValueToMatchToEncoder} name="file" type="file" required></Form.Control>
                             <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
                         </Form.Group>
                     </Col>
                 break;
-            case 'NTLM':
-                valueToMatchInBase64Field =
-                    <Col>
-                        <Form.Group className={classes.formGroup}>
-                            <Form.Label className={classes.modal_form_label}>NTLM (NT Hash)</Form.Label>
-                            <Form.Text className="text-muted"> Case Agnostic </Form.Text>
-                            <Form.Control onChange={this.setValueToMatchInBase64} name="text" type="text" required></Form.Control>
-                            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
-                        </Form.Group>
-                    </Col>
-                break;
+            // TODO : ADD More
             default:
                 metadataFields = null
                 valueToMatchInBase64Field = null
         }
 
-        // Password Lists
-        const passwordLists = this.state.newActiveRequestPasswordLists.map(passwordList => {
-            return (<Button key={passwordList} className={classes.newRequestParameterPill}
-                onClick={() => this.removePasswordList(passwordList)}>{passwordList}</Button>);
+        // Tracked Lists
+        const trackedLists = this.state.newActiveRequestTrackedLists.map(trackedList => {
+            return (<Button key={trackedList} className={classes.newRequestTrackedListPill} variant="secondary"
+                onClick={() => this.removeTrackedList(trackedList)}>{trackedList}</Button>);
         })
-
-        // Crunch Parameters
-        const crunchParameters = this.state.newActiveRequestCrunchParameters.map(crunchParameter => {
-            let key = crunchParameter.min + " " + crunchParameter.max + " " + crunchParameter.characters;
-            if (crunchParameter.pattern !== null && crunchParameter.pattern !== "") {
-                key = key + " -t " + crunchParameter.pattern
-            }
-            if (crunchParameter.start !== null && crunchParameter.start !== "") {
-                key = key + " -s " + crunchParameter.start
-            }
-            return (<Button key={key} className={classes.newRequestParameterPill}
-                onClick={() => this.removeCrunchParameter(crunchParameter.min, crunchParameter.max, crunchParameter.characters,
-                    crunchParameter.pattern, crunchParameter.startString)}>{key}</Button>)
-        });
 
         // Error Message
         let errorMessage = null;
@@ -172,7 +155,7 @@ class Dashboard extends Component {
             errorMessage =
                 <div className={classes.errorMessage}>
                     <Octicon icon={Alert} />
-                    <strong>{this.state.newActiveRequestErrorMessage}
+                    <strong>{this.state.newActiveRequestErrorMessage}&nbsp;
                     Learn more in the <a href="https://kraken.work/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section.</strong>
                 </div>
         }
@@ -181,7 +164,7 @@ class Dashboard extends Component {
         let submitButton = null
         if (this.state.newActiveRequestFormLoadingStatus) {
             submitButton =
-                <Button variant="primary">
+                <Button variant="primary" disabled>
                     <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                 </Button>
         }
@@ -195,25 +178,23 @@ class Dashboard extends Component {
                 show={this.state.newActiveRequestModalVisible} onHide={this.closeNewActiveRequestModal} centered >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        Create New Request&nbsp;
-                        <a href="https://kraken.work/help#how-to"
-                            target="_blank" rel="noopener noreferrer">
-                            <Octicon icon={Question} />
-                        </a>
+                        Create New Request
+                        &nbsp;
+                        <a href="https://kraken.work/help#how-to" target="_blank" rel="noopener noreferrer"> <Octicon icon={Question} /></a>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
 
-                    {/* Main Form */}
+                    {/* Request Detail Section */}
                     <Form id="main-form" onSubmit={this.submitNewActiveRequestModal} validated={this.state.newActiveRequestFormValidated}>
                         <Row>
                             <Col>
                                 <Form.Group className={classes.formGroup}>
                                     <Form.Label className={classes.modal_form_label}>Name</Form.Label>
                                     <Form.Text className="text-muted">
-                                        Give your request a friendly name (max 40 characters)
+                                        Give your request a friendly name (max 30 characters)
                                     </Form.Text>
-                                    <Form.Control name="name" onChange={this.setRequestName} type="text" minLength="1" maxLength="40" required />
+                                    <Form.Control name="name" onChange={this.setRequestName} type="text" minLength="1" maxLength="30" required />
                                     <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
@@ -225,7 +206,7 @@ class Dashboard extends Component {
                                     </Form.Text>
                                     <Form.Control name="requestType" onChange={this.setRequestType} as="select" required>
                                         <option disabled selected>Choose...</option>
-                                        <option value="WPA">WPA/WPA2</option>
+                                        <option value="2500">WPA/WPA2 (Cap or Hccapx)</option>
                                         {/* <option value="NTLM">NTLM</option> */}
                                     </Form.Control>
                                     <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
@@ -238,7 +219,18 @@ class Dashboard extends Component {
                         </Row>
                     </Form>
 
-                    {/* Password List Form */}
+                    {/* Tracked Lists Section */}
+                    <Form>
+                        <Form.Group className={classes.formGroup}>
+                            <Form.Label className={classes.modal_form_label}>Tracked Lists</Form.Label>
+                            <div className={classes.newRequestTrackedListBox}>
+                                {trackedLists}
+                            </div>
+                        </Form.Group>
+                    </Form>
+
+
+                    {/* Password List Section */}
                     <Form onSubmit={this.addPasswordList}>
                         <Form.Group className={classes.formGroup}>
                             <Form.Label className={classes.modal_form_label}>
@@ -247,13 +239,6 @@ class Dashboard extends Component {
                             <Form.Text className="text-muted">
                                 Add password list using the input below. Remove them by clicking on the pill
                             </Form.Text>
-                            <Row>
-                                <Col sm="12">
-                                    <div className={classes.newRequestParameterBox}>
-                                        {passwordLists}
-                                    </div>
-                                </Col>
-                            </Row>
                             <Row>
                                 <Col sm="9">
                                     <Form.Control name="passwordLists" as="select">
@@ -268,7 +253,7 @@ class Dashboard extends Component {
                         </Form.Group>
                     </Form>
 
-                    {/* Crunch Form */}
+                    {/* Crunch Parameter Section */}
                     <Form onSubmit={this.addCrunchParameter}>
                         <Form.Group className={classes.formGroup}>
                             <Form.Label className={classes.modal_form_label}>
@@ -281,13 +266,6 @@ class Dashboard extends Component {
                             <Form.Text className="text-muted">
                                 Add crunch parameters using the inputs below. Remove them by clicking on the pill
                             </Form.Text>
-                            <Row>
-                                <Col sm="12">
-                                    <div className={classes.newRequestParameterBox}>
-                                        {crunchParameters}
-                                    </div>
-                                </Col>
-                            </Row>
                             <Row>
                                 <Col sm="3">
                                     <Form.Control name="min" type="number" placeholder="min" min="1" max="12" required />
@@ -331,6 +309,7 @@ class Dashboard extends Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {errorMessage}
+                    <Button variant="outline-warning" onClick={this.clearNewActiveRequestVariables}>Clear</Button>
                     <Button variant="secondary" onClick={this.closeNewActiveRequestModal}>Close</Button>
                     {submitButton}
                 </Modal.Footer>
@@ -338,32 +317,65 @@ class Dashboard extends Component {
     }
 
     componentDidMount = () => {
-        this.getChangeLog();
+        this.showDashboardAlert();
     }
 
-    getChangeLog = async () => {
-        const readme = await axios.get('https://raw.githubusercontent.com/arcaneiceman/kraken-client/master/README.md')
-        const segments = readme.data.split("####");
-        segments.shift(); // Remove First Item
-        const changeLog = segments.find(segment => segment.startsWith(" " + version))
-        if (changeLog !== null && changeLog !== undefined && localStorage.getItem(this.state.dashboardAlertConstant + version) == null)
-            this.promisedSetState({ dashboardAlertTitle: "Explore whats new in v" + version, dashboardAlertContent: changeLog.substring(changeLog.indexOf("\n") + 1) })
+    logout = async () => {
+        try { await AuthenticationService.logout(); }
+        finally { this.props.history.push('/login'); }
+    }
+
+    showDashboardAlert = async () => {
+        const changeLog = await ChangeLogService.getLatestChangeLog()
+        if (!changeLog.startsWith(version))
+            this.promisedSetState({
+                dashboardAlertContent: {
+                    title: "New version of Kraken has been released!",
+                    dismiss: this.dismissDashboardAlertWithoutEntry,
+                    buttonIcon: DesktopDownload,
+                    buttonFunc: this.updateClient,
+                    detail: null,
+                }
+            })
+        else
+            if (localStorage.getItem(this.state.dashboardAlertConstant + version) == null)
+                this.promisedSetState({
+                    dashboardAlertContent: {
+                        title: "Explore whats new in v" + version,
+                        dismiss: this.dimissDashboardAlertWithEntry,
+                        buttonIcon: KebabHorizontal,
+                        buttonFunc: this.toggleDashboardAlert,
+                        detail: changeLog.substring(changeLog.indexOf("\n") + 1)
+                    }
+                })
     }
 
     toggleDashboardAlert = async () => {
         this.promisedSetState({ dashboardAlertExpanded: !this.state.dashboardAlertExpanded })
     }
 
-    dimissDashboardAlert = async () => {
+    dimissDashboardAlertWithEntry = async () => {
         Object.entries(localStorage).filter(entry => entry[0].includes(this.state.dashboardAlertConstant)).forEach(entry => localStorage.removeItem(entry[0]))
         localStorage.setItem(this.state.dashboardAlertConstant + version, true)
-        this.promisedSetState({ dashboardAlertContent: "" })
+        this.dismissDashboardAlertWithoutEntry();
+    }
+
+    dismissDashboardAlertWithoutEntry = async () => {
+        this.promisedSetState({ dashboardAlertContent: null })
+    }
+
+    updateClient = async () => {
+        if (isElectron())
+            window.open("https://github.com/arcaneiceman/kraken-client/releases")
+        else
+            window.location.reload(true);
     }
 
     launchNewActiveRequestModal = async () => {
         try {
             const response = await PasswordListService.getPasswordLists()
             await this.promisedSetState({
+                base64encoder: new Base64Encoder(),
                 availablePasswordLists: response.data.content,
                 newActiveRequestModalVisible: true
             });
@@ -373,147 +385,92 @@ class Dashboard extends Component {
         }
     }
 
+    closeNewActiveRequestModal = () => {
+        this.state.base64encoder.terminate();
+        this.setState({
+            /* Page State */
+            base64encoder: null,
+            newActiveRequestModalVisible: false,
+            newActiveRequestFormValidated: false,
+            newActiveRequestErrorMessage: null,
+        })
+    }
+
+    clearNewActiveRequestVariables = async () => {
+        this.promisedSetState({
+            newActiveRequestType: "",
+            newActiveRequestName: "",
+            newActiveRequestMetadata: {},
+            newActiveRequestValueToMatchInBase64: "",
+            newActiveRequestTrackedLists: [],
+            newActiveRequestErrors: [],
+        })
+    }
+
     submitNewActiveRequestModal = async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
-
-        // Check Form Validiy
         if (!form.checkValidity())
             return
-
         try {
             await this.promisedSetState({ newActiveRequestFormValidated: true, newActiveRequestErrorMessage: null, newActiveRequestFormLoadingStatus: true })
             await ActiveRequestService.createActiveRequest(
                 this.state.newActiveRequestType,
                 this.state.newActiveRequestName,
-                JSON.stringify(this.state.newActiveRequestMetadata),
+                this.state.newActiveRequestMetadata,
                 this.state.newActiveRequestValueToMatchInBase64,
-                this.state.newActiveRequestPasswordLists == null ? [] : this.state.newActiveRequestPasswordLists,
-                this.state.newActiveRequestCrunchParameters == null ? [] : this.state.newActiveRequestCrunchParameters)
+                this.state.newActiveRequestTrackedLists)
             this.closeNewActiveRequestModal();
+            this.clearNewActiveRequestVariables();
             lsbridge.send('active-requests');
         }
         catch (error) {
-            await this.promisedSetState({ newActiveRequestFormValidated: false, newActiveRequestErrorMessage: error.response.data.message})
+            await this.promisedSetState({ newActiveRequestFormValidated: false, newActiveRequestErrorMessage: error.response.data.message })
         }
         finally {
             await this.promisedSetState({ newActiveRequestFormLoadingStatus: false })
         }
     }
 
-    closeNewActiveRequestModal = () => {
-        this.setState({
-            /* Page State */
-            newActiveRequestModalVisible: false,
-            newActiveRequestFormValidated: false,
-            newActiveRequestErrorMessage: null,
-
-            /* New Active Request State */
-            newActiveRequestType: "",
-            newActiveRequestName: "",
-            newActiveRequestMetadata: {},
-            newActiveRequestValueToMatchInBase64: "",
-            newActiveRequestCrunchParameters: [],
-            newActiveRequestPasswordLists: []
-        })
-    }
-
-    logout = async () => {
-        try {
-            await AuthenticationService.logout();
-        }
-        finally {
-            this.props.history.push('/login');
-        }
-    }
-
     addCrunchParameter = (event) => {
         event.preventDefault();
         const form = event.currentTarget;
-        const crunchParams = this.state.newActiveRequestCrunchParameters;
-        var newCrunchParam = {
-            min: form.elements["min"].value,
-            max: form.elements["max"].value,
-            characters: form.elements["characters"].value,
-            pattern: form.elements["pattern"].value,
-            start: form.elements["start"].value
-        }
-        let found = crunchParams.find(element => {
-            return (element.min === newCrunchParam.min &&
-                element.max === newCrunchParam.max &&
-                element.characters === newCrunchParam.characters &&
-                element.pattern === newCrunchParam.pattern &&
-                element.start === newCrunchParam.start);
-        })
-        if (!found) {
-            crunchParams.push(newCrunchParam);
-            this.setState({ newActiveRequestCrunchParameters: crunchParams });
-        }
+        let listName = "crunch " + form.elements["min"].value + " " + form.elements["max"].value + " " + form.elements["characters"].value
+        if (form.elements["pattern"].value !== undefined && form.elements["pattern"].value !== null && form.elements["pattern"].value !== "")
+            listName = listName + " -t " + form.elements["pattern"].value
+        if (form.elements["start"].value !== undefined && form.elements["start"].value !== null && form.elements["start"].value !== "")
+            listName = listName + " -s " + form.elements["start"].value
+        this.addTrackedList(listName);
         form.reset();
     }
 
     addAllCrunchParameter = () => {
-        const crunchParams = this.state.newActiveRequestCrunchParameters;
-        var newCrunchParam = {
-            min: 1,
-            max: 12,
-            characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
-            pattern: null,
-            start: null,
-        }
-        let found = crunchParams.find(element => {
-            return (element.min === newCrunchParam.min &&
-                element.max === newCrunchParam.max &&
-                element.characters === newCrunchParam.characters &&
-                element.pattern === newCrunchParam.pattern &&
-                element.start === newCrunchParam.start);
-        })
-        if (!found) {
-            crunchParams.push(newCrunchParam);
-            this.setState({ newActiveRequestCrunchParameters: crunchParams });
-        }
-    }
-
-    removeCrunchParameter = (min, max, characters, pattern, start) => {
-        const crunchParams = this.state.newActiveRequestCrunchParameters;
-        const result = crunchParams.filter(element => {
-            return !(element.min === min &&
-                element.max === max &&
-                element.characters === characters &&
-                element.pattern === pattern &&
-                element.start === start)
-        })
-        this.setState({ newActiveRequestCrunchParameters: result });
+        this.addTrackedList("crunch 1 12 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     }
 
     addPasswordList = (event) => {
         event.preventDefault();
         const form = event.currentTarget;
-        const passwordLists = this.state.newActiveRequestPasswordLists;
-        let passwordList = form.elements["passwordLists"].value.replace(/ *\([^)]*\) */g, "");;
-        if (!passwordLists.includes(passwordList) && passwordList !== 'Choose...') {
-            passwordLists.push(passwordList);
-            this.setState({ newActiveRequestPasswordLists: passwordLists });
-        }
+        this.addTrackedList(form.elements["passwordLists"].value.replace(/ *\([^)]*\) */g, ""))
         form.reset();
     }
 
     addAllPasswordLists = () => {
-        const passwordLists = this.state.newActiveRequestPasswordLists;
-        this.state.availablePasswordLists.forEach(availablePasswordList => {
-            if (!passwordLists.includes(availablePasswordList.name)) {
-                passwordLists.push(availablePasswordList.name);
-            }
-        })
-        this.setState({ newActiveRequestPasswordLists: passwordLists });
+        this.state.availablePasswordLists.forEach(availablePasswordList => { this.addTrackedList(availablePasswordList.name) })
     }
 
-    removePasswordList = (passwordList) => {
-        const passwordLists = this.state.newActiveRequestPasswordLists;
-        const result = passwordLists.filter(element => {
-            return !(element === passwordList);
-        })
-        this.setState({ newActiveRequestPasswordLists: result });
+    addTrackedList = (listName) => {
+        const trackedLists = this.state.newActiveRequestTrackedLists;
+        if (!trackedLists.includes(listName) && listName !== 'Choose...') {
+            trackedLists.push(listName);
+            this.setState({ newActiveRequestTrackedLists: trackedLists });
+        }
+    }
+
+    removeTrackedList = (listName) => {
+        const trackedLists = this.state.newActiveRequestTrackedLists;
+        const result = trackedLists.filter(element => { return !(element === listName); })
+        this.setState({ newActiveRequestTrackedLists: result });
     }
 
     setRequestName = (event) => {
@@ -526,9 +483,7 @@ class Dashboard extends Component {
 
     setRequestMetadata = (event) => {
         const metadata = this.state.newActiveRequestMetadata;
-        let fieldname = event.target.name;
-        let value = event.target.value;
-        metadata[fieldname] = value;
+        metadata[event.target.name] = event.target.value;
         this.setState({ newActiveRequestMetadata: metadata });
     }
 
@@ -551,6 +506,22 @@ class Dashboard extends Component {
             default:
                 console.log("error");
         }
+    }
+
+    postValueToMatchToEncoder = (event) => {
+        this.state.base64encoder.removeEventListener("message", this.retrieveValueToMatchFromEncoder, true);
+        this.state.base64encoder.addEventListener("message", this.retrieveValueToMatchFromEncoder, true);
+        let valueToMatch = event.target.type === "file" ? event.target.files[0] : event.target.value;
+        this.state.base64encoder.postMessage({ type: event.target.name, valueToMatch: valueToMatch })
+        this.promisedSetState({ newActiveRequestFormLoadingStatus: true })
+    }
+
+    retrieveValueToMatchFromEncoder = (message) => {
+        this.state.base64encoder.removeEventListener("message", this.retrieveValueToMatchFromEncoder, true);
+        this.setState({
+            newActiveRequestValueToMatchInBase64: message.data.valueToMatchInBase64,
+            newActiveRequestFormLoadingStatus: false
+        });
     }
 
     promisedSetState = (newState) => {
