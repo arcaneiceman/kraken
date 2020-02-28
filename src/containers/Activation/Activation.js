@@ -136,7 +136,6 @@ class Activation extends Component {
     }
 
     submitActivationCode = async (event) => {
-        debugger;
         event.preventDefault();
         const form = event.currentTarget;
 

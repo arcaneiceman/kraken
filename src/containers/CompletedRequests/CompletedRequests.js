@@ -60,7 +60,7 @@ class CompletedRequests extends Component {
                     <td className={classes.tableItem}><strong>{completedRequest.requestName}</strong></td>
                     <td className={classes.tableItem}>{completedRequest.status}</td>
                     <td className={classes.tableItem}>{completedRequest.totalJobCount} / {completedRequest.completedJobCount} / {completedRequest.errorJobCount}</td>
-                    <td className={classes.tableItem}>{completedRequest.value === null ? 'Not Found' : <strong>{completedRequest.value}</strong>}</td>
+                    <td className={classes.tableItem}>{completedRequest.result}</td>
                     <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}
                         onClick={(event) => { event.stopPropagation(); this.openDeleteConfirmationModal(completedRequest) }}>
                         <Octicon icon={Trashcan} />
@@ -181,6 +181,20 @@ class CompletedRequests extends Component {
                                         );
                                     })}</div>
                             </div>
+                            <div className={classes.detailModalRequestMetadataContainer} >
+                                <h3 className={classes.detailModalHeading}>Results</h3>
+                                <Table className={classes.detailModalRequestMetadataTable} style={{ marginBottom: '0rem' }} borderless size="sm">
+                                    <tbody>
+                                        {Object.keys(this.state.detailModalCompletedRequest.results).map(key => {
+                                            return (
+                                                <tr key={key}>
+                                                    <td style={{ width: '25%' }} className={classes.tableItem}><strong>{key}</strong></td>
+                                                    <td className={classes.tableItem}>{this.state.detailModalCompletedRequest.results[key]}</td>
+                                                </tr>);
+                                        })}
+                                    </tbody>
+                                </Table>
+                            </div>
                         </div>
                     </Modal.Body>
                 </Modal>
@@ -298,11 +312,6 @@ class CompletedRequests extends Component {
     listCompleteRequests = async () => {
         try {
             const response = await CompleteRequestService.listCompleteRequests(this.state.currentPage, this.state.pageSize)
-            response.data.content.forEach(completeRequest => {
-                completeRequest.totalJobCount = completeRequest.trackedLists.map(trackedList => trackedList.totalJobCount).reduce((acc, value) => acc + value, 0);
-                completeRequest.completedJobCount = completeRequest.trackedLists.map(trackedList => trackedList.completedJobCount).reduce((acc, value) => acc + value, 0);
-                completeRequest.errorJobCount = completeRequest.trackedLists.map(trackedList => trackedList.errorJobCount).reduce((acc, value) => acc + value, 0);
-            })
             await this.promisedSetState({
                 completedRequests: response.data.content,
                 totalPages: response.data.totalPages === 0 ? 1 : response.data.totalPages,
@@ -314,17 +323,17 @@ class CompletedRequests extends Component {
     }
 
     deleteCompletedRequest = async () => {
-        if (this.state.deleteConfirmationId !== null) {
+        if (this.state.deleteConfirmationModalCompletedRequest !== null) {
             try {
                 await this.promisedSetState({ loadingStatus: "PROGRESS" })
-                await CompleteRequestService.deleteCompleteRequest(this.state.deleteConfirmationId)
+                await CompleteRequestService.deleteCompleteRequest(this.state.deleteConfirmationModalCompletedRequest.id)
                 lsbridge.send('complete-requests');
             }
             catch (error) {
                 NotificationService.showNotification(error.response.data.message, false)
             }
             finally {
-                await this.promisedSetState({ loadingStatus: null, deleteConfirmationId: null })
+                await this.promisedSetState({ loadingStatus: null, deleteConfirmationModalCompletedRequest: null })
             }
         }
     }

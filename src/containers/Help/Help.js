@@ -151,13 +151,13 @@ class Help extends Component {
                     <p>
                         The brower client does not need installation and can be run directly from a Chrome, Firefox and Safari Browser.
                         <br />
-                        <strong>Note: </strong> The broswer client is <strong>significantly</strong> slower than the deskop based client since it does not use the GPU.
+                        <strong>Note: </strong> The browser client is <strong>significantly</strong> slower than the deskop based client since it does not use the GPU.
                     </p>
                     <br />
 
                     <h5>Desktop Client</h5>
                     <p>
-                        The desktop client is packaged for Windows, Mac and Linux. The application runs inside an electron shell packaging the contents of the broswer app
+                        The desktop client is packaged for Windows, Mac and Linux. The application runs inside an electron shell packaging the contents of the browser app
                         with nodejs integration and uses <a href="https://hashcat.net/" target="_blank" rel="noopener noreferrer">Hashcat</a> for cracking.
                         <strong>Note: </strong> The app has node integration enabled to access local resources but sets itself as the only source of scripts.
                         All client code is available on Github.
@@ -283,12 +283,12 @@ class Help extends Component {
 
                         <h5>Step 4</h5>
                         A new request should have been created in the active request column. Now click the start worker button to create a worker. The worker will be assinged a random name
-                        and should be visible in "Your Workers" column. If you have an active request, the worker will automatically fetch jobs from the server and start processing them.
+                        and should be visible in "Total Workers" column. If you have an active request, the worker will automatically fetch jobs from the server and start processing them.
                         <img src={StartWorkerButton} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
                         <img src={Worker} alt="" style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', objectFit: 'scale-down', width: '50%' }} />
                         In the browser client, workers run within the browser with cracking being performed in Javascript and hence is much slower than the desktop client.
                         If you close the tab in which the worker is running, the worker will go offline. In the desktop client, cracking is performed by Hashcat which can utilize
-                        the machine's CPU and other hardware like GPU and is <strong>much faster</strong>.
+                        the machine's CPU and GPU so its <strong>much faster</strong>.
                         <br />  
 
                         <br /> 
@@ -296,16 +296,17 @@ class Help extends Component {
 
                         <h5>What does Kraken do exactly?</h5>     
                         Kraken attempts to solve two key issues with brute-force password cracking. First, it lowers the barrier to entry by allowing users to crack passwords 
-                        without having to install anything directly through their broswer (You can choose to install the faster local client) or download massive password lists 
-                        on their machine. Second, it distributes workloads over multiple user provided machines and provides fault-tolerance so users are not forced to crack on a single machine and can scale their cracking 
-                        operation based on how they see fit.  
+                        without having to install anything directly through their browser or a simple local client. No more downloading massive password lists! Second, 
+                        it distributes workloads over multiple user-provided machines so you are not forced to crack on a single machine and can scale your cracking operation 
+                        based on how you see fit. Kraken is fault-tolerant too so if a worker goes offline while processing a job, the job is tracked and recovered and given to
+                        another worker.
                         <br /> 
 
                         <br /> 
-                        <h5>Do I need multiple workers (broswer windows) to use my multi-core machine more efficiently?</h5>
+                        <h5>Do I need multiple workers (browser windows) to use my multi-core machine more efficiently?</h5>
                         Kraken provides the ability to adjust the number of cores it uses on a single browser window so you do not need to open multiple tabs and run workers on them.
                         By default, Kraken will use [total core count of your machine] -1 cores. Hence, if your computer has an 8 core machine, by default Kraken will use 7 cores to 
-                        crack so that the last core is free process UI changes and other tasks on your machine.
+                        crack so that the last core is free process UI changes and other tasks on your machine. You can lower this based on what on what you see fit.
                         <br /> 
 
                         <br /> 
@@ -315,16 +316,21 @@ class Help extends Component {
                         <br /> 
 
                         <br /> 
-                        <h5>Why do you have node integration on in the local client?</h5>
-                        The local app needs access to your machine's terminal which needs node integration to run hashcat. This is why the local app's script
-                        policy is 'self' only packaged code and nothing else can be executed. Also, all of Kraken client code is available on Github for you to vet.
+                        <h5>Why do you have node integration enabled on in the local client (electron app)?</h5>
+                        The local app needs access to your machine's terminal to run hashcat. This is why the local app's script
+                        policy is 'self' only packaged code and nothing else can be executed. Also, all of Kraken client code is available on Github for you to check and test.
                         <br /> 
 
                         <br /> 
-                        <h5>Why does Kraken say that it could not validate the packet capture?</h5>
-                        Kraken uses cap2hccapx from hashcat-utils to validate your packet capture. Use 
-                        the <a href="https://www.onlinehashcrack.com/tools-cap-to-hccapx-converter.php" target="_blank" rel="noopener noreferrer">online tool</a> to verify it
-                        if it is giving you trouble. I'll soon be adding direct hashes as part of the request so you can extract the PMK and other values yourself.
+                        <h5>Why does Kraken says "0 targets matched criteria"</h5>
+                        It means that target SSID you specified in the filter was not found in your capture. Kraken uses cap2hccapx from hashcat-utils to validate your packet capture. 
+                        Use the <a href="https://www.onlinehashcrack.com/tools-cap-to-hccapx-converter.php" target="_blank" rel="noopener noreferrer">online tool</a> to verify it
+                        if it is giving you trouble. I'll soon be adding direct hashes as part of the request so you can extract the PMK and other values yourself in a file.
+                        <br /> 
+
+                        <br /> 
+                        <h5>Why does Kraken "Unexpected fixed contents"</h5>
+                        Are you sure you uploaded a cap/pcap/hccapx file. Be honest. Kraken certainly doesnt think so.
                         <br /> 
                     </p>
                     <br />
@@ -333,7 +339,7 @@ class Help extends Component {
                         <h3>Supported Algorithms</h3>
                     </div>
                     <p>
-                        Currently Kraken supports only WPA/WPA2 only. We intend on adding more algorithms to it including NTLM.
+                        Currently Kraken supports only WPA/WPA2 only. I intend on adding more algorithms but first I want to focus on WPA/WPA2
                     </p>
                     <br />
 
@@ -359,7 +365,7 @@ class Help extends Component {
                         <strong>Disclaimer : </strong> THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE CAUSED BY THE (MIS)USE OF THIS SOFTWARE!
                         <br />
                         This tool is meant for enthusiasts to attempt to break into system they control to learn pentration testing and do not want to go through the hassle of setting up their
-                        own cracking cluster
+                        own cracking cluster.
                     </p>
                     <br />
 
@@ -381,7 +387,7 @@ class Help extends Component {
                         I would like to give a shout out to the following teams/people that helped me make this possible in no particular order.
                         <ul>
                             <li><strong><a href="https://github.com/derv82" target="_blank" rel="noopener noreferrer">Derv82</a></strong></li>
-                            <li><strong><a href="http://ttt.studio/" target="_blank" rel="noopener noreferrer" >TTT</a></strong></li>
+                            <li><strong><a href="http://ttt.studio/" target="_blank" rel="noopener noreferrer" >TTT Studios</a></strong></li>
                             <li>All others who write amazing code to make all this possible</li>
                         </ul>
                     </p>
@@ -393,8 +399,7 @@ class Help extends Component {
                     <p>
                         Hi there! If you would like to contribute $1 or more for the smooth running of Kraken, it would be greatly appreciated.
                         If only a 100 people dontate, I could keep kraken running for 6 months! Any amount raised above the running costs will
-                        be used to buy better infrastructure! If anyone has good/cheeper infrastructure suggestions, please feel free to email
-                        me at <a href="mailto:waliusmani@gmail.com">waliusmani[AT]gmail[DOT]com</a>. Thank you!
+                        be used to buy better infrastructure! Thank you!
                         <div className={classes.donationContainer}>
                             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
                                 <input type="hidden" name="cmd" value="_donations" />

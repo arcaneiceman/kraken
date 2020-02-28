@@ -207,6 +207,20 @@ class ActiveRequests extends Component {
                                         );
                                     })}</div>
                             </div>
+                            <div className={classes.detailModalRequestMetadataContainer} >
+                                <h3 className={classes.detailModalHeading}>Current Results</h3>
+                                <Table className={classes.detailModalRequestMetadataTable} style={{ marginBottom: '0rem' }} borderless size="sm">
+                                    <tbody>
+                                        {Object.keys(this.state.detailModalActiveRequest.results).map(key => {
+                                            return (
+                                                <tr key={key}>
+                                                    <td style={{ width: '25%' }} className={classes.tableItem}><strong>{key}</strong></td>
+                                                    <td className={classes.tableItem}>{this.state.detailModalActiveRequest.results[key]}</td>
+                                                </tr>);
+                                        })}
+                                    </tbody>
+                                </Table>
+                            </div>                
                         </div>
                     </Modal.Body>
                 </Modal>
@@ -326,11 +340,6 @@ class ActiveRequests extends Component {
     listActiveRequests = async () => {
         try {
             const response = await ActiveRequestService.listActiveRequests(this.state.currentPage, this.state.pageSize)
-            response.data.content.forEach(activeRequest => {
-                activeRequest.totalJobCount = activeRequest.trackedLists.map(trackedList => trackedList.totalJobCount).reduce((acc, value) => acc + value, 0);
-                activeRequest.completedJobCount = activeRequest.trackedLists.map(trackedList => trackedList.completedJobCount).reduce((acc, value) => acc + value, 0);
-                activeRequest.errorJobCount = activeRequest.trackedLists.map(trackedList => trackedList.errorJobCount).reduce((acc, value) => acc + value, 0);
-            })
             await this.promisedSetState({
                 activeRequests: response.data.content,
                 totalPages: response.data.totalPages === 0 ? 1 : response.data.totalPages,

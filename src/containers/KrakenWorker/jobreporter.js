@@ -8,7 +8,7 @@ self.onmessage = (e) => {
             listId: e.data.listId,
             jobId: e.data.jobId,
             trackingStatus: e.data.trackingStatus,
-            result: e.data.result,
+            results: e.data.results,
         }
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", process.env.REACT_APP_API_URL + e.data.path, false);

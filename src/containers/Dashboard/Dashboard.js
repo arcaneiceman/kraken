@@ -26,15 +26,10 @@ import { version } from '../../utils/AppVersion'
 
 import classes from './Dashboard.module.css'
 
-// Web Workers 
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import Base64Encoder from 'worker-loader!./base64encoder.js';
-
 class Dashboard extends Component {
 
     state = {
         availablePasswordLists: [],
-        base64encoder: null,
 
         /* Dashboard Alert */
         dashboardAlertConstant: "dashboard-alert-",
@@ -132,7 +127,7 @@ class Dashboard extends Component {
                         <Form.Group className={classes.formGroup}>
                             <Form.Label className={classes.modal_form_label}>Packet Capture File</Form.Label>
                             <Form.Text className="text-muted">Cap/Pcap or Hccapx (Max 50mb)</Form.Text>
-                            <Form.Control onChange={this.postValueToMatchToEncoder} name="file" type="file" required></Form.Control>
+                            <Form.Control onChange={this.setValueToMatchInBase64} type="file" required></Form.Control>
                             <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
                         </Form.Group>
                     </Col>
@@ -375,7 +370,6 @@ class Dashboard extends Component {
         try {
             const response = await PasswordListService.getPasswordLists()
             await this.promisedSetState({
-                base64encoder: new Base64Encoder(),
                 availablePasswordLists: response.data.content,
                 newActiveRequestModalVisible: true
             });
@@ -386,10 +380,8 @@ class Dashboard extends Component {
     }
 
     closeNewActiveRequestModal = () => {
-        this.state.base64encoder.terminate();
         this.setState({
             /* Page State */
-            base64encoder: null,
             newActiveRequestModalVisible: false,
             newActiveRequestFormValidated: false,
             newActiveRequestErrorMessage: null,
@@ -414,6 +406,7 @@ class Dashboard extends Component {
             return
         try {
             await this.promisedSetState({ newActiveRequestFormValidated: true, newActiveRequestErrorMessage: null, newActiveRequestFormLoadingStatus: true })
+            await new Promise(resolve => setTimeout(resolve, 500));
             await ActiveRequestService.createActiveRequest(
                 this.state.newActiveRequestType,
                 this.state.newActiveRequestName,
@@ -487,41 +480,21 @@ class Dashboard extends Component {
         this.setState({ newActiveRequestMetadata: metadata });
     }
 
-    setValueToMatchInBase64 = (event) => {
-        let type = event.target.name;
-        switch (type) {
-            case "file":
-                new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                    reader.readAsBinaryString(event.target.files[0]);
-                }).then((data) => {
-                    this.setState({ newActiveRequestValueToMatchInBase64: btoa(data) });
-                })
-                break;
-            case "text":
-                this.setState({ newActiveRequestValueToMatchInBase64: btoa(event.target.value) });
-                break;
-            default:
-                console.log("error");
-        }
-    }
-
-    postValueToMatchToEncoder = (event) => {
-        this.state.base64encoder.removeEventListener("message", this.retrieveValueToMatchFromEncoder, true);
-        this.state.base64encoder.addEventListener("message", this.retrieveValueToMatchFromEncoder, true);
-        let valueToMatch = event.target.type === "file" ? event.target.files[0] : event.target.value;
-        this.state.base64encoder.postMessage({ type: event.target.name, valueToMatch: valueToMatch })
-        this.promisedSetState({ newActiveRequestFormLoadingStatus: true })
-    }
-
-    retrieveValueToMatchFromEncoder = (message) => {
-        this.state.base64encoder.removeEventListener("message", this.retrieveValueToMatchFromEncoder, true);
-        this.setState({
-            newActiveRequestValueToMatchInBase64: message.data.valueToMatchInBase64,
-            newActiveRequestFormLoadingStatus: false
-        });
+    setValueToMatchInBase64 = async (event) => {
+        const type = event.target.type
+        let valueToMatch = type === "file" ? event.target.files[0] : event.target.value;
+        if (valueToMatch === null || valueToMatch === 'undefined' || valueToMatch === "")
+            return;
+        await this.promisedSetState({ newActiveRequestFormLoadingStatus: true })
+        if (type === "file")
+            valueToMatch = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsBinaryString(valueToMatch)
+            })
+        valueToMatch = btoa(valueToMatch)
+        await this.promisedSetState({ newActiveRequestValueToMatchInBase64: valueToMatch, newActiveRequestFormLoadingStatus: false });
     }
 
     promisedSetState = (newState) => {
@@ -531,6 +504,15 @@ class Dashboard extends Component {
             });
         });
     }
+
+    readFileAsync = (file) => {
+        new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsBinaryString(file);
+                })
+      }
 
 }
 

@@ -1,4 +1,5 @@
-import Crack from './utils/WPA/Crack';
+import Hccapx from './utils/WPA/HccapxFile'
+import KaitaiStream from 'kaitai-struct/KaitaiStream'
 
 let fs, exec, promisify, writeFile, readFile, deleteFile
 if (window.require) {
@@ -15,47 +16,28 @@ const JobCrackerLocal = (webWorkerId, callback) => {
 
     const postMessage = async (message) => {
         console.debug("Cracker received job with id " + message.jobId)
-        let returnObject = { data: { jobId: message.jobId, crackingStatus: null, result: null, error: null } }
+        let returnObject = { data: { jobId: message.jobId, chunkNo: message.chunkNo, result: {}, error: null } }
         const candidateValueFileName = getTmpFilePath('kraken-candidate-values')
         const valueToMatchFileName = getTmpFilePath('kraken-value-to-match')
         const outFileName = getTmpFilePath('kraken-out')
+        const mode = message.requestType;
         try {
             await writeFile(candidateValueFileName, message.candidateValues.join("\n"));
             await writeFile(outFileName, '');
-            let valueToMatch = atob(message.valueToMatchInBase64)
-            let hashcatMD5Mode = null
-            let match = null
-            switch (message.requestType) {
-                case 'WPA':
-                    const crack = new Crack(valueToMatch)
-                    await writeFile(valueToMatchFileName, new Buffer(crack.hccapx._io._buffer))
-                    hashcatMD5Mode = 2500;
-                    break;
-                case 'NTLM':
-                    await writeFile(valueToMatchFileName, valueToMatch.toUpperCase().split("").join("\0") + "\0".toString());
-                    hashcatMD5Mode = 1000
-                    break;
-                case 'MD5':
-                    await writeFile(valueToMatchFileName, valueToMatch.toLowerCase())
-                    hashcatMD5Mode = 0
-                    break;
-                default:
-                    throw new Error("Request Type Unknown : " + message.requestType)
-            }
+            await writeFile(valueToMatchFileName, new Buffer(new Hccapx(new KaitaiStream(str2ab(atob(message.valueToMatchInBase64))))._io._buffer))
             if (message.devices.length === 0)
                 throw Error("No Enabled Devices")
+            let output, error, result;
             const devices = message.devices.filter(device => device.enabled).map(device => device.id).join(',')
-            let output;
-            let error;
             const hashcatBinary = getHashcatBinary()
             console.log(hashcatBinary + ' ' +
-                '--potfile-disable --attack-mode 0 --outfile-format 2 --hash-type ' + hashcatMD5Mode + ' ' + // Options
-                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' --force ' +                    // Devices
-                '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName)      // Files
+                '--potfile-disable --attack-mode 0 --outfile-format 3 --hash-type ' + mode + ' ' +     // Options
+                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' --force ' +              // Devices
+                '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName)// Files
             hashCatProcess = exec(hashcatBinary + ' ' +
-                '--potfile-disable --attack-mode 0 --outfile-format 2 --hash-type ' + hashcatMD5Mode + ' ' + // Options
-                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' --force ' +                     // Devices
-                '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName,      // Files
+                '--potfile-disable --attack-mode 0 --outfile-format 3 --hash-type ' + mode + ' ' +     // Options
+                '--opencl-device-types 1,2,3 --opencl-devices ' + devices + ' --force ' +              // Devices
+                '--outfile ' + outFileName + ' ' + valueToMatchFileName + ' ' + candidateValueFileName,// Files
                 (e, stdout, stderr) => { output = stdout; error = stderr; });
             let promise = new Promise((resolve, reject) => {
                 hashCatProcess.on('close', (code) => {
@@ -70,18 +52,18 @@ const JobCrackerLocal = (webWorkerId, callback) => {
                 console.log(output)
             if (error)
                 console.log(error)
-            match = await readFile(outFileName, 'utf8')
-            if (match !== null && match !== undefined && match !== "") {
-                returnObject.data.crackingStatus = 'CRACKED';
-                returnObject.data.result = match.split('\n').shift();
-            }
-            else {
-                returnObject.data.crackingStatus = 'DONE';
+            result = await readFile(outFileName, 'utf8')
+            if (result !== null && result !== undefined && result !== "") {
+                const resultLines = result.split('\n') // .shift/*  */
+                resultLines
+                    .filter(resultLine => !(resultLine === null || resultLine === 'undefined' || resultLine === ""))
+                    .forEach(resultLine => {
+                        const resultTokens = resultLine.split(':');
+                        returnObject.data.result[resultTokens[resultTokens.length - 2]] = resultTokens[resultTokens.length - 1]
+                    })
             }
         }
         catch (error) {
-            console.log(error);
-            returnObject.data.crackingStatus = 'ERROR';
             returnObject.data.error = error;
         }
         finally {
@@ -144,9 +126,9 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             case 'win32':
                 switch (window.process.arch) {
                     case 'x64':
-                        return  'cd ' + window.process.env.PORTABLE_EXECUTABLE_DIR + ' &&  hashcat64.exe'
+                        return 'cd ' + window.process.env.PORTABLE_EXECUTABLE_DIR + ' &&  hashcat64.exe'
                     case 'x32':
-                        return  'cd ' + window.process.env.PORTABLE_EXECUTABLE_DIR + ' &&  hashcat32.exe'
+                        return 'cd ' + window.process.env.PORTABLE_EXECUTABLE_DIR + ' &&  hashcat32.exe'
                     default:
                         throw new Error("Platform is Windows but could not determine architecture")
                 }
@@ -165,6 +147,15 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             default:
                 throw new Error("Platform is not Windows, Mac or Linux")
         }
+    }
+
+    const str2ab = function (str) {
+        var buf = new ArrayBuffer(str.length);
+        var bufView = new Uint8Array(buf);
+        for (var i = 0, strLen = str.length; i < strLen; i++) {
+            bufView[i] = str.charCodeAt(i);
+        }
+        return buf;
     }
 
     return {
