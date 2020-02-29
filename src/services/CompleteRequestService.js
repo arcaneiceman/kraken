@@ -17,6 +17,20 @@ const listCompleteRequests = (pageNumber, pageSize) => {
                     completeRequest.result = "Partial"
                 else
                     completeRequest.result = "Found"
+                
+                switch(completeRequest.requestType){
+                    case "2500":
+                        completeRequest.requestType = "WPA";
+                        break;
+                    case "1000":
+                        completeRequest.requestType = "NTLM";
+                        break;
+                    case "0":
+                        completeRequest.requestType = "MD5";
+                        break;
+                    default:
+                        completeRequest.requestType = "Unknown"
+                }
             })
             return response;
         })

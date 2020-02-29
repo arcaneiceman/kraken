@@ -53,10 +53,10 @@ const JobCrackerLocal = (webWorkerId, callback) => {
             if (error)
                 console.log(error)
             result = await readFile(outFileName, 'utf8')
-            if (result !== null && result !== undefined && result !== "") {
+            if (result !== null && typeof result !== 'undefined' && result !== "") {
                 const resultLines = result.split('\n') // .shift/*  */
                 resultLines
-                    .filter(resultLine => !(resultLine === null || resultLine === 'undefined' || resultLine === ""))
+                    .filter(resultLine => !(resultLine === null || typeof resultLine === 'undefined' || resultLine === ""))
                     .forEach(resultLine => {
                         const resultTokens = resultLine.split(':');
                         returnObject.data.result[resultTokens[resultTokens.length - 2]] = resultTokens[resultTokens.length - 1]
@@ -105,7 +105,7 @@ const JobCrackerLocal = (webWorkerId, callback) => {
                 console.log(output)
             if (error)
                 console.log(error)
-            return (output === null || output === undefined || output === '') ? error : output
+            return (output === null || typeof output === 'undefined' || output === '') ? error : output
         }
         catch (error) {
             return error;

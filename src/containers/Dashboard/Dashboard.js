@@ -429,9 +429,9 @@ class Dashboard extends Component {
         event.preventDefault();
         const form = event.currentTarget;
         let listName = "crunch " + form.elements["min"].value + " " + form.elements["max"].value + " " + form.elements["characters"].value
-        if (form.elements["pattern"].value !== undefined && form.elements["pattern"].value !== null && form.elements["pattern"].value !== "")
+        if (typeof form.elements["pattern"].value !== 'undefined' && form.elements["pattern"].value !== null && form.elements["pattern"].value !== "")
             listName = listName + " -t " + form.elements["pattern"].value
-        if (form.elements["start"].value !== undefined && form.elements["start"].value !== null && form.elements["start"].value !== "")
+        if (typeof form.elements["start"].value !== 'undefined' && form.elements["start"].value !== null && form.elements["start"].value !== "")
             listName = listName + " -s " + form.elements["start"].value
         this.addTrackedList(listName);
         form.reset();
@@ -483,7 +483,7 @@ class Dashboard extends Component {
     setValueToMatchInBase64 = async (event) => {
         const type = event.target.type
         let valueToMatch = type === "file" ? event.target.files[0] : event.target.value;
-        if (valueToMatch === null || valueToMatch === 'undefined' || valueToMatch === "")
+        if (valueToMatch === null || typeof valueToMatch === 'undefined' || valueToMatch === "")
             return;
         await this.promisedSetState({ newActiveRequestFormLoadingStatus: true })
         if (type === "file")

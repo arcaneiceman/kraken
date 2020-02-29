@@ -16,6 +16,19 @@ const listActiveRequests = (pageNumber, pageSize) => {
                 activeRequest.totalJobCount = activeRequest.trackedLists.map(trackedList => trackedList.totalJobCount).reduce((acc, value) => acc + value, 0);
                 activeRequest.completedJobCount = activeRequest.trackedLists.map(trackedList => trackedList.completedJobCount).reduce((acc, value) => acc + value, 0);
                 activeRequest.errorJobCount = activeRequest.trackedLists.map(trackedList => trackedList.errorJobCount).reduce((acc, value) => acc + value, 0);
+                switch(activeRequest.requestType){
+                    case "2500":
+                        activeRequest.requestType = "WPA";
+                        break;
+                    case "1000":
+                        activeRequest.requestType = "NTLM";
+                        break;
+                    case "0":
+                        activeRequest.requestType = "MD5";
+                        break;
+                    default:
+                        activeRequest.requestType = "Unknown"
+                }
             })
             return response;
         })

@@ -7,6 +7,24 @@ Click <a href="https://kraken.work/help">here</a> for a guide to Kraken
 
 ### Change Log:
 
+#### 1.1.0
+NOTE : Due to breaking changes, you may still be seeing this notification on the v1.0.6 client.
+Please update your client to the latest version. On browser, empty cache and hard reload.
+For local client, go to the Kraken <a href="https://github.com/arcaneiceman/kraken-client/releases">release page</a> to download the latest version.
+Updates:
+- Browser auto-updates at new version release
+- Active Requests can be made using both hccapx and cap/pcap files
+- SSID specification in new requests is now optional. By default, Kraken will automatically 
+target ALL SSIDs in a given hccapx or cap,pcap files. The optional filter can be used to specify
+target(s) and all other handshakes will be discarded.
+- Active Request now has details modal where you can better track your progress. This modal lets you
+know the request metadata such as what handshakes were found in the hccapx or cap/pcap file, what the request
+targets are, the filter parameters provided when making the request, which list is currently being run, and any 
+partial results found.
+- Complete Request also now as a details modal where you can all of the above information from the active request.
+- Major internal code updates for a more streamlined and snappy experience. Do expect some bugs though, and please 
+report them on the github page!
+
 #### 1.0.6
 Updates:
 - These alerts that you are seeing now

@@ -13,7 +13,7 @@ toast.configure({
 const constantToastId = "toast-id"
 
 const showNotification = (message, override) => {
-    if (message === undefined || message === null)
+    if (typeof message === 'undefined' || message === null)
         message = "Network Error"
     if (override)
         toast.error(message)
