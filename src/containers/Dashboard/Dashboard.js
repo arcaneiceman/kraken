@@ -322,7 +322,6 @@ class Dashboard extends Component {
 
     showDashboardAlert = async () => {
         const changeLog = await ChangeLogService.getLatestChangeLog()
-        debugger;
         if (!changeLog.trim().startsWith(version))
             this.promisedSetState({
                 dashboardAlertContent: {

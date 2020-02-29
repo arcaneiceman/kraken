@@ -193,10 +193,10 @@ class Workers extends Component {
         try {
             const response = await WorkerService.getSummary()
             await this.promisedSetState({
-                activeWorkers: response.data.totalActiveWorkers,
-                onlineWorkers: response.data.totalOnlineWorkers,
-                offlineWorkers: response.data.totalOfflineWorkers,
-                jobsInQueue: response.data.jobsInQueue
+                totalWorkerCount: response.data.totalActiveWorkers,
+                onlineWorkerCount: response.data.totalOnlineWorkers,
+                offlineWorkerCount: response.data.totalOfflineWorkers,
+                jobsInQueueCount: response.data.jobsInQueue
             })
         }
         catch (error) {
