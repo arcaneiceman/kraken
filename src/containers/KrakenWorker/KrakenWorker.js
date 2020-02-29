@@ -94,7 +94,7 @@ class KrakenWorker extends Component {
                                 <Octicon icon={Gear} /> <br /> Worker Settings
                             </Button>
                             {isElectron() ?
-                            <span><strong>Note: </strong> You can adjust devices hashcat uses through worker settings. 
+                                <span><strong>Note: </strong> You can adjust devices hashcat uses through worker settings.
                             Learn more in the <a href="https://kraken.work/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section. </span> :
                                 <span><strong>Note: </strong> You can adjust the number of cores through worker settings.
                             Learn more in the <a href="https://kraken.work/help#how-to_faq" target="_blank" rel="noopener noreferrer">FAQ</a> section. </span>}
@@ -218,10 +218,8 @@ class KrakenWorker extends Component {
         }
 
         // Error Message
-        let errorMessage = null;
-        if (this.state.workerDependencyModalErrorMessage !== null) {
-            errorMessage = <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.workerDependencyModalErrorMessage}</strong></div>
-        }
+        const errorMessage = this.state.workerDependencyModalErrorMessage !== null ?
+            <div className={classes.errorMessage}> <Octicon icon={Alert} /> <strong>{this.state.workerDependencyModalErrorMessage}</strong></div> : null;
 
         // Try Again Button
         const tryAgainButton = <Button variant="warning" onClick={async () => { await this.testDependency(); }}>Test</Button>
@@ -304,10 +302,7 @@ class KrakenWorker extends Component {
     }
 
     buildTransitionBlockingPrompt = () => {
-        return (
-            <Prompt when={this.state.workerActive === "ACTIVE"}
-                message={'The worker is still running. Do you still want to navigate away?'} />
-        )
+        return (<Prompt when={this.state.workerActive === "ACTIVE"} message={'The worker is still running. Do you still want to navigate away?'} />)
     }
 
     componentDidMount = async () => {
@@ -330,25 +325,10 @@ class KrakenWorker extends Component {
     changeActiveCoreCount = async (value) => {
         await this.promisedSetState({ workerActiveCoreCount: value })
         localStorage.setItem('currentActiveCoreCount', value)
-        if (this.state.workerActive === "ACTIVE") {
-            await this.deactivateWorker()
-            await this.activateWorker()
-        }
     }
 
     activateWorker = async () => {
         console.debug("Activating Worker")
-
-        // Create Worker(s) Pool
-        let crackerPoolClone = [];
-        if (isElectron()) // Electron (Desktop Client)
-            crackerPoolClone.push(JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers))
-        else // Browser
-            for (let i = 0; i < this.state.workerActiveCoreCount; i++) {
-                let cracker = new JobCrackerBrowser()
-                cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
-                crackerPoolClone.push(cracker)
-            }
 
         // Create Worker
         await this.promisedSetState({ workerActive: "INITIALIZING" })
@@ -396,7 +376,6 @@ class KrakenWorker extends Component {
             workerHeartbeatTimer: heartbeatTimer,
             workerSparkplugTimer: sparkPlugTimer,
             workerActivationTimer: activationTimer,
-            crackerPool: crackerPoolClone,
             jobFetcher: new JobFetcher(),
             jobReporter: new JobReporter(),
         });
@@ -438,13 +417,10 @@ class KrakenWorker extends Component {
             executionStartTime: null,
             workerJobQueue: [],
 
-            crackerPool: [],
             jobFetcher: null,
             jobReporter: null,
         })
     }
-
-
 
     testDependency = async () => {
         let tempWorker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
@@ -545,9 +521,10 @@ class KrakenWorker extends Component {
     }
 
     retrieveFromJobFetcher = async (message) => {
+        console.debug("Retreiving response from job fetcher")
+
         let success = false;
         let jobQueueClone = this.state.workerJobQueue.slice()
-        console.debug("Retreiving response from job fetcher")
         if (message.data.status === "SUCCESS") {
             // Declare Job
             const job = {
@@ -559,10 +536,10 @@ class KrakenWorker extends Component {
                 multiplier: message.data.multiplier,
                 candidateValues: message.data.candidateValues,
                 trackingStatus: "PENDING",
-                result: null,
+                result: {},
                 runningChunkCount: 0,
                 completeChunkCount: 0,
-                executionStartTime: null
+                executionStartTime: 0
             }
 
             // Add Job -> Pending Queue
@@ -589,113 +566,131 @@ class KrakenWorker extends Component {
         // Set State to Cracking
         await this.promisedSetState({ workerCracking: true })
 
-        // Create copy for immutibility
+        let crackerPoolClone = this.state.crackerPool.slice()
         let jobQueueClone = this.state.workerJobQueue.slice();
+
+        // Adjust Crackers (if needed)
+        if (isElectron())
+            if (crackerPoolClone.length < 1)
+                crackerPoolClone.push(JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers))
+            else if (crackerPoolClone.length > 1)
+                console.error("Wait... how did this happen! :S")
+            else
+                console.debug("Local Cracker Pool of length " + crackerPoolClone.length + " does not need to be adjusted")
+        else
+            if (crackerPoolClone.length < this.state.workerActiveCoreCount)
+                for (let i = crackerPoolClone.length; i < this.state.workerActiveCoreCount; i++) {
+                    let cracker = new JobCrackerBrowser()
+                    cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
+                    crackerPoolClone.push(cracker)
+                }
+            else if (crackerPoolClone > this.state.workerActiveCoreCount)
+                for (let i=0; i< (crackerPoolClone - this.state.workerActiveCoreCount); i++){
+                    let cracker = crackerPoolClone.pop()
+                    cracker.terminate();
+                }
+            else
+                console.debug("Browser Cracker Pool of length " + crackerPoolClone.length + " does not need to be adjusted")
 
         // Change Pending -> Running
         let pendingJob = jobQueueClone.find((job) => (job.trackingStatus === "PENDING"))
         pendingJob.trackingStatus = "RUNNING"
 
         // Partition Job
-        let chunkSize = Math.ceil(pendingJob.candidateValues.length / this.state.crackerPool.length)
+        let chunkSize = Math.ceil(pendingJob.candidateValues.length / crackerPoolClone.length)
         let chunkCandidateValuesList = [];
         for (let i = 0; i < pendingJob.candidateValues.length; i += chunkSize) {
             chunkCandidateValuesList.push(pendingJob.candidateValues.slice(i, i + chunkSize));
         }
-        if (chunkCandidateValuesList.length !== this.state.crackerPool.length)
+        if (chunkCandidateValuesList.length !== crackerPoolClone.length)
             throw Error("Chunk Length and Worker Length not the same!")
         pendingJob.completeChunkCount = chunkCandidateValuesList.length
 
         // Assign Job
-        for (let i = 0; i < this.state.crackerPool.length; i++) {
+        for (let i = 0; i < crackerPoolClone.length; i++) {
             const chunk = {
                 requestType: pendingJob.requestType,
                 valueToMatchInBase64: pendingJob.valueToMatchInBase64,
-                webWorkerId: this.state.crackerPool[i].webWorkerId,
+                webWorkerId: crackerPoolClone[i].webWorkerId,
                 jobId: pendingJob.jobId,
+                chunkNo: i,
                 candidateValues: chunkCandidateValuesList[i],
                 devices: this.state.workerDevices // Only used by local cracker
             }
-            this.state.crackerPool[i].postMessage(chunk);
+            crackerPoolClone[i].postMessage(chunk);
         }
 
         // Set exuction time
         pendingJob.executionStartTime = Date.now();
 
         // Set State
-        await this.promisedSetState({ workerJobQueue: jobQueueClone })
+        await this.promisedSetState({ workerJobQueue: jobQueueClone, crackerPool : crackerPoolClone })
 
         this.cycle("Job to Cracker (Pool)", true);
     }
 
     retrieveJobFromCrackers = async (message) => {
-        // Immutibiliaty Copies
+        console.debug("Retreiving response from job cracker(s)")
+
         let crackerPoolClone = this.state.crackerPool.slice()
         let jobQueueClone = this.state.workerJobQueue.slice()
         let multiplierRecommendation = this.state.workerRecommendedMultiplier;
 
         let isDoneCracking = false
         let runningJob = jobQueueClone.find((job) => (job.jobId === message.data.jobId))
-        if (typeof runningJob !== 'undefined') {
-            switch (message.data.crackingStatus) {
-                case "CRACKED":
-                    isDoneCracking = true
-                    console.debug("Job " + runningJob.jobId + " Found")
-                    // Target Found, Assign Result
-                    runningJob.result = message.data.result
+        if (typeof runningJob === 'undefined') {
+            console.error("Call back came for Job " + message.data.jobId + " but job not found in running queue");
+            return;
+        }
 
-                    // Mark Job as complete
-                    runningJob.trackingStatus = "COMPLETE"
+        // Process Response
+        if (message.data.error === null) {
+            console.debug("Job " + message.data.jobId + " Chunk " + message.data.chunkNo + " Complete")
 
-                    // Terminate chunks from all crackers
-                    crackerPoolClone.forEach((cracker) => cracker.terminate())
-                    break;
-                case "DONE":
-                    // Target not found but chunk complete, Increment running chunk cound
-                    runningJob.runningChunkCount = runningJob.runningChunkCount + 1
+            // Chunk complete, Increment running chunk cound
+            runningJob.runningChunkCount = runningJob.runningChunkCount + 1
 
-                    // If: this is the last cracker to return chunk for job
-                    if (runningJob.runningChunkCount === runningJob.completeChunkCount) {
-                        isDoneCracking = true
-                        console.debug("Job " + runningJob.jobId + " Complete")
+            // Merge Results
+            runningJob.result = Object.assign(runningJob.result, message.data.result)
 
-                        // Mark Job as complete
-                        runningJob.trackingStatus = "COMPLETE"
+            // If: this is the last cracker to return chunk for job
+            if (runningJob.runningChunkCount === runningJob.completeChunkCount) {
+                console.debug("Job " + runningJob.jobId + " Complete")
+                isDoneCracking = true
 
-                        let executionTime = Date.now() - runningJob.executionStartTime;
-                        console.log("Job with multipler of " + runningJob.multiplier + " took " + executionTime + " ms to complete")
-                        multiplierRecommendation = Math.floor((60000 * runningJob.multiplier) / executionTime) // 60000 is 1 minute
-                        console.debug("Setting Multiplier Recommendation to " + multiplierRecommendation)
-                    }
-                    break;
-                case "ERROR":
-                    isDoneCracking = true
-                    console.debug("Job " + runningJob.jobId + " Error")
+                // Update Tracking Status
+                runningJob.trackingStatus = "COMPLETE"
 
-                    // Update Tracking Status
-                    runningJob.trackingStatus = "ERROR"
-
-                    // Terminate chunks from all crackers
-                    crackerPoolClone.forEach((element) => element.terminate())
-
-                    // Notify Error
-                    NotificationService.showNotification("Cracker Error: " + message.data.error, false)
-                    break;
-                default:
-                    throw Error("Catastrophic Failure. No Tracking Status Reported")
+                // Calculate Multipler Reccomendation
+                let executionTime = Date.now() - runningJob.executionStartTime;
+                console.log("Job with multipler of " + runningJob.multiplier + " took " + executionTime + " ms to complete")
+                multiplierRecommendation = Math.floor((60000 * runningJob.multiplier) / executionTime) // 60000 is 1 minute
+                console.debug("Setting Multiplier Recommendation to " + multiplierRecommendation)
             }
-
-            await this.promisedSetState({
-                workerCracking: !isDoneCracking,
-                workerRecommendedMultiplier: multiplierRecommendation,
-                workerJobQueue: jobQueueClone
-            })
-
-            this.cycle("Job From Cracker (Pool)", true)
         }
         else {
-            console.error("Call back came to Retreive Job with id " + message.data.jobId + " but job not found in running queue")
+            console.debug("Job " + message.data.jobId + " Chunk " + message.data.chunkNo + " Error")
+            isDoneCracking = true
+
+            // Terminate chunks from all crackers
+            crackerPoolClone.forEach((element) => element.terminate())
+            crackerPoolClone = []
+
+            // Update Tracking Status
+            runningJob.trackingStatus = "ERROR"
+
+            // Notify Error
+            NotificationService.showNotification("Cracker Error: " + message.data.error, false)
         }
+
+        await this.promisedSetState({
+            workerCracking: !isDoneCracking,
+            workerRecommendedMultiplier: multiplierRecommendation,
+            workerJobQueue: jobQueueClone,
+            crackerPool : crackerPoolClone
+        })
+
+        this.cycle("Job From Cracker (Pool)", true)
     }
 
     postToJobReporter = async () => {
@@ -716,9 +711,9 @@ class KrakenWorker extends Component {
             listId: completeJob.listId,
             jobId: completeJob.jobId,
             trackingStatus: completeJob.trackingStatus,
-            result: completeJob.result,
+            results: completeJob.result,
         }
-
+        
         this.state.jobReporter.postMessage(params)
     }
 

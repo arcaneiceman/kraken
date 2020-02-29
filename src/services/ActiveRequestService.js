@@ -1,7 +1,7 @@
 import axios from './AxiosInstance'
 
-const createActiveRequest = (requestType, requestName, requestMetadata, valueToMatchInBase64, passwordLists, crunchParams) => {
-    const data = { requestType, requestName, requestMetadata, valueToMatchInBase64, passwordLists, crunchParams }
+const createActiveRequest = (requestType, requestName, requestMetadata, valueToMatchInBase64, trackedLists) => {
+    const data = { requestType, requestName, requestMetadata, valueToMatchInBase64, trackedLists }
     return axios.post('/active-request', data)
 }
 
@@ -9,8 +9,29 @@ const getSummary = () => {
     return axios.get('/active-request/summary')
 }
 
-const getActiveRequests = (pageNumber, pageSize) => {
+const listActiveRequests = (pageNumber, pageSize) => {
     return axios.get('/active-request?pageNumber=' + pageNumber + '&pageSize=' + pageSize)
+        .then(response => {
+            response.data.content.forEach(activeRequest => {
+                activeRequest.totalJobCount = activeRequest.trackedLists.map(trackedList => trackedList.totalJobCount).reduce((acc, value) => acc + value, 0);
+                activeRequest.completedJobCount = activeRequest.trackedLists.map(trackedList => trackedList.completedJobCount).reduce((acc, value) => acc + value, 0);
+                activeRequest.errorJobCount = activeRequest.trackedLists.map(trackedList => trackedList.errorJobCount).reduce((acc, value) => acc + value, 0);
+                switch(activeRequest.requestType){
+                    case "2500":
+                        activeRequest.requestType = "WPA";
+                        break;
+                    case "1000":
+                        activeRequest.requestType = "NTLM";
+                        break;
+                    case "0":
+                        activeRequest.requestType = "MD5";
+                        break;
+                    default:
+                        activeRequest.requestType = "Unknown"
+                }
+            })
+            return response;
+        })
 }
 
 const deleteActiveRequest = (activeRequestId) => {
@@ -28,7 +49,7 @@ const reportJobPath = () => {
 const ActiveRequestService = {
     createActiveRequest,
     getSummary,
-    getActiveRequests,
+    listActiveRequests,
     deleteActiveRequest,
     getJobPath,
     reportJobPath,
