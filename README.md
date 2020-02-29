@@ -7,7 +7,7 @@ Click <a href="https://kraken.work/help">here</a> for a guide to Kraken
 
 ### Change Log:
 
-#### 1.1.0
+#### v1.1.0
 Updates:
 - Browser auto-updates at new version release
 - Active Requests can be made using both hccapx and cap/pcap files
