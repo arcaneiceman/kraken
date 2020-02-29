@@ -584,7 +584,7 @@ class KrakenWorker extends Component {
                     cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
                     crackerPoolClone.push(cracker)
                 }
-            else if (crackerPoolClone > this.state.workerActiveCoreCount)
+            else if (crackerPoolClone.length > this.state.workerActiveCoreCount)
                 for (let i=0; i< (crackerPoolClone - this.state.workerActiveCoreCount); i++){
                     let cracker = crackerPoolClone.pop()
                     cracker.terminate();
