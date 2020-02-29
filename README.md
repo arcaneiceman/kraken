@@ -23,7 +23,7 @@ partial results found.
 report them on the github page!
 
 #### 1.0.6
-<strong>NOTE : THIS VERSION IS NO LONGER SUPPORTED. Please empty cache and hard reload for latest version <strong>
+<strong>NOTE : THIS VERSION IS NO LONGER SUPPORTED. Please empty cache and hard reload for latest version </strong>
 Updates:
 - These alerts that you are seeing now
 - Added a note about multi-core (browser) / choosing devices (local)
