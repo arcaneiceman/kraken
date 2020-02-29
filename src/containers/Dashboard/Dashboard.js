@@ -322,7 +322,8 @@ class Dashboard extends Component {
 
     showDashboardAlert = async () => {
         const changeLog = await ChangeLogService.getLatestChangeLog()
-        if (!changeLog.startsWith(version))
+        debugger;
+        if (!changeLog.trim().startsWith(version))
             this.promisedSetState({
                 dashboardAlertContent: {
                     title: "New version of Kraken has been released!",
