@@ -581,6 +581,7 @@ class KrakenWorker extends Component {
             if (crackerPoolClone.length < this.state.workerActiveCoreCount)
                 for (let i = crackerPoolClone.length; i < this.state.workerActiveCoreCount; i++) {
                     let cracker = new JobCrackerBrowser()
+                    cracker.webWorkerId = this.uuidv4();
                     cracker.addEventListener("message", this.retrieveJobFromCrackers, true);
                     crackerPoolClone.push(cracker)
                 }
@@ -637,14 +638,16 @@ class KrakenWorker extends Component {
         let multiplierRecommendation = this.state.workerRecommendedMultiplier;
 
         let isDoneCracking = false
-        let runningJob = jobQueueClone.find((job) => (job.jobId === message.data.jobId))
+        let runningJob = jobQueueClone.find((job) => job.jobId === message.data.jobId)
         if (typeof runningJob === 'undefined') {
             console.error("Call back came for Job " + message.data.jobId + " but job not found in running queue");
             return;
         }
+        let cracker = crackerPoolClone.find((crackerThread) => crackerThread.webWorkerId === message.data.webWorkerId)
+        cracker.terminate();
+        crackerPoolClone = crackerPoolClone.filter((crackerThread) => crackerThread.webWorkerId !== message.data.webWorkerId)
 
-        // Process Response
-        if (message.data.error === null) {
+        if (message.data.error === null) { // CHUNK COMPLETE
             console.debug("Job " + message.data.jobId + " Chunk " + message.data.chunkNo + " Complete")
 
             // Chunk complete, Increment running chunk cound
@@ -654,7 +657,7 @@ class KrakenWorker extends Component {
             runningJob.result = Object.assign(runningJob.result, message.data.result)
 
             // If: this is the last cracker to return chunk for job
-            if (runningJob.runningChunkCount === runningJob.completeChunkCount) {
+            if (runningJob.runningChunkCount === runningJob.completeChunkCount) { // JOB COMPLETE
                 console.debug("Job " + runningJob.jobId + " Complete")
                 isDoneCracking = true
 
@@ -668,11 +671,11 @@ class KrakenWorker extends Component {
                 console.debug("Setting Multiplier Recommendation to " + multiplierRecommendation)
             }
         }
-        else {
+        else { // CHUNK ERROR
             console.debug("Job " + message.data.jobId + " Chunk " + message.data.chunkNo + " Error")
             isDoneCracking = true
 
-            // Terminate chunks from all crackers
+            // Terminate all crackers
             crackerPoolClone.forEach((element) => element.terminate())
             crackerPoolClone = []
 

@@ -51,7 +51,7 @@ class ActiveRequests extends Component {
                         {this.state.errorJobCount > 0 ?
                             <ProgressBar variant="danger" max={this.state.totalJobCount} now={this.state.errorJobCount} /> : null}
                     </ProgressBar>
-                    <div className={classes.progressBarTitle}>Progress</div>
+                    <div className={classes.progressBarTitle}>Progress {this.getProgressPercentage(this.state.totalJobCount, this.state.completeJobCount)}</div>
                 </div>
             </div>
         );
@@ -149,7 +149,7 @@ class ActiveRequests extends Component {
                                         {this.state.errorJobCount > 0 ?
                                             <ProgressBar variant="danger" max={this.state.detailModalActiveRequest.totalJobCount} now={this.state.detailModalActiveRequest.errorJobCount} /> : null}
                                     </ProgressBar>
-                                    <div className={classes.progressBarTitle}>Current Progress</div>
+                                    <div className={classes.progressBarTitle}>Current Progress {this.getProgressPercentage(this.state.detailModalActiveRequest.totalJobCount, this.state.detailModalActiveRequest.completedJobCount)}</div>
                                 </div>
                             </div>
                             <div className={classes.detailModalDetailContainer}>
@@ -220,7 +220,7 @@ class ActiveRequests extends Component {
                                         })}
                                     </tbody>
                                 </Table>
-                            </div>                
+                            </div>
                         </div>
                     </Modal.Body>
                 </Modal>
@@ -397,6 +397,13 @@ class ActiveRequests extends Component {
 
     getTCEfromTrackedList = (trackedList) => {
         return trackedList.totalJobCount + " / " + trackedList.completedJobCount + " / " + trackedList.errorJobCount
+    }
+
+    getProgressPercentage = (totalCount, completeCount) => {
+        if (totalCount === 0 || totalCount === null || typeof totalCount === 'undefined')
+            return null;
+        else
+            return '(' + ((completeCount / totalCount) * 100).toFixed(2) + "%)"
     }
 
 }

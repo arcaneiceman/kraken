@@ -379,8 +379,8 @@ class Dashboard extends Component {
         }
     }
 
-    closeNewActiveRequestModal = () => {
-        this.setState({
+    closeNewActiveRequestModal = async () => {
+        this.promisedSetState({
             /* Page State */
             newActiveRequestModalVisible: false,
             newActiveRequestFormValidated: false,

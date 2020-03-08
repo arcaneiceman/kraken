@@ -7,6 +7,20 @@ Click <a href="https://kraken.work/help">here</a> for a guide to Kraken
 
 ### Change Log:
 
+#### 1.1.1
+Notice : Kraken's maintainence window is every Sunday by default. Please expect a few hours of interuption if Kraken is being patched or
+upgraded that day.
+
+Updates:
+- Added new percentage value to progress
+- API Changes to job timouts.
+- API Changes to worker timeouts
+- API Changes to worker ui in the future
+- Added Swagger Documentation to Server
+
+Fixed Bugs:
+- Browser Cracker memory leak.
+
 #### 1.1.0
 Updates:
 - Browser auto-updates at new version release
