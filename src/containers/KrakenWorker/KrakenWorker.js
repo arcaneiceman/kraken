@@ -416,6 +416,7 @@ class KrakenWorker extends Component {
             workerActivationTimer: null,
             executionStartTime: null,
             workerJobQueue: [],
+            crackerPool: [],
 
             jobFetcher: null,
             jobReporter: null,
