@@ -4,16 +4,16 @@
 ## Kraken: A multi-platform distributed brute-force password cracking system
 
 Click <a href="https://kraken.work/help">here</a> for a guide to Kraken
+Click <a href="https://kraken.work:8443/swagger">here</a> for swagger documentation for Kraken.
 
 ### Change Log:
 
 #### 1.1.1
-Notice : Kraken's maintainence window is every Sunday by default. Please expect a few hours of interuption if Kraken is being patched or
-upgraded that day.
+Notice : Kraken's maintenance window is every Sunday by default. Please expect a few hours of interruption if Kraken is being patched or upgraded that day.
 
 Updates:
 - Added new percentage value to progress
-- API Changes to job timouts.
+- API Changes to job timeouts.
 - API Changes to worker timeouts
 - API Changes to worker ui in the future
 - Added Swagger Documentation to Server
