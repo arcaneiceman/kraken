@@ -16,7 +16,7 @@ const JobCrackerLocal = (webWorkerId, callback) => {
 
     const postMessage = async (message) => {
         console.debug("Cracker received job with id " + message.jobId)
-        let returnObject = { data: { webworkerId: message.webWorkerId, jobId: message.jobId, chunkNo: message.chunkNo, result: {}, error: null } }
+        let returnObject = { data: { webWorkerId: message.webWorkerId, jobId: message.jobId, chunkNo: message.chunkNo, result: {}, error: null } }
         const candidateValueFileName = getTmpFilePath('kraken-candidate-values')
         const valueToMatchFileName = getTmpFilePath('kraken-value-to-match')
         const outFileName = getTmpFilePath('kraken-out')
