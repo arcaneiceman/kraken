@@ -9,6 +9,8 @@ Click <a href="https://kraken.work:8443/swagger">here</a> for swagger documentat
 ### Change Log:
 
 #### 1.1.1
+
+
 Notice : Kraken's maintenance window is every Sunday by default. Please expect a few hours of interruption if Kraken is being patched or upgraded that day.
 
 Updates:
@@ -22,6 +24,8 @@ Fixed Bugs:
 - Browser Cracker memory leak.
 
 #### 1.1.0
+<strong>NOTE : THIS VERSION IS NO LONGER SUPPORTED. Please empty cache and hard reload for latest version </strong>
+<br/>
 Updates:
 - Browser auto-updates at new version release
 - Active Requests can be made using both hccapx and cap/pcap files
@@ -38,6 +42,7 @@ report them on the github page!
 
 #### 1.0.6
 <strong>NOTE : THIS VERSION IS NO LONGER SUPPORTED. Please empty cache and hard reload for latest version </strong>
+<br/>
 Updates:
 - These alerts that you are seeing now
 - Added a note about multi-core (browser) / choosing devices (local)
