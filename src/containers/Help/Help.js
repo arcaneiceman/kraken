@@ -322,14 +322,14 @@ class Help extends Component {
                         <br /> 
 
                         <br /> 
-                        <h5>Why does Kraken says "0 targets matched criteria"</h5>
+                        <h5>Why does Kraken say "0 targets matched criteria"? </h5>
                         It means that target SSID you specified in the filter was not found in your capture. Kraken uses cap2hccapx from hashcat-utils to validate your packet capture. 
                         Use the <a href="https://www.onlinehashcrack.com/tools-cap-to-hccapx-converter.php" target="_blank" rel="noopener noreferrer">online tool</a> to verify it
                         if it is giving you trouble. I'll soon be adding direct hashes as part of the request so you can extract the PMK and other values yourself in a file.
                         <br /> 
 
                         <br /> 
-                        <h5>Why does Kraken "Unexpected fixed contents"</h5>
+                        <h5>Why does Kraken say "Unexpected fixed contents" ?</h5>
                         Are you sure you uploaded a cap/pcap/hccapx file. Be honest. Kraken certainly doesnt think so.
                         <br /> 
                     </p>
