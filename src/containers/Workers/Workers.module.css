@@ -29,8 +29,32 @@
     justify-content: flex-start;
 }
 
+.detailModalDetailContainer{
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
+}
+
+.detailModalHeading{
+    white-space: nowrap;
+    color: #959595;
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 10px;
+}
+
+.detailModalValue{
+    margin: 10px;
+}
+
 .lastDetailItem {
     flex-grow: 1;
+}
+
+.tableRowWithValue {
+    cursor: copy;
 }
 
 .tableItem {

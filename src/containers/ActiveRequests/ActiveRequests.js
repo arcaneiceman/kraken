@@ -62,7 +62,7 @@ class ActiveRequests extends Component {
         });
         const tableItems = this.state.activeRequests.map(activeRequest => {
             return (
-                <tr key={activeRequest.id} onClick={() => this.openDetailModal(activeRequest)}>
+                <tr key={activeRequest.id} onClick={() => this.openDetailModal(activeRequest)} className={classes.tableRowWithValue}>
                     <td className={classes.tableItem}><strong>{activeRequest.requestName}</strong></td>
                     <td className={classes.tableItem}>{activeRequest.requestType}</td>
                     <td className={classes.tableItem}>{activeRequest.targetCount}</td>
@@ -71,7 +71,7 @@ class ActiveRequests extends Component {
                     <td className={classes.tableItem}>{activeRequest.errorJobCount}</td>
                     <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}
                         onClick={(event) => { event.stopPropagation(); this.openDeleteConfirmationModal(activeRequest) }}>
-                        <Octicon icon={Trashcan} />
+                        <Octicon icon={Trashcan} fill='red' />
                     </td>
                 </tr>
             );

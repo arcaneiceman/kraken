@@ -8,6 +8,10 @@ Click <a href="https://kraken.work:8443/swagger">here</a> for swagger documentat
 
 ### Change Log:
 
+#### 1.1.2
+Updates:
+- Added Worker Modal for more information about worker
+
 #### 1.1.1
 
 

@@ -41,7 +41,12 @@
     text-align: left;
 }
 
+.tableRowWithValue {
+    cursor: copy;
+}
+
 .tableItem {
+    cursor: copy;
     padding: 15px 10px;
     text-align: left;
     font-size: 14px;

@@ -18,17 +18,18 @@ class Workers extends Component {
 
     state = {
         loadingStatus: null,
-        deleteConfirmationId: null,
+        detailModalWorker: null,
+        deleteConfirmationModalWorker: null,
 
         // Page Size
         pageSize: 4,
 
         getWorkerTimer: null,
-        workers: [],
+        workers: new Array(5),
         currentPage: 1,
         totalPages: 1,
 
-        // Special Fields
+        //  Summary Section Fields
         totalWorkerCount: 0,
         onlineWorkerCount: 0,
         offlineWorkerCount: 0,
@@ -36,8 +37,8 @@ class Workers extends Component {
     }
 
     render() {
-        // Create Detail Section
-        const detailSection = (
+        // Create Summary Section
+        const summarySection = (
             <div className={classes.detailContainer}>
                 <DetailBox boxValue={this.state.totalWorkerCount.toString()} boxText={'Total Workers'} />
                 <DetailBox boxValue={this.state.onlineWorkerCount.toString()} boxText={'Online Workers'} />
@@ -52,15 +53,15 @@ class Workers extends Component {
         const tableHeadings = ['Name', 'Type', 'Status', 'Last Check In', ' '].map(tableHeading => {
             return <th className={classes.tableHeaderColumnText} key={tableHeading}>{tableHeading}</th>
         });
-        const tableItems = this.state.workers.map(activeWorker => {
+        const tableItems = this.state.workers.map(worker => {
             return (
-                <tr key={activeWorker.id}>
-                    <td className={classes.tableItem}><strong>{activeWorker.name}</strong></td>
-                    <td className={classes.tableItem}>{activeWorker.type.toLowerCase()}</td>
-                    <td className={classes.tableItem}><StatusBox status={activeWorker.status} /></td>
-                    <td className={classes.tableItem}>{new Date(activeWorker.lastCheckIn).toLocaleString()}</td>
-                    <td onClick={() => { this.promisedSetState({ deleteConfirmationId: activeWorker.id }) }}
-                        className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}>
+                <tr key={worker.id} onClick={() => this.openDetailModal(worker)} className={classes.tableRowWithValue}>
+                    <td className={classes.tableItem}><strong>{worker.name}</strong></td>
+                    <td className={classes.tableItem}>{worker.type.toLowerCase()}</td>
+                    <td className={classes.tableItem}><StatusBox status={worker.status} /></td>
+                    <td className={classes.tableItem}>{new Date(worker.lastCheckIn).toLocaleString()}</td>
+                    <td className={classes.tableItem} style={{ color: "red", cursor: 'pointer' }}
+                        onClick={(event) => { event.stopPropagation(); this.openDeleteConfirmationModal(worker) }}>
                         <Octicon icon={Trashcan} fill='red' />
                     </td>
                 </tr>
@@ -88,18 +89,22 @@ class Workers extends Component {
                 loadingBackground = null;
                 loadingSpinner = null;
         }
+        // Detail Modal 
+        let detailModal = this.buildDetailModal();
+
         // Delete Confirmation Modal
         let deleteConfirmationModal = this.buildDeletionConfirmationModal();
 
         // Render
         return (
             <div>
+                {detailModal}
                 {deleteConfirmationModal}
                 <SectionHeading heading={'Your Workers'} />
                 <div className={classes.main}>
                     {loadingBackground}
                     {loadingSpinner}
-                    {detailSection}
+                    {summarySection}
                     <SummaryTable
                         tableHeadings={tableHeadings}
                         tableItems={tableItems} />
@@ -113,25 +118,84 @@ class Workers extends Component {
         );
     }
 
+    buildDetailModal = () => {
+        if (this.state.detailModalWorker === null)
+            return
+        else
+            return (
+                <Modal size="lg" show={this.state.detailModalWorker !== null} onHide={() => this.closeDetailModal()}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Worker Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className={classes.detailModalDetailContainer}>
+                            <div>
+                                <h3 className={classes.detailModalHeading}>Name</h3>
+                                <div><strong className={classes.detailModalValue}>{this.state.detailModalWorker.name}</strong></div>
+                            </div>
+                            <div >
+                                <h3 className={classes.detailModalHeading}>Type</h3>
+                                <div><strong className={classes.detailModalValue}>{this.state.detailModalWorker.type.toLowerCase()}</strong></div>
+                            </div>
+                            <div >
+                                <h3 className={classes.detailModalHeading}>Status</h3>
+                                <div><strong className={classes.detailModalValue}>{this.state.detailModalWorker.status}</strong></div>
+                            </div>
+                            <div >
+                                <h3 className={classes.detailModalHeading}>Last Check In</h3>
+                                <div><strong className={classes.detailModalValue}>{new Date(this.state.detailModalWorker.lastCheckIn).toLocaleString()}</strong></div>
+                            </div>
+                        </div>
+
+                        <div className={classes.detailModalDetailContainer}>
+                            <div >
+                                <h3 className={classes.detailModalHeading}>Platform</h3>
+                                <div><strong className={classes.detailModalValue}>{this.state.detailModalWorker.platform}</strong></div>
+                            </div>
+                        </div>
+
+                        <div className={classes.detailModalDetailContainer}>
+                            <div>
+                                <h3 className={classes.detailModalHeading}>Total Jobs</h3>
+                                <div><strong className={classes.detailModalValue}>{this.state.detailModalWorker.totalJobCount}</strong></div>
+                            </div>
+                            <div >
+                                <h3 className={classes.detailModalHeading}>Completed Jobs</h3>
+                                <div><strong className={classes.detailModalValue}>{this.state.detailModalWorker.completedJobCount}</strong></div>
+                            </div>
+                            <div >
+                                <h3 className={classes.detailModalHeading}>Errors</h3>
+                                <div><strong className={classes.detailModalValue}>{this.state.detailModalWorker.errorJobCount}</strong></div>
+                            </div>
+                        </div>
+
+                    </Modal.Body>
+                </Modal>
+            )
+    }
+
     buildDeletionConfirmationModal = () => {
-        return (
-            <Modal show={this.state.deleteConfirmationId !== null}
-                onHide={() => this.promisedSetState({ deleteConfirmationId: null })}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>This action will permanently delete this <strong>Active Worker</strong>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => this.promisedSetState({ deleteConfirmationId: null })}>
-                        Close
-                    </Button>
-                    <Button variant="danger" onClick={() => this.deleteWorker()}>
-                        Yes, Delete it
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        if (this.state.deleteConfirmationModalWorker === null)
+            return
+        else
+            return (
+                <Modal show={this.state.deleteConfirmationModalWorker !== null} onHide={() => this.closeDeleteConfirmationModal()}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Deletion</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Do you want to stop and remove this worker: <strong>{this.state.deleteConfirmationModalWorker.name}</strong> ?
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => this.closeDeleteConfirmationModal()}>
+                            Close
+                        </Button>
+                        <Button variant="danger" onClick={() => this.deleteWorker()}>
+                            Yes, Delete it
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            );
     }
 
     componentDidMount = async () => {
@@ -163,6 +227,22 @@ class Workers extends Component {
     componentWillUnmount() {
         clearInterval(this.state.getWorkerTimer);
         lsbridge.unsubscribe('workers');
+    }
+
+    openDetailModal = async (worker) => {
+        this.promisedSetState({ detailModalWorker: worker })
+    }
+
+    closeDetailModal = async () => {
+        this.promisedSetState({ detailModalWorker: null })
+    }
+
+    openDeleteConfirmationModal = async (worker) => {
+        this.promisedSetState({ deleteConfirmationModalWorker: worker })
+    }
+
+    closeDeleteConfirmationModal = async () => {
+        this.promisedSetState({ deleteConfirmationModalWorker: null })
     }
 
     nextPage = async () => {
@@ -218,17 +298,17 @@ class Workers extends Component {
     }
 
     deleteWorker = async () => {
-        if (this.state.deleteConfirmationId !== null) {
+        if (this.state.deleteConfirmationModalWorker !== null) {
             try {
                 await this.promisedSetState({ loadingStatus: "PROGRESS" })
-                await WorkerService.deleteWorker(this.state.deleteConfirmationId)
+                await WorkerService.deleteWorker(this.state.deleteConfirmationModalWorker.id)
                 lsbridge.send('workers');
             }
             catch (error) {
                 NotificationService.showNotification(error.response.data.message, false)
             }
             finally {
-                await this.promisedSetState({ loadingStatus: null, deleteConfirmationId: null })
+                await this.promisedSetState({ loadingStatus: null, deleteConfirmationModalWorker: null })
             }
         }
     }
