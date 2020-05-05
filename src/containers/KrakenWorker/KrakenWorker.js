@@ -340,7 +340,7 @@ class KrakenWorker extends Component {
                     completeJobs: 0,
                     errorJobs: 0
                 })
-                let response = await WorkerService.createWorker(this.getRandomName(), this.getWorkerType(), this.state.workerDevices.join())
+                let response = await WorkerService.createWorker(this.getRandomName(), this.getWorkerType(), this.state.workerDevices.map(device => device['name']).join(', '))
                 data = response.data
             }
             catch (error) {
@@ -390,7 +390,6 @@ class KrakenWorker extends Component {
         window.removeEventListener("beforeunload", ExitHandlerService.handleExit)
 
         // Clear Internvals
-        clearInterval(this.state.workerHeartbeatTimer);
         clearInterval(this.state.workerSparkplugTimer);
         clearInterval(this.state.workerActivationTimer);
 
@@ -401,8 +400,6 @@ class KrakenWorker extends Component {
             workerCracking: false,
             workerReportingJob: false,
 
-            workerLastHeartbeat: null,
-            workerHeartbeatTimer: null,
             workerSparkplugTimer: null,
             workerActivationTimer: null,
             executionStartTime: null,
@@ -466,7 +463,7 @@ class KrakenWorker extends Component {
 
     initializeBrowserWorker = async () => {
         const devices = this.state.workerDevices.slice()
-        devices.push(window.navigator.hardwareConcurrency + " Core Machine")
+        devices.push({ 'name' : window.navigator.hardwareConcurrency + " Core Machine" })
         if (localStorage.getItem('currentActiveCoreCount') !== null)
             await this.promisedSetState({ workerActiveCoreCount: Number(localStorage.getItem('currentActiveCoreCount')), workerDevices : devices })
         else
@@ -762,20 +759,6 @@ class KrakenWorker extends Component {
         })
 
         this.cycle("Job Reporter", success)
-    }
-
-
-    sendHeartbeat = async () => {
-        try {
-            await WorkerService.sendHeartbeat(this.state.workerId);
-            this.setState({ workerLastHeartbeat: new Date() })
-        }
-        catch (error) {
-            console.error("Heartbeat Error " + error.response.data.message)
-            if (error.response.data.code === 231) { // Worker Not Found
-                this.deactivateWorker(); // Deactivate Worker
-            }
-        }
     }
 
     toHHMMSS = (secs) => {
