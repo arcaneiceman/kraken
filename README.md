@@ -14,7 +14,6 @@ Updates:
 
 #### 1.1.1
 
-
 Notice : Kraken's maintenance window is every Sunday by default. Please expect a few hours of interruption if Kraken is being patched or upgraded that day.
 
 Updates:
