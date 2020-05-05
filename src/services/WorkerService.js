@@ -1,7 +1,7 @@
 import axios from './AxiosInstance'
 
-const createWorker = (workerName, workerType) => {
-    const data = {workerName, workerType}
+const createWorker = (workerName, workerType, platform) => {
+    const data = {workerName, workerType, platform}
     return axios.post('/worker', data)
 }
 

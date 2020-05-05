@@ -56,7 +56,7 @@ class CompletedRequests extends Component {
         });
         const tableItems = this.state.completedRequests.map(completedRequest => {
             return (
-                <tr key={completedRequest.id} onClick={() => this.openDetailModal(completedRequest)}>
+                <tr key={completedRequest.id} onClick={() => this.openDetailModal(completedRequest)} className={classes.tableRowWithValue}>
                     <td className={classes.tableItem}><strong>{completedRequest.requestName}</strong></td>
                     <td className={classes.tableItem}>{completedRequest.status}</td>
                     <td className={classes.tableItem}>{completedRequest.totalJobCount} / {completedRequest.completedJobCount} / {completedRequest.errorJobCount}</td>

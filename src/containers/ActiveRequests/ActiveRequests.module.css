@@ -64,6 +64,10 @@
     text-align: left;
 }
 
+.tableRowWithValue {
+    cursor: copy;
+}
+
 .tableItem {
     padding: 15px 10px;
     text-align: left;

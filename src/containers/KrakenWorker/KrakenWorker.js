@@ -52,8 +52,6 @@ class KrakenWorker extends Component {
         /* Worker Variables */
         workerId: null,
         workerName: null,
-        workerLastHeartbeat: null,
-        workerHeartbeatTimer: null,
         workerSparkplugTimer: null,
         workerActivationTimer: null,
         workerJobQueue: [],
@@ -306,15 +304,10 @@ class KrakenWorker extends Component {
     }
 
     componentDidMount = async () => {
-        if (isElectron()) { // Local Worker
-            await this.testDependency()
-        }
-        else // Browser Worker
-            if (localStorage.getItem('currentActiveCoreCount') !== null)
-                await this.promisedSetState({ workerActiveCoreCount: Number(localStorage.getItem('currentActiveCoreCount')) })
-            else
-                await this.promisedSetState({ workerActiveCoreCount: window.navigator.hardwareConcurrency === 1 ? 1 : (window.navigator.hardwareConcurrency - 1) })
-
+        if (isElectron())
+            await this.initializeLocalWorker()
+        else
+            await this.initializeBrowserWorker()
     }
 
     componentWillUnmount() {
@@ -347,7 +340,7 @@ class KrakenWorker extends Component {
                     completeJobs: 0,
                     errorJobs: 0
                 })
-                let response = await WorkerService.createWorker(this.getRandomName(), this.getWorkerType())
+                let response = await WorkerService.createWorker(this.getRandomName(), this.getWorkerType(), this.state.workerDevices.join())
                 data = response.data
             }
             catch (error) {
@@ -364,7 +357,6 @@ class KrakenWorker extends Component {
         window.addEventListener("beforeunload", ExitHandlerService.handleExit)
 
         // Create Intervals
-        const heartbeatTimer = setInterval(() => { this.sendHeartbeat() }, 15000);
         const sparkPlugTimer = setInterval(() => { this.cycle("Interval", true); }, 30000);
         const activationTimer = setInterval(() => { this.setState({ secondsSinceActivation: this.state.secondsSinceActivation + 1 }) }, 1000);
 
@@ -373,7 +365,6 @@ class KrakenWorker extends Component {
             workerActive: "ACTIVE",
             workerId: data.id,
             workerName: data.name,
-            workerHeartbeatTimer: heartbeatTimer,
             workerSparkplugTimer: sparkPlugTimer,
             workerActivationTimer: activationTimer,
             jobFetcher: new JobFetcher(),
@@ -423,7 +414,7 @@ class KrakenWorker extends Component {
         })
     }
 
-    testDependency = async () => {
+    initializeLocalWorker = async () => {
         let tempWorker = JobCrackerLocal(this.uuidv4(), this.retrieveJobFromCrackers)
         await this.promisedSetState({
             workerDependencyModalVisible: false,
@@ -471,6 +462,15 @@ class KrakenWorker extends Component {
                 workerDevices: []
             })
         }
+    }
+
+    initializeBrowserWorker = async () => {
+        const devices = this.state.workerDevices.slice()
+        devices.push(window.navigator.hardwareConcurrency + " Core Machine")
+        if (localStorage.getItem('currentActiveCoreCount') !== null)
+            await this.promisedSetState({ workerActiveCoreCount: Number(localStorage.getItem('currentActiveCoreCount')), workerDevices : devices })
+        else
+            await this.promisedSetState({ workerActiveCoreCount: window.navigator.hardwareConcurrency === 1 ? 1 : (window.navigator.hardwareConcurrency - 1), workerDevices : devices })
     }
 
     /*
