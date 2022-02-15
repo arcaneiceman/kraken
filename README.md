@@ -27,11 +27,13 @@ the <strong>server</strong> and the <strong>browser client</strong>. You can fin
 ```
 docker-compose up
 ```
-Kraken's Browser Client should be accesible at <a href=http://localhost:3000>localhost:3000</a>. To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. Kraken's server runs on <a href=http://localhost:5000>localhost:5000</a> and also hosts swagger documenation at localhost:5000/swagger.
+Kraken's Browser Client should be accesible at <a href=http://localhost:3000>localhost:3000</a>. To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. Kraken's server runs on <a href=http://localhost:5000>localhost:5000</a> and also hosts swagger documenation at <a href=http://localhost:5000/swagger>localhost:5000/swagger</a>.
 
 ##### Portable Desktop Client
 
-The desktop client is an electron based portable application and can be run on Mac, Windows and Linux. Due to sensitive permissions required to function, it is highly recommended that you compile and it yourself using: <syntaxhighlighter language="bash" style="{github}">npm run electron-start</syntaxhighlighter>
+The desktop client is an electron based portable application and can be run on Mac, Windows and Linux. Due to sensitive permissions required to function, it is highly recommended that you compile and it yourself using: 
+
+```npm run electron-start```
 
 ###### Windows
 
@@ -39,7 +41,9 @@ Releases include a zip file with the portable executable and required hashcat fi
 
 ###### Linux
 
-Releases include a Linux **AppImage** which only requires hashcat to be installed through : <syntaxhighlighter language="bash" style="{github}">sudo apt-get install hashcat</syntaxhighlighter>
+Releases include a Linux **AppImage** which only requires hashcat to be installed through : 
+
+```sudo apt-get install hashcat```
 
 ### Note
 
