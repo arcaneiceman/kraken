@@ -27,6 +27,7 @@ the <strong>server</strong> and the <strong>browser client</strong>. You can fin
 ```
 docker-compose up
 ```
+Kraken should be accesible at http:\\localhost:3000. To upload password lists or dictionaries, upload them to minio at http:\\localhost:9001
 
 ##### Portable Desktop Client
 
