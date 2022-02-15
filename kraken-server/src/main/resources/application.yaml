@@ -1,0 +1,153 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# DEPLOYMENT ENVIRONMENT : LOCAL
+#
+# ===================================================================
+
+# Spring Properties
+spring:
+  application:
+    name: Kraken
+  profiles:
+    active: local
+  jackson:
+    serialization.indent_output: true
+  liquibase:
+    enabled: true
+    change-log: classpath:/liquibase/changelog-master.yaml
+    drop-first: false
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: REPLACE
+    username: REPLACE
+    password: REPLACE
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+    database: POSTGRESQL
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.lob.non_contextual_creation: true
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+    show-sql: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      file-size-threshold: 50MB
+      max-request-size: 50MB
+  mail:
+    host: REPLACE
+    port: REPLACE
+    username: REPLACE
+    password: REPLACE
+    test-connection: true
+  thymeleaf:
+    prefix: classpath:/mails/
+    suffix: .html
+    template-resolver-order: 1
+    mode: HTML
+    check-template: true
+  data:
+    web:
+      pageable:
+        page-parameter: pageNumber
+        size-parameter: pageSize
+        one-indexed-parameters: true
+  security:
+    user:
+      name: system-admin@local
+      password: REPLACE
+  boot:
+    admin:
+      context-path: /application
+      client:
+        username: ${spring.security.user.name}
+        password: ${spring.security.user.password}
+        url: http://${server.address}:${server.port}/${spring.boot.admin.context-path}
+        instance:
+          metadata:
+            user:
+              name: ${spring.security.user.name}
+              password: ${spring.security.user.password}
+
+# Actuator Properties
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+
+# Server Properties
+server:
+  address: 0.0.0.0
+  port: 5000
+
+# Liquibase
+liquibase:
+  run-list: diffMain
+
+# Application Properties
+application:
+  context-path: /api # Context path after base url to reach Api
+  api-version: 1.0.0 # Kraken Api Version (Kraken Client must send this header on every request)
+  async: # Async Thread Pool Settings
+    core-pool-size: 5
+    max-pool-size: 5
+    queue-capacity: 100
+    thread-name: Kraken-Async-Thread
+  security: # JWT token for all authenticated requests. A signing key must be specified
+    jwt-token-signing-key: REPLACE
+    jwt-token-validity-in-milliseconds: 999999999 # Default the token effectively never expires
+  password-list-settings: # Password List aka Dictionary Settings
+    password-list-refresh-task-rate-in-milliseconds: 300000 # The rate at which server refreshes list of passwords available in S3 compliant storage
+    storage-path: # Path of password lists in the bucket. Default : [Files are directly in the bucket]
+    min-job-size: 5000 # Number of [password candidate] values in a single "job" (Read Job for mode details)
+  crunch-list-settings: # Crunch List Settings
+    min-job-size: 5000 # Number of [password candidate] values in a single "job" (Read Job for mode details)
+  active-request-settings: # Active Request Settings
+    job-expiry-task-rate-in-milliseconds: 300000 # The rate at which server checks for timed-out jobs
+    worker-expiry-task-rate-in-milliseconds: 120000 # The rate at which server checks for timed-out workers
+  job-settings: # Settings for a Job, a finite set of candidate values for client to test for a hash match
+    job-expiry-window-in-milliseconds: 300000 # Timeout for how long a job can take before its marked as expired and re-queued
+    job-expiry-window-multiplier: 1 # Timeout multiplier ie : 5000ms x 2multiplier = 10000ms for job expiry
+    max-multiplier: 99999 # Maximum Job size multipler ie : 5000 Candidate Values x 100 Multiplier = 50000 candidate values for client to test in request
+  worker-settings: # Settings for Worker Clients
+    worker-expiry-window-in-milliseconds: 30000 # Timeout for how long a worker can take for a heartbeat before marked as expired (and any running job is considered expired)
+    worker-expiry-window-multiplier: 2 # Timeout multiplier ie : 5000ms x 2multiplier = 10000ms for worker expiry
+  mail: # Email Settings to send notification when requests are complete
+    is-in-debug: false # Set this to true to log but _not_ send emails
+    web-url: REPLACE # The link to send in the email
+    from-address: REPLACE # The email from which server addresses will be from
+    retry-attempts: 3 # Attempts to retry sending emails
+    retry-interval: 5000 # Exponential backoff Interval between retries
+    personal: Kraken # The personal name server emails will use
+  recaptcha: # Recaptcha Settings
+    is-in-debug: false # Setting this to true disables Recaptcha
+    url: REPLACE # URL of the Recaptcha Service
+    secret: REPLACE # Secret of Recaptcha Service
+    retry-attempts: 3
+    retry-interval: 500 # Exponential backoff Interval between retries
+  oauth-user-service:
+    is-in-debug: false
+    retry-attempts: 3
+    retry-interval: 500
+    providers:
+      google: https://www.googleapis.com/oauth2/v1/userinfo
+      facebook: https://graph.facebook.com/v2.11/me?fields=email,name
+  swagger: # Swagger Context Path
+    context-path: /swagger
+
+# S3 Compliant Storage Properties
+file-storage:
+  access-key: REPLACE
+  secret-key: REPLACE
+  region: us-west-1
+  bucketname: kraken
+  url: REPLACE

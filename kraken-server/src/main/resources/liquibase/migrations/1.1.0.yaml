@@ -1,0 +1,185 @@
+databaseChangeLog:
+    -   changeSet:
+            id: 1582867804021-3
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: complete_request_id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: completed_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: error_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: list_type
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: list_name
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: total_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: tracking_status
+                                    type: VARCHAR(255)
+                        tableName: complete_request_tracked_lists
+    -   changeSet:
+            id: 1582867804021-4
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: list_name
+                                    type: varchar(255)
+                                    defaultValue: "Unknown List"
+                        tableName: tracked_lists
+    -   changeSet:
+            id: 1582867804021-5
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: request_metadata
+                                    type: TEXT
+                                    defaultValue: "{}"
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1582867804021-6
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: results
+                                    type: TEXT
+                                    defaultValue: "{}"
+                        tableName: active_requests
+    -   changeSet:
+            id: 1582867804021-7
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: results
+                                    type: TEXT
+                        tableName: completed_requests
+
+    -   changeSet:
+            id: 1582867804021-8
+            author: wali.usmani
+            changes:
+                -   sql:
+                        comment: Updating Result Value
+                        sql: update completed_requests set results = CONCAT(CONCAT('{ "result":"', value), '"}') where value IS NOT NULL;
+    -   changeSet:
+            id: 1582867804021-9
+            author: wali.usmani
+            changes:
+                -   sql:
+                        comment: Updating Result Value
+                        sql: update completed_requests set results = '{}' where value IS NULL;
+    -   changeSet:
+            id: 1582867804021-10
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: target_count
+                                    type: int4
+                                    defaultValue: 1
+                        tableName: active_requests
+    -   changeSet:
+            id: 1582867804021-11
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: target_count
+                                    type: int4
+                                    defaultValue: 1
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1582867804021-12
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: complete_request_id
+                        baseTableName: complete_request_tracked_lists
+                        constraintName: FKhka2dywam16ioxd3pju46dyfb
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: id
+                        referencedTableName: completed_requests
+                        validate: true
+    -   changeSet:
+            id: 1582867804021-13
+            author: wali.usmani (generated)
+            changes:
+                -   dropColumn:
+                        columnName: completed_job_count
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1582867804021-14
+            author: wali.usmani (generated)
+            changes:
+                -   dropColumn:
+                        columnName: error_job_count
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1582867804021-15
+            author: wali.usmani (generated)
+            changes:
+                -   dropColumn:
+                        columnName: password_list_name
+                        tableName: tracked_lists
+    -   changeSet:
+            id: 1582867804021-16
+            author: wali.usmani (generated)
+            changes:
+                -   dropColumn:
+                        columnName: total_job_count
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1582867804021-17
+            author: wali.usmani (generated)
+            changes:
+                -   dropColumn:
+                        columnName: value
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1582603454500-18
+            author: wali.usmani (generated)
+            changes:
+                -   modifyDataType:
+                        columnName: request_metadata
+                        newDataType: TEXT
+                        tableName: active_requests
+    -   changeSet:
+            id: 1582867804021-19
+            author: wali.usmani
+            changes:
+                -   sql:
+                        comment: Updating Result Value
+                        sql: update active_requests set request_type = 2500
+    -   changeSet:
+            id: 1582867804021-20
+            author: wali.usmani
+            changes:
+                -   sql:
+                        comment: Updating Result Value
+                        sql: update completed_requests set request_type = 2500

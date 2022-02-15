@@ -1,0 +1,105 @@
+databaseChangeLog:
+    -   changeSet:
+            id: 1583273279068-8
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: completed_job_count
+                                    type: int8
+                        tableName: workers
+    -   changeSet:
+            id: 1583273279068-9
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: error_job_count
+                                    type: int8
+                        tableName: workers
+    -   changeSet:
+            id: 1583273279068-10
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: platform
+                                    type: TEXT
+                        tableName: workers
+    -   changeSet:
+            id: 1583273279068-11
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: total_job_count
+                                    type: int8
+                        tableName: workers
+    -   changeSet:
+            id: 1583273279068-12
+            author: wali.usmani (generated)
+            changes:
+                -   addColumn:
+                        columns:
+                            -   column:
+                                    name: will_expire_at
+                                    type: timestamp
+                        tableName: jobs
+    -   changeSet:
+            id: 1583273279068-13
+            author: wali.usmani (generated)
+            changes:
+                -   dropColumn:
+                        columnName: submitted_at
+                        tableName: jobs
+    -   changeSet:
+            id: 1583273279068-1
+            author: wali.usmani (generated)
+            changes:
+                -   dropDefaultValue:
+                        columnDataType: varchar(255)
+                        columnName: list_name
+                        tableName: tracked_lists
+    -   changeSet:
+            id: 1583273279068-2
+            author: wali.usmani (generated)
+            changes:
+                -   dropDefaultValue:
+                        columnDataType: clob
+                        columnName: request_metadata
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1583273279068-3
+            author: wali.usmani (generated)
+            changes:
+                -   dropDefaultValue:
+                        columnDataType: clob
+                        columnName: results
+                        tableName: active_requests
+    -   changeSet:
+            id: 1583273279068-4
+            author: wali.usmani (generated)
+            changes:
+                -   dropDefaultValue:
+                        columnDataType: int
+                        columnName: target_count
+                        tableName: active_requests
+    -   changeSet:
+            id: 1583273279068-5
+            author: wali.usmani (generated)
+            changes:
+                -   dropDefaultValue:
+                        columnDataType: int
+                        columnName: target_count
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1583273279068-14
+            author: wali.usmani
+            changes:
+                -   sql:
+                        comment: Updating will expire at
+                        sql: update jobs set will_expire_at = CURRENT_TIMESTAMP;

@@ -1,0 +1,440 @@
+databaseChangeLog:
+    -   changeSet:
+            id: 1576387656097-1
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: request_metadata
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: request_name
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: request_type
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: value_to_match_in_base64
+                                    type: TEXT
+                            -   column:
+                                    name: owner_id
+                                    type: VARCHAR(255)
+                        tableName: active_requests
+    -   changeSet:
+            id: 1576387656097-2
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: completed_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: error_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: request_name
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: request_type
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: status
+                                    type: INT
+                            -   column:
+                                    name: total_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: value
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: owner_id
+                                    type: VARCHAR(255)
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1576387656097-3
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: error_count
+                                    type: INT
+                            -   column:
+                                    name: multiplier
+                                    type: BIGINT
+                            -   column:
+                                    name: start_index
+                                    type: BIGINT
+                            -   column:
+                                    name: start_marker
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: submitted_at
+                                    type: TIMESTAMP WITHOUT TIME ZONE
+                            -   column:
+                                    name: tracking_status
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: owner_id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: worker_id
+                                    type: VARCHAR(255)
+                        tableName: jobs
+    -   changeSet:
+            id: 1576387656097-4
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: name
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: charset
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: job_delimiter_set_size
+                                    type: BIGINT
+                            -   column:
+                                    name: job_size
+                                    type: VARCHAR(255)
+                        tableName: password_lists
+    -   changeSet:
+            id: 1576387656097-5
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: end_byte
+                                    type: BIGINT
+                            -   column:
+                                    name: index_number
+                                    type: BIGINT
+                            -   column:
+                                    name: start_byte
+                                    type: BIGINT
+                            -   column:
+                                    name: owner_name
+                                    type: VARCHAR(255)
+                        tableName: password_lists_job_delimiter
+    -   changeSet:
+            id: 1576387656097-6
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: token_digest
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: clean_up_time
+                                    type: BIGINT
+                        tableName: token_blacklist
+    -   changeSet:
+            id: 1576387656097-7
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: list_type
+                                    type: VARCHAR(31)
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: completed_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: error_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: next_job_index
+                                    type: BIGINT
+                            -   column:
+                                    name: total_job_count
+                                    type: BIGINT
+                            -   column:
+                                    name: tracking_status
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: password_list_name
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: characters
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: max
+                                    type: INT
+                            -   column:
+                                    name: min
+                                    type: INT
+                            -   column:
+                                    name: next_job_string
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: pattern
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: owner_id
+                                    type: VARCHAR(255)
+                        tableName: tracked_lists
+    -   changeSet:
+            id: 1576387656097-8
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: activation_key
+                                    type: VARCHAR(20)
+                            -   column:
+                                    name: authority
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: created_at
+                                    type: BIGINT
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: email
+                                    type: VARCHAR(50)
+                            -   column:
+                                    name: is_active
+                                    type: BOOLEAN
+                            -   column:
+                                    name: name
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: password
+                                    type: VARCHAR(60)
+                        tableName: users
+    -   changeSet:
+            id: 1576387656097-9
+            author: wali.usmani (generated)
+            changes:
+                -   createTable:
+                        columns:
+                            -   column:
+                                    constraints:
+                                        nullable: false
+                                    name: id
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: last_check_in
+                                    type: TIMESTAMP WITHOUT TIME ZONE
+                            -   column:
+                                    name: name
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: status
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: type
+                                    type: VARCHAR(255)
+                            -   column:
+                                    name: owner_id
+                                    type: VARCHAR(255)
+                        tableName: workers
+    -   changeSet:
+            id: 1576387656097-10
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: id
+                        constraintName: active_requestsPK
+                        tableName: active_requests
+    -   changeSet:
+            id: 1576387656097-11
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: id
+                        constraintName: completed_requestsPK
+                        tableName: completed_requests
+    -   changeSet:
+            id: 1576387656097-12
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: id
+                        constraintName: jobsPK
+                        tableName: jobs
+    -   changeSet:
+            id: 1576387656097-13
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: name
+                        constraintName: password_listsPK
+                        tableName: password_lists
+    -   changeSet:
+            id: 1576387656097-14
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: id
+                        constraintName: password_lists_job_delimiterPK
+                        tableName: password_lists_job_delimiter
+    -   changeSet:
+            id: 1576387656097-15
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: token_digest
+                        constraintName: token_blacklistPK
+                        tableName: token_blacklist
+    -   changeSet:
+            id: 1576387656097-16
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: id
+                        constraintName: tracked_listsPK
+                        tableName: tracked_lists
+    -   changeSet:
+            id: 1576387656097-17
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: id
+                        constraintName: usersPK
+                        tableName: users
+    -   changeSet:
+            id: 1576387656097-18
+            author: wali.usmani (generated)
+            changes:
+                -   addPrimaryKey:
+                        columnNames: id
+                        constraintName: workersPK
+                        tableName: workers
+    -   changeSet:
+            id: 1576387656097-19
+            author: wali.usmani (generated)
+            changes:
+                -   addUniqueConstraint:
+                        columnNames: email
+                        constraintName: UC_USERSEMAIL_COL
+                        tableName: users
+    -   changeSet:
+            id: 1576387656097-20
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: worker_id
+                        baseTableName: jobs
+                        constraintName: FK8ncjm9xmrqymd6eup4q8pdop4
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: id
+                        referencedTableName: workers
+    -   changeSet:
+            id: 1576387656097-21
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: owner_id
+                        baseTableName: jobs
+                        constraintName: FKd2x9hebld7wqvky9dnu0nxrqc
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: id
+                        referencedTableName: tracked_lists
+    -   changeSet:
+            id: 1576387656097-22
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: owner_id
+                        baseTableName: active_requests
+                        constraintName: FKe4p4veicj5klpwpfrptjjvlne
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: id
+                        referencedTableName: users
+    -   changeSet:
+            id: 1576387656097-23
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: owner_name
+                        baseTableName: password_lists_job_delimiter
+                        constraintName: FKgqo6axkuranc8lhe1se22alfq
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: name
+                        referencedTableName: password_lists
+    -   changeSet:
+            id: 1576387656097-24
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: owner_id
+                        baseTableName: tracked_lists
+                        constraintName: FKoamq9yqepefb282ye55vvlvo1
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: id
+                        referencedTableName: active_requests
+    -   changeSet:
+            id: 1576387656097-25
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: owner_id
+                        baseTableName: completed_requests
+                        constraintName: FKrapk2iw5mwnwc10na3yosr7fy
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: id
+                        referencedTableName: users
+    -   changeSet:
+            id: 1576387656097-26
+            author: wali.usmani (generated)
+            changes:
+                -   addForeignKeyConstraint:
+                        baseColumnNames: owner_id
+                        baseTableName: workers
+                        constraintName: FKy710inl61x6k20wykox10w2v
+                        deferrable: false
+                        initiallyDeferred: false
+                        referencedColumnNames: id
+                        referencedTableName: users
+

@@ -1,0 +1,151 @@
+buildscript {
+    ext {
+        springBootVersion = '2.2.4.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "org.liquibase:liquibase-gradle-plugin:2.0.1"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.liquibase.gradle'
+
+group = 'com.arcaneiceman.kraken'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+// Un-managed Library Versions
+def jjwt_version = '0.9.1'
+def zolando_version = '0.22.0'
+def aws_s3_sdk_version = '1.11.213'
+def apache_maven_artifact_version = '3.5.4'
+def spring_admin_version = '2.2.2'
+def katai_struct_version = '0.8'
+def spring_fox_version = '2.9.2'
+
+dependencies {
+    // Spring
+    compile('org.springframework.boot:spring-boot-starter')
+
+    // Spring Web
+    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+
+    // Actuator
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+
+    // Spring Admin
+    compile ("de.codecentric:spring-boot-admin-starter-server:${spring_admin_version}")
+    compile ("de.codecentric:spring-boot-admin-starter-client:${spring_admin_version}")
+
+    // Security
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile "org.springframework.security:spring-security-data"
+    compile "org.springframework.security:spring-security-oauth2-client"
+
+    // Jackson
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
+    compile "com.fasterxml.jackson.core:jackson-annotations"
+    compile "com.fasterxml.jackson.core:jackson-databind"
+    compile "com.fasterxml.jackson.module:jackson-module-afterburner"
+
+    // Validation
+    compile('org.springframework.boot:spring-boot-starter-validation')
+    
+    // Exceptions
+    compile "org.zalando:problem-spring-web:${zolando_version}"
+
+    // Lombok
+    compileOnly('org.projectlombok:lombok')
+
+    // JWT
+    compile "io.jsonwebtoken:jjwt:${jjwt_version}"
+
+    // Persistence
+    compile "org.hibernate:hibernate-core"
+    compile "org.hibernate:hibernate-entitymanager"
+    compile "org.hibernate:hibernate-envers"
+    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+    compile "com.zaxxer:HikariCP"
+    compile "org.hibernate:hibernate-ehcache"
+    compile "org.postgresql:postgresql"
+    compile "org.liquibase:liquibase-core"
+
+    // Commons
+    compile "org.apache.commons:commons-lang3"
+
+    // S3 
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: "${aws_s3_sdk_version}"
+
+    // Email
+    compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+    compile "org.springframework.boot:spring-boot-starter-mail"
+    compile "org.springframework.retry:spring-retry"
+
+    // Retry Framework
+    compile('org.springframework.retry:spring-retry')
+    compile("org.springframework.boot:spring-boot-starter-aop")
+
+    // Spring Starter Test
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    // Maven Artifact
+    compile group: 'org.apache.maven', name: 'maven-artifact', version: "${apache_maven_artifact_version}"
+
+    // Liquibase
+    liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate5:3.6'
+    liquibaseRuntime sourceSets.main.output
+    liquibaseRuntime sourceSets.main.compileClasspath
+
+    // Spring Annotation Processor
+    compileOnly "org.springframework.boot:spring-boot-configuration-processor"
+
+    // KataiStruct
+    implementation "io.kaitai:kaitai-struct-runtime:${katai_struct_version}"
+
+    // Spring Fox Swagger
+    compile "io.springfox:springfox-swagger2:${spring_fox_version}"
+    compile "io.springfox:springfox-swagger-ui:${spring_fox_version}"
+}
+
+diff.dependsOn compileJava
+diffChangeLog.dependsOn compileJava
+
+liquibase {
+    activities {
+        def changeLogName = getChangeLogFileName()
+        main {
+            driver 'org.postgresql.Driver'
+            url 'jdbc:postgresql://localhost:5432/kraken'
+            username 'root'
+            password 'root'
+            changeLogFile changeLogName
+            classpath 'src/main/java'
+            referenceUrl 'hibernate:spring:com.arcaneiceman.kraken.krakenserver.domain?' +
+                    'dialect=org.hibernate.dialect.PostgreSQL82Dialect&' +
+                    'hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&' +
+                    'hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy'
+        }
+    }
+}
+
+static def getChangeLogFileName() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return 'src/main/resources/liquibase/migrations/' + formattedDate + '-changelog.yaml'
+}
+
+bootJar {
+    launchScript()
+}
