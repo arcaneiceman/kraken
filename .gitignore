@@ -1,16 +1,17 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
-.pnp.js
+kraken-client/node_modules
+kraken-client/.pnp
+kraken-client/.pnp.js
 
 # testing
-/coverage
+kraken-server/s3
 
 # production
-/build
-/dist
+kraken-client/build
+kraken-server/build
+kraken-client/dist
 
 # misc
 .DS_Store

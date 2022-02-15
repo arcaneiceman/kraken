@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+
+    db:
+        container_name: postgres
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_DB: kraken
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+        ports:
+            - "5432:5432"
+
+    s3:
+        container_name: minio
+        image: minio/minio
+        environment:
+            - MINIO_ROOT_USER=admin
+            - MINIO_ROOT_PASSWORD=password
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        volumes:
+          - ./kraken-server/s3:/data
+        command: server /data --console-address ":9001"
+
+    kraken-server:
+        container_name: server
+        image: krakendbpc/kraken-server
+        ports:
+            - "5000:5000"
+        command: java
+                -Dapplication.security.jwt-token-signing-key=password
+                -Dspring.datasource.url=jdbc:postgresql://db:5432/kraken
+                -Dspring.datasource.username=root -Dspring.datasource.password=root
+                -Dfile-storage.url=http://s3:9000
+                -Dfile-storage.access-key=admin -Dfile-storage.secret-key=password
+                -Dspring.security.user.password=password 
+                -Dspring.mail.host=url -Dspring.mail.port=0
+                -Dspring.mail.username=username -Dspring.mail.password=password
+                -Dapplication.mail.from-address=email -Dapplication.mail.web-url=http://localhost:3000
+                -Dapplication.recaptcha.secret=secret
+                -jar kraken-server.jar
+        depends_on:
+          - "db"
+          - "s3"
+
+    kraken-client:
+        container_name: client
+        image: krakendbpc/kraken-client
+        ports:
+            - "3000:80"
+        depends_on:
+          - "kraken-server"
+
+
+
