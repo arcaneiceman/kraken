@@ -33,7 +33,9 @@ Kraken's Browser Client should be accesible at <a href=http://localhost:3000>loc
 
 The desktop client is an electron based portable application and can be run on Mac, Windows and Linux. Due to sensitive permissions required to function, it is highly recommended that you compile and it yourself using: 
 
-```npm run electron-start```
+```
+npm run electron-start
+```
 
 ###### Windows
 
@@ -43,7 +45,10 @@ Releases include a zip file with the portable executable and required hashcat fi
 
 Releases include a Linux **AppImage** which only requires hashcat to be installed through : 
 
-```sudo apt-get install hashcat```
+```
+sudo apt-get install hashcat
+```
+You will have to give AppImage permission via properties to execute. 
 
 ### Note
 
