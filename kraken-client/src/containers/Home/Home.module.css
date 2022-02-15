@@ -1,0 +1,63 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo{
+    width: 50vw;
+    height: 40vh;
+    align-self: center;
+    object-fit: contain;
+}
+
+.title{
+    max-height: 15vh;
+    width: auto;
+    font-size: 6em;
+    text-align: center;
+}
+
+.subTitle{
+    max-height: 10vh;
+    font-size: 2.5em;
+    text-align: center
+}
+
+.disclaimer{
+    margin-top: 1em;
+    text-align: center
+}
+
+.buttonContainer{
+    display: flex;
+    justify-content: center;
+}
+
+.button{
+    font-size: 1.25em;
+    min-width: 5%;
+    min-height: 2.5%;
+    margin: 2.5%;
+    padding:1%;
+    background-color: #557A95;
+    border-color: #557A95;
+}
+
+.formContainer {
+    margin-top: 2em;
+    display: flex;
+    justify-content: center;
+}
+
+.form{
+   max-width: 40vw;
+   min-width: 24vw;
+}
+
+.donationContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}

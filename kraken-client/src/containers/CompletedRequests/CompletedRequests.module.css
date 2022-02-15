@@ -1,0 +1,119 @@
+.mainContainer {
+    background: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    box-shadow: 2px 2px 3px rgba(0,0,0,.05);
+    margin: 0 5px 10px 0;
+    position: relative;
+    text-align: left;
+}
+
+.loadingBackground{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: black;
+    opacity: 0.2;
+}
+
+.loadingSpinner{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 1;
+}
+
+.summarySectionContainer { 
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.summaryLastItem {
+    flex-grow: 1;
+}
+
+.tableHeaderColumnText { 
+    color: #fff;
+    font-weight: 700;
+    padding: 15px 10px;   
+    font-size: 14px;
+    text-align: left;
+}
+
+.tableRowWithValue {
+    cursor: copy;
+}
+
+.tableItem {
+    cursor: copy;
+    padding: 15px 10px;
+    text-align: left;
+    font-size: 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid #dbdbdb;
+    line-height: 1.3;
+}
+.detailModalContainer{
+    display: flex;
+    flex-direction: column;
+}
+
+.detailModalProgressBarContainer{
+    display: flex;
+}
+
+.detailModalDetailContainer{
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
+}
+
+.detailModalHeading{
+    white-space: nowrap;
+    color: #959595;
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 10px;
+}
+
+.detailModalValue{
+    margin: 10px;
+}
+
+.detailModalRequestMetadataContainer{
+    margin: 5px;
+}
+
+.detailModalRequestMetadataTable {
+    margin: 10px;
+}
+
+.detailModalListContainer{
+    margin: 5px;
+}
+
+.detailModalListPillContainer {
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-height: 50px;
+    border-radius: 5px;
+    border: 0.5px solid grey;
+}
+
+.detailModalTrackedListPill {
+  border: none;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 4px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+

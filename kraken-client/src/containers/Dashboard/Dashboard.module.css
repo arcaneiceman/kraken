@@ -1,0 +1,73 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-bottom: 2%;
+}
+
+.dashboardAlertContainer {
+    display: flex;
+    justify-content: center;
+    min-width: 50%;
+    max-width: 50%;
+    align-self: center;
+}
+
+.responsiveLayout {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    min-width: 60%;
+    margin-right: 2.5%;
+}
+
+.side {
+    display: flex;
+    flex-direction: column;
+    min-width: 35%;
+    margin-left: 2.5%
+}
+
+.newRequestTrackedListBox {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    min-height: 50px;
+    border-radius: 5px;
+    border: 0.5px solid grey;
+}
+
+.newRequestTrackedListPill {
+  background-color: #ddd;
+  border: none;
+  color: black;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 4px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.modal_form_label{
+    font-size: 12px;
+    font-weight: 400;
+    color: #524e4e;
+}
+
+.errorMessage {
+    flex-grow: 1;
+    color: red;
+}
+
+.formGroup {
+    margin-bottom: auto
+}

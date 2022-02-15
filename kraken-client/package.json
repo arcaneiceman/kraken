@@ -1,0 +1,223 @@
+{
+	"name": "kraken-client",
+	"author": "arcaneiceman",
+	"email": "waliusmani@gmail.com",
+	"version": "1.1.2",
+	"private": true,
+	"dependencies": {
+		"@babel/core": "7.5.5",
+		"@githubprimer/octicons-react": "^8.5.0",
+		"@svgr/webpack": "4.3.2",
+		"@typescript-eslint/eslint-plugin": "1.13.0",
+		"@typescript-eslint/parser": "1.13.0",
+		"asar": "^2.1.0",
+		"axios": "^0.25.0",
+		"babel-eslint": "10.0.2",
+		"babel-jest": "^24.9.0",
+		"babel-loader": "8.0.6",
+		"babel-plugin-named-asset-import": "^0.3.8",
+		"babel-preset-react-app": "^9.1.2",
+		"bootstrap": "^4.6.1",
+		"camelcase": "^5.2.0",
+		"case-sensitive-paths-webpack-plugin": "2.2.0",
+		"cross-env": "6.0.2",
+		"css-loader": "2.1.1",
+		"dotenv": "6.2.0",
+		"dotenv-expand": "4.2.0",
+		"electron-is-dev": "1.1.0",
+		"electron-log": "^3.0.9",
+		"eslint": "^6.8.0",
+		"eslint-config-react-app": "^5.2.1",
+		"eslint-loader": "2.2.1",
+		"eslint-plugin-flowtype": "3.13.0",
+		"eslint-plugin-import": "2.18.2",
+		"eslint-plugin-jsx-a11y": "6.2.3",
+		"eslint-plugin-react": "7.14.3",
+		"eslint-plugin-react-hooks": "^1.6.1",
+		"file-loader": "3.0.1",
+		"fs-extra": "7.0.1",
+		"html-webpack-plugin": "4.0.0-beta.5",
+		"identity-obj-proxy": "3.0.0",
+		"is-electron": "^2.2.1",
+		"is-wsl": "^1.1.0",
+		"jest": "24.8.0",
+		"jest-environment-jsdom-fourteen": "0.1.0",
+		"jest-resolve": "24.8.0",
+		"jest-watch-typeahead": "0.3.1",
+		"jwt-decode": "^2.2.0",
+		"kaitai-struct": "^0.8.0-SNAPSHOT.11",
+		"lsbridge": "^0.2.0",
+		"markdown-to-jsx": "^6.11.4",
+		"mini-css-extract-plugin": "0.5.0",
+		"optimize-css-assets-webpack-plugin": "5.0.3",
+		"pnp-webpack-plugin": "1.5.0",
+		"postcss-flexbugs-fixes": "4.1.0",
+		"postcss-loader": "3.0.0",
+		"postcss-normalize": "7.0.1",
+		"postcss-preset-env": "6.7.0",
+		"postcss-safe-parser": "4.0.1",
+		"rc-slider": "^8.7.1",
+		"react": "^16.14.0",
+		"react-app-polyfill": "^1.0.6",
+		"react-bootstrap": "^1.6.4",
+		"react-dev-utils": "^10.0.0",
+		"react-dom": "^16.14.0",
+		"react-gist": "^1.2.4",
+		"react-google-recaptcha": "^2.1.0",
+		"react-markdown": "^4.3.1",
+		"react-router-dom": "^5.3.0",
+		"react-router-hash-link": "^1.2.2",
+		"react-social-login": "^3.4.15",
+		"react-social-login-buttons": "^3.6.0",
+		"react-syntax-highlighter": "^12.2.1",
+		"react-toastify": "^5.5.0",
+		"resolve": "1.12.0",
+		"resolve-url-loader": "3.1.0",
+		"sass-loader": "7.2.0",
+		"semver": "6.3.0",
+		"style-loader": "1.0.0",
+		"terser-webpack-plugin": "1.4.1",
+		"tiny-worker": "^2.3.0",
+		"ts-pnp": "1.1.2",
+		"update-electron-app": "^1.2.0",
+		"url-loader": "2.1.0",
+		"webpack": "4.39.1",
+		"webpack-dev-server": "3.2.1",
+		"webpack-manifest-plugin": "2.0.4",
+		"workbox-webpack-plugin": "4.3.1",
+		"worker-loader": "^2.0.0"
+	},
+	"devDependencies": {
+		"concurrently": "4.1.2",
+		"electron": "11.5.0",
+		"electron-builder": "^21.2.0",
+		"genversion": "^2.3.1",
+		"wait-on": "3.3.0"
+	},
+	"main": "public/electron.js",
+	"homepage": "./",
+	"scripts": {
+		"web-start": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node web-scripts/start.js",
+		"web-build": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node web-scripts/build.js",
+		"web-test": "./node_modules/.bin/genversion src/utils/AppVersion.js --es6 && node scripts/test.js",
+		"electron-start": "concurrently \"cross-env BROWSER=none npm run web-start\" \"wait-on http://localhost:3000 && electron .\" ",
+		"electron-build": "npm run web-build && electron-builder --windows --linux",
+		"electron-build-linux": "npm run web-build && electron-builder --linux",
+		"electron-build-windows": "npm run web-build && electron-builder --windows",
+		"electron-build-mac": "npm run web-build && electron-builder --mac"
+	},
+	"build": {
+		"appId": "com.arcaneiceman.kraken.kraken-client",
+		"files": [
+			"*.js",
+			"build",
+			"public/electron.js"
+		],
+		"mac": {
+			"target": [
+				"dmg"
+			],
+			"icon": "src/assets/icons/application/icon.png",
+			"category": "public.app-category.utilities"
+		},
+		"dmg": {
+			"contents": [
+				{
+					"x": 110,
+					"y": 150
+				},
+				{
+					"x": 240,
+					"y": 150,
+					"type": "link",
+					"path": "/Applications"
+				}
+			]
+		},
+		"linux": {
+			"target": [
+				"AppImage"
+			],
+			"category": "Security"
+		},
+		"win": {
+			"target": [
+				"portable"
+			],
+			"icon": "src/assets/icons/application/icon.png"
+		}
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": {
+		"production": [
+			">0.3%",
+			"not ie 11",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version",
+			">0.3%",
+			"not ie 11",
+			"not dead",
+			"not op_mini all"
+		]
+	},
+	"jest": {
+		"roots": [
+			"<rootDir>/src"
+		],
+		"collectCoverageFrom": [
+			"src/**/*.{js,jsx,ts,tsx}",
+			"!src/**/*.d.ts"
+		],
+		"setupFiles": [
+			"react-app-polyfill/jsdom"
+		],
+		"setupFilesAfterEnv": [],
+		"testMatch": [
+			"<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+			"<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+		],
+		"testEnvironment": "jest-environment-jsdom-fourteen",
+		"transform": {
+			"^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+			"^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+			"^(?!.*\\.(js|jsx|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+		},
+		"transformIgnorePatterns": [
+			"[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
+			"^.+\\.module\\.(css|sass|scss)$"
+		],
+		"modulePaths": [],
+		"moduleNameMapper": {
+			"^react-native$": "react-native-web",
+			"^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+		},
+		"moduleFileExtensions": [
+			"web.js",
+			"js",
+			"web.ts",
+			"ts",
+			"web.tsx",
+			"tsx",
+			"json",
+			"web.jsx",
+			"jsx",
+			"node"
+		],
+		"watchPlugins": [
+			"jest-watch-typeahead/filename",
+			"jest-watch-typeahead/testname"
+		]
+	},
+	"babel": {
+		"presets": [
+			"react-app"
+		]
+	}
+}
