@@ -1,4 +1,3 @@
-# kraken-client
 <img width="200" src="https://github.com/arcaneiceman/kraken/blob/master/kraken-client/src/assets/kraken-logo.png"/>
 
 ## Kraken: A multi-platform distributed brute-force password cracking system
