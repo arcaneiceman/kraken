@@ -27,7 +27,7 @@ the <strong>server</strong> and the <strong>browser client</strong>. You can fin
 ```
 docker-compose up
 ```
-Kraken should be accesible at http:\\localhost:3000. To upload password lists or dictionaries, upload them to minio at http:\\localhost:9001
+Kraken's Browser Client should be accesible at <a href=http://localhost:3000>localhost:3000</a>. To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. Kraken's server runs on <a href=http://localhost:5000>localhost:5000</a> and also hosts swagger documenation at localhost:5000/swagger.
 
 ##### Portable Desktop Client
 
