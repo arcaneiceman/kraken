@@ -128,7 +128,7 @@ public class PasswordListService {
         }
     }
 
-    @Async
+    //@Async
     @Scheduled(initialDelay = 60000L,
             fixedDelayString = "${application.password-list-settings.password-list-refresh-task-rate-in-milliseconds}")
     public void checkS3Bucket() throws IOException {
