@@ -205,7 +205,7 @@ public class PasswordListService {
                 passwordListJobDelimiterService.create(jobDelimiterIndex, jobStartMarker, jobOffsetMarker, passwordList);
 
             // Save Password List Length
-            passwordList.setJobDelimiterSetSize(jobDelimiterIndex + 1);
+            passwordList.setJobDelimiterSetSize(jobDelimiterIndex);
             passwordListRepository.save(passwordList);
         }
 
