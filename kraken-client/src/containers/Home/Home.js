@@ -8,7 +8,6 @@ import isElectron from 'is-electron';
 import { Redirect } from 'react-router-dom'
 import AuthenticationService from '../../services/AuthenticationService';
 import Octicon, { Rocket } from '@githubprimer/octicons-react';
-import axios from 'axios'
 
 import classes from './Home.module.css'
 

@@ -11,10 +11,10 @@ self.onmessage = (e) => {
             results: e.data.results,
         }
         var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", process.env.REACT_APP_API_URL + e.data.path, false);
+        xhttp.open("POST", e.data.path, false);
         xhttp.setRequestHeader("Authorization", "Bearer " + e.data.token)
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        xhttp.setRequestHeader("Version", process.env.REACT_APP_API_VERSION)
+        xhttp.setRequestHeader("Version", '1.0.0')
         xhttp.send(JSON.stringify(request));
 
         switch (xhttp.status) {

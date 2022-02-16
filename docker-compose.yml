@@ -51,7 +51,8 @@ services:
         container_name: client
         image: krakendbpc/kraken-client
         ports:
-            - "3000:80"
+            - "8443:443"
+            - "8080:80"
         depends_on:
           - "kraken-server"
 

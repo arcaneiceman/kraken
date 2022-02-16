@@ -27,7 +27,14 @@ the <strong>server</strong> and the <strong>browser client</strong>. You can fin
 ```
 docker-compose up
 ```
-Kraken's Browser Client should be accesible at <a href=http://localhost:3000>localhost:3000</a>. To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. Kraken's server runs on <a href=http://localhost:5000>localhost:5000</a> and also hosts swagger documenation at <a href=http://localhost:5000/swagger>localhost:5000/swagger</a>.
+Kraken's Browser Client should be accessible at <a href=http://localhost:8080>localhost:8080</a> and at <a href="https://localhost:8443">https://localhost:8443 </a>.
+
+<strong>Note</strong>: To run the Browser Client from remote machine, you <strong>MUST</strong> use https. Otherwise, the cracking worker will not function correctly.
+You may have to allow mixed content for the site to function. You can do this by clicking the site settings (lock icon) and enable insecure content. This will be fixed in later issues.
+
+To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. 
+
+Kraken's server runs on <a href=http://localhost:5000>localhost:5000</a> and also hosts swagger documentation at <a href=http://localhost:5000/swagger>localhost:5000/swagger</a>.
 
 ##### Portable Desktop Client
 

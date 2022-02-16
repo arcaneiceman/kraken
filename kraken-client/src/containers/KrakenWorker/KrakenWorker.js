@@ -18,6 +18,7 @@ import SummaryTable from './../../components/SummaryTable/SummaryTable';
 import ExitHandlerService from '../../utils/ExitHandlerService';
 import lsbridge from 'lsbridge'
 import { Prompt } from "react-router-dom";
+import axios from 'axios'
 
 import classes from './KrakenWorker.module.css'
 import 'rc-slider/assets/index.css';
@@ -505,8 +506,9 @@ class KrakenWorker extends Component {
         await this.promisedSetState({ workerGettingJob: true })
 
         // Set Params
+        const url = localStorage.getItem("url") == null ? "http://localhost:5000/api" : localStorage.getItem("url")
         const params = {
-            path: ActiveRequestService.getJobPath(),
+            path: url + ActiveRequestService.getJobPath(),
             token: AuthenticationService.getToken(),
             workerId: this.state.workerId,
             multiplier: Math.max(this.state.workerRecommendedMultiplier, 1),
@@ -704,8 +706,9 @@ class KrakenWorker extends Component {
         let completeJob = jobQueueClone.find((job) => (job.trackingStatus === "COMPLETE" || job.trackingStatus === "ERROR"))
 
         // Set Params
+        const url = localStorage.getItem("url") == null ? "http://localhost:5000/api" : localStorage.getItem("url")
         const params = {
-            path: ActiveRequestService.reportJobPath(),
+            path: url + ActiveRequestService.reportJobPath(),
             token: AuthenticationService.getToken(),
             workerId: this.state.workerId,
             requestId: completeJob.requestId,
