@@ -29,8 +29,11 @@ docker-compose up
 ```
 Kraken's Browser Client should be accessible at <a href=http://localhost:8080>localhost:8080</a> and at <a href="https://localhost:8443">https://localhost:8443 </a>.
 
-<strong>Note</strong>: To run the Browser Client from remote machine, you <strong>MUST</strong> use https. Otherwise, the cracking worker will not function correctly.
-You may have to allow mixed content for the site to function. You can do this by clicking the site settings (lock icon) and enable insecure content. This will be fixed in later issues.
+<strong>Note</strong>: To run the Browser Client from remote machine, you <strong>MUST</strong> use https for both server url and browser url.
+Eg. If you are hosting the server on 192.168.1.2, then browser client will be available at https://192.168.1.2:8443
+and the server url should be https://192.168.1.2:8443/api
+
+. Otherwise, the cracking worker will not function correctly.
 
 To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. 
 

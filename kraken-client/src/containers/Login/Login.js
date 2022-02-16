@@ -166,7 +166,12 @@ class Login extends Component {
     }
 
     componentDidMount = () => {
-        this.autoLogin();
+        if (window.location.protocol === 'https:' && !localStorage.getItem("url").startsWith('https:')){
+            this.promisedSetState({ loadingStatus: 'ERROR', message: "Server url " + localStorage.getItem("url") + " needs to be HTTPS if client is being accessed over HTTPS" })
+        }
+        else {
+            this.autoLogin();
+        }
     }
 
     login = async (event) => {
