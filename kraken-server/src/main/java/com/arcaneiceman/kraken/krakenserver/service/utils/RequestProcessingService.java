@@ -93,7 +93,7 @@ public class RequestProcessingService {
 
         // Filter Hccapx records based in metadata filter and mark their locations in the katai stream
         result.getRequestMetadata().putIfAbsent("Filter On", "");
-        List<String> filterOn = Arrays.stream(result.getRequestMetadata().get("Filter On").split("[\\s\\n,|;:]+"))
+        List<String> filterOn = Arrays.stream(result.getRequestMetadata().get("Filter On").split("[\\\n,|;:]+"))
                 .filter(string -> !string.equals("")).map(String::trim).collect(Collectors.toList());
         List<Long> startPositionMarkers = new ArrayList<>();
         List<String> targetSSIDs = new ArrayList<>();
