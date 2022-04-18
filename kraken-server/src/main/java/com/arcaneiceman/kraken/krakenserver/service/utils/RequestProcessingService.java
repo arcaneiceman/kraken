@@ -134,7 +134,6 @@ public class RequestProcessingService {
 
     private void verifyNTLM(RequestProcessingResult result) {
         List<String> filteredValues = Arrays.stream(new String(result.getUnpackedValue()).split("[\\s\\n,|;:]+"))
-                .filter(ntlmValue -> !Objects.equals(ntlmValue.toLowerCase(), "31d6cfe0d16ae931b73c59d7e0c089c0"))
                 .collect(Collectors.toList());
         if (filteredValues.isEmpty())
             throw new RuntimeException("0 targets matched criteria");
