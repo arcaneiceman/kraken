@@ -94,7 +94,7 @@ public class PasswordListService {
         // Create Request and Set Range
         GetObjectRequest getObjectRequest = new GetObjectRequest(
                 fileStorageConfiguration.getBucketName(), passwordList.getName());
-        getObjectRequest.setRange(passwordListStartJobDelimiter.getStartByte(), passwordListEndJobDelimiter.getEndByte() - 1);
+        getObjectRequest.setRange(passwordListStartJobDelimiter.getStartByte(), passwordListEndJobDelimiter.getEndByte());
 
         // Fetch Object
         ArrayList<String> candidateValues = new ArrayList<>();
@@ -201,8 +201,10 @@ public class PasswordListService {
             }
 
             // If there are left over lines that werent put into the list, put them now
-            if (numOfLinesRead > 0)
+            if (numOfLinesRead > 0) {
                 passwordListJobDelimiterService.create(jobDelimiterIndex, jobStartMarker, jobOffsetMarker, passwordList);
+                jobDelimiterIndex++;
+            }
 
             // Save Password List Length
             passwordList.setJobDelimiterSetSize(jobDelimiterIndex);
