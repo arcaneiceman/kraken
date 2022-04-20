@@ -35,7 +35,8 @@ Kraken's Browser Client should be accessible at:
 Eg. If you are hosting the server on 192.168.1.2, then browser client will be available at https://192.168.1.2:8443
 and the server url should be https://192.168.1.2:8443/api
 
-To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. 
+To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. (Default U: admin P: password)
+Otherwise, you can generate word lists dynamically using crunch. See crunch options and how to use them here:  <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html">crunch man page</a>
 
 Kraken's server runs on <a href=http://localhost:5000>localhost:5000</a> and also hosts swagger documentation at <a href=http://localhost:5000/swagger>localhost:5000/swagger</a>.
 
