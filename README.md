@@ -35,7 +35,7 @@ Kraken's Browser Client should be accessible at:
 Eg. If you are hosting the server on 192.168.1.2, then browser client will be available at https://192.168.1.2:8443
 and the server url should be https://192.168.1.2:8443/api
 
-To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. (Default U: admin P: password)
+To upload password lists or dictionaries, upload them to Minio Console at <a href=http://localhost:9001>localhost:9001</a>. View steps below for a detailed guide
 Otherwise, you can generate word lists dynamically using crunch. See crunch options and how to use them here:  <a href="http://manpages.ubuntu.com/manpages/bionic/man1/crunch.1.html">crunch man page</a>
 
 Kraken's server runs on <a href=http://localhost:5000>localhost:5000</a> and also hosts swagger documentation at <a href=http://localhost:5000/swagger>localhost:5000/swagger</a>.
@@ -67,6 +67,29 @@ Install hashcat:
 sudo apt-get install hashcat
 ```
 You will have to give AppImage permission via properties to execute. 
+
+### Adding WordLists to Kraken
+
+To add your wordlists to minio, here are the steps:
+1. [UI way] Access your minio console at http://localhost:9001/. Should land you here:
+
+![image](https://user-images.githubusercontent.com/4005494/164892721-a2d58af4-b569-4646-a24f-06aa851a1665.png)
+
+2. Log in with u:admin p:password (default; can be changed). A 'kraken' bucket should be present like so:
+
+![image](https://user-images.githubusercontent.com/4005494/164892791-5be36a85-bb72-40ae-a52f-0a2d2802cb0b.png)
+
+3. Hit 'Browse' to see what files are available and add the wordlists you with 'Upload'
+
+![image](https://user-images.githubusercontent.com/4005494/164893024-b55b4a17-1e83-46c3-8363-ffaae5257f77.png)
+
+4. Either wait up to 5 minutes for the server to pick it up or restart the server. You'll know the server has picked up the list when via log. Note: Large lists take a while to index.
+
+![image](https://user-images.githubusercontent.com/4005494/164893050-41ecf42c-c40c-4bde-81eb-dac5eb4b5c74.png)
+
+5. The wordlist should show up when creating the request
+
+![image](https://user-images.githubusercontent.com/4005494/164893097-0b990b97-cae5-4ccd-9474-73d9a9ae31ba.png)
 
 ### Note
 
