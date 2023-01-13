@@ -89,8 +89,8 @@
 	},
 	"devDependencies": {
 		"concurrently": "4.1.2",
-		"electron": "18.3.7",
-		"electron-builder": "^21.2.0",
+		"electron": "22.0.1",
+		"electron-builder": "^23.6.0",
 		"genversion": "^2.3.1",
 		"wait-on": "3.3.0"
 	},
