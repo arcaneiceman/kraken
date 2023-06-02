@@ -1,3 +1,11 @@
+
+---
+> **Warning**
+
+I have been reviewing the Kraken-Client code and since this was my first ever react app, its old, clunky and it needs major improvement (the server needs some work too). In the next few weeks/months I will do my best to rewrite it in either updated React or in another framework. Please feel free to continue using this as is, if you have any trouble please continue to raise issues and provide feedback! Thanks!
+
+---
+
 <p align="center">
   <img width="200" src="https://github.com/arcaneiceman/kraken/blob/master/kraken-client/src/assets/kraken-logo.png"/>
 </p>
